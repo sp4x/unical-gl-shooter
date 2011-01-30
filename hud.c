@@ -1,0 +1,55 @@
+#include <GL/glut.h>
+#include <string.h>
+
+#include "hud.h"
+
+/* Enters othographics projection mode to draw text or images to the
+ * front of the screen */
+void enter_ortho_mode()
+{
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0.0, 1280, 800, 0.0, 0.0, 1.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+}
+
+/* Gets back to perspective projection mode after entering orthographic mode */
+void exit_ortho_mode()
+{
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+}
+
+/* Writes red text on screen in the specified position */
+void draw_text2d (int x, int y, char *string)
+{
+	int len = 0, i = 0;
+	glRasterPos2i(x, y);
+	len = (int)strlen(string);
+	for(i = 0; i < len; i++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[i]);
+}
+
+/* Draws the heads up display on screen */
+void draw_hud()
+{
+	enter_ortho_mode();
+
+	glColor3f (1, 0, 0);
+	glLineWidth (2);
+	glBegin (GL_LINES);
+		glVertex2f (630, 400);
+		glVertex2f (650, 400);
+
+		glVertex2f (640, 390);
+		glVertex2f (640, 410);
+	glEnd();
+	draw_text2d(20, 30, "Score:");
+	
+	exit_ortho_mode();	
+}

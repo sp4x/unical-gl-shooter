@@ -117,9 +117,11 @@ void drawBullet (object_t *obj)
 	obj->pos_y += sin(rot_x_rad)*obj->vel;
 
 	glPushMatrix();
+	glDisable (GL_TEXTURE_2D);
 	glColor3f (1, 1, 0);
 	glTranslatef (obj->pos_x, obj->pos_y, obj->pos_z);
 	glutSolidSphere (0.01, 8, 8);
+	glEnable (GL_TEXTURE_2D);
 	glPopMatrix();
 }
 

@@ -50,30 +50,32 @@ void display()
 
 int main (int argc, char **argv)
 {
-    glutInit (&argc, argv);
-    glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutGameModeString ("1280x800:32@60"); // fullscreen
-    glutEnterGameMode();
-
-    init();
-    glutReshapeFunc (reshape);
-    glutDisplayFunc (display);
-    glutPassiveMotionFunc (mouse_handler);
-    glutKeyboardFunc (key_down);
-    glutKeyboardUpFunc (key_up);
-    glutSpecialFunc (spec_key_down);
-    glutSpecialUpFunc (spec_key_up);
+	glutInit (&argc, argv);
+	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutGameModeString ("1280x800:32@60"); // fullscreen
+	glutEnterGameMode();
+	
+	init();
+	glutReshapeFunc (reshape);
+	glutDisplayFunc (display);
+	glutPassiveMotionFunc (mouse_motion);
+	glutMotionFunc (mouse_motion);
+	glutMouseFunc (mouse_func);
+	glutKeyboardFunc (key_down);
+	glutKeyboardUpFunc (key_up);
+	glutSpecialFunc (spec_key_down);
+	glutSpecialUpFunc (spec_key_up);
 	glutIdleFunc (display);
-
+	
 	glutSetCursor(GLUT_CURSOR_NONE);
 	
 	loadScene("prova");
 	init_camera();
-    atexit(clean);
-    atexit(clean_camera);
+	atexit(clean);
+	atexit(clean_camera);
 	
-    glutMainLoop();
-
+	glutMainLoop();
+	
     return 0;
 }
 

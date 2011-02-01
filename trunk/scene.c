@@ -8,7 +8,7 @@
 #include "scene.h"
 #include "object.h"
 #include "objectlist.h"
-#include "tga.h"
+#include "texture.h"
 
 #define WALL_GAP (CELLSIZE-1)/2
 #define COLLISION_GAP 0.1
@@ -24,11 +24,12 @@ char getSceneCell(int i, int j) {
 }
 
 void drawWall(float min_x, float max_x, float min_z, float max_z) {
+	loadTexture(TEXTURE_BRICK);
 	min_x+=WALL_GAP; max_x-=WALL_GAP; min_z+=WALL_GAP; max_z-=WALL_GAP;
 	float sx = max_x/10, sz = max_z/10, t = HEIGHT/2;
 	glBegin(GL_QUADS);
 	//north wall
-	glColor3f(1,0,0);
+	glColor3f(1,1,1);
 	glTexCoord2d( sx, 0);
 	glVertex3f(max_x, 0, min_z);
 	glTexCoord2d( 0, 0);
@@ -38,7 +39,7 @@ void drawWall(float min_x, float max_x, float min_z, float max_z) {
 	glTexCoord2d( sx, t);
 	glVertex3f(max_x, HEIGHT, min_z);
 	//south wall
-	glColor3f(0,0,1);
+	//~ glColor3f(0,0,1);
 	glTexCoord2d( 0, 0);
 	glVertex3f(min_x, 0, max_z);
 	glTexCoord2d( sx, 0);
@@ -49,7 +50,7 @@ void drawWall(float min_x, float max_x, float min_z, float max_z) {
 	glVertex3f(min_x, HEIGHT, max_z);
 	
 	//east wall
-	glColor3f(0,1,0);
+	//~ glColor3f(0,1,0);
 	glTexCoord2d( sz, 0);
 	glVertex3f(max_x, 0, max_z);
 	glTexCoord2d( 0, 0);
@@ -59,7 +60,7 @@ void drawWall(float min_x, float max_x, float min_z, float max_z) {
 	glTexCoord2d( sz, t);
 	glVertex3f(max_x, HEIGHT, max_z);
 	//west wall
-	glColor3f(1,1,0);
+	//~ glColor3f(1,1,0);
 	glTexCoord2d( 0, 0);
 	glVertex3f(min_x, 0, min_z);
 	glTexCoord2d( sz, 0);
@@ -158,11 +159,20 @@ void drawTop() {
 
 void drawFloor() {
 	glColor3f(1,1,1);
+	loadTexture(TEXTURE_METAL2);
+	int t = lines*CELLSIZE;
+	int s = cols*CELLSIZE;
+	float x = cols*CELLSIZE;
+	float z = lines*CELLSIZE;
 	glBegin(GL_QUADS);
+		glTexCoord2i(0, 0);
 		glVertex3f(0, 0, 0);
-		glVertex3f(0, 0, lines*CELLSIZE);
-		glVertex3f(cols*CELLSIZE, 0, lines*CELLSIZE);
-		glVertex3f(cols*CELLSIZE, 0, 0);
+		glTexCoord2i(0, t);
+		glVertex3f(0, 0, z);
+		glTexCoord2i(s, t);
+		glVertex3f(x, 0, z);
+		glTexCoord2i(s, 0);
+		glVertex3f(x, 0, 0);
 	glEnd();
 }
 
@@ -268,25 +278,13 @@ void loadScene(char *file) {
 	scene->display = drawAll;
 	scene->checkCollisions = checkCollisions;
 	free(buffer);
-	
-	GLint iWidth, iHeight, iComponents;
-	GLenum eFormat;
-	GLubyte *pBytes = gltLoadTGA("texture/brick.tga", &iWidth, &iHeight, &iComponents, &eFormat);
-    glTexImage2D(GL_TEXTURE_2D, 0, iComponents, iWidth, iHeight, 0, eFormat, GL_UNSIGNED_BYTE, pBytes);
-    free(pBytes);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
 
 void clean() {
 	free(scene);
 	object_list->clear();
+	cleanTextures();
 }
 
 

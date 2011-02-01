@@ -6,8 +6,6 @@
 object_list_t *object_list;
 
 void append(object_t *elem) {
-	printf ("appending a %s\n", (elem->type == TYPE_WALL) ? "wall" : "bullet");
-
 	object_list_iterator *tmp = malloc (sizeof(object_list_iterator));
 	tmp->value =elem;
 	tmp->next = object_list->first;

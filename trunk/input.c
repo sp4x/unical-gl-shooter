@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "camera.h"
 #include "objectlist.h"
@@ -15,8 +16,39 @@ int first_time = 1;
 
 int key_state[256];
 int special_state[256];
+int mouse_button_state[5];
 
-void mouse_handler (int x, int y)
+clock_t prev = 0, curr;
+
+enum
+{
+	MOUSE_LEFT_BUTTON = 0,
+	MOUSE_MIDDLE_BUTTON = 1,
+	MOUSE_RIGHT_BUTTON = 2,
+	MOUSE_SCROLL_UP = 3,
+	MOUSE_SCROLL_DOWN = 4
+};
+
+void shoot (void)
+{
+	object_t *bullet = malloc (sizeof(object_t));
+	bullet->pos_x = cam->pos_x;
+	bullet->pos_y = cam->pos_y;
+	bullet->pos_z = cam->pos_z;
+	bullet->rot_x = cam->rot_x;
+	bullet->rot_y = cam->rot_y;
+	bullet->vel = 0.1;
+	bullet->type = TYPE_BULLET;
+	object_list->append (bullet);
+	glutPostRedisplay ();
+}
+
+void mouse_func (int button, int state, int x, int y)
+{
+	mouse_button_state[button] = state == GLUT_DOWN ? DOWN : UP;
+}
+
+void mouse_motion (int x, int y)
 {
 	if (first_time)
 	{
@@ -63,19 +95,6 @@ void mouse_handler (int x, int y)
 
 void key_down (unsigned char key, int x, int y)
 {
-	if (key == ' ')
-	{
-		object_t *bullet = malloc (sizeof(object_t));
-		bullet->pos_x = cam->pos_x;
-		bullet->pos_y = cam->pos_y;
-		bullet->pos_z = cam->pos_z;
-		bullet->rot_x = cam->rot_x;
-		bullet->rot_y = cam->rot_y;
-		bullet->vel = 0.1;
-		bullet->type = TYPE_BULLET;
-		object_list->append (bullet);
-		glutPostRedisplay ();
-	}
 	// DEBUG: stampa la lista degli elementi
 	if (key == 'k')
 	{
@@ -133,5 +152,17 @@ void input_update (void)
 	{
 		glutLeaveGameMode();
 		exit(0);
+	}
+	if (mouse_button_state[MOUSE_LEFT_BUTTON] == DOWN)
+	{
+		// spara un colpo ogni 0.01 secondi circa
+		curr = clock();
+		if (prev == 0)
+			prev = clock();
+		double diff = curr - prev;
+		if (diff / CLOCKS_PER_SEC > 0.1) {
+			shoot();
+			prev = curr;
+		}
 	}
 }

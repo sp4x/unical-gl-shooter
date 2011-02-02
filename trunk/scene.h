@@ -7,10 +7,6 @@
 #define FREE_SPACE '0'
 #define WALL '1'
 
-#define CELLSIZE 5
-#define HEIGHT 10
-
-char *buffer;
 
 struct scene_t {
 	

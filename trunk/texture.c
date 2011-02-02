@@ -29,7 +29,7 @@ GLuint newTexture(const char *texname) {
 		//if all texture slots are used clean the last one
 		free(loaded_textures[i]);
 		
-	loaded_textures[i] = malloc( sizeof(texname) );
+	loaded_textures[i] = malloc( strlen(texname)*sizeof(char) );
 	strcpy(loaded_textures[i], texname);
 	return names[i];
 }
@@ -62,8 +62,8 @@ void loadTexture(const char *texname) {
 }
 
 void cleanTextures() {
-	//~ int i;
-	//~ for (i=0; i<last_texture_index; i++) {
-		//~ free(loaded_textures[i]);
-	//~ }
+	int i;
+	for (i=0; i<last_texture_index; i++) {
+		free(loaded_textures[i]);
+	}
 }

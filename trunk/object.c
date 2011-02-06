@@ -42,7 +42,9 @@ int hasCollision(object_t *obj, float x, float y, float z, float *available_x, f
 	return 0;
 }
 
-void drawWall(object_t *this) {
+/****** Draw functions *******/
+
+void drawWall (object_t *this) {
 	float min_x = this->min_x + WALL_GAP;
 	float max_x = this->max_x - WALL_GAP;
 	float min_z = this->min_z + WALL_GAP;
@@ -96,7 +98,63 @@ void drawWall(object_t *this) {
 	glEnd();
 }
 
-object_t *newWall(float min_x, float max_x, float min_z, float max_z) {
+void drawTop (object_t *this) {
+	glColor3f(0.5,0.5,0.5);
+	glBegin(GL_QUADS);
+		glVertex3f(0, this->max_y, 0);
+		glVertex3f(this->max_x, this->max_y, 0);
+		glVertex3f(this->max_x, this->max_y, this->max_z);
+		glVertex3f(0, this->max_y, this->max_z);
+	glEnd();
+}
+
+void drawFloor (object_t *this) {
+	glColor3f(1,1,1);
+	loadTexture(TEXTURE_METAL2);
+	int t = this->max_z;
+	int s = this->max_x;
+	float x = this->max_x;
+	float z = this->max_z;
+	glBegin(GL_QUADS);
+		glTexCoord2i(0, 0);
+		glVertex3f(0, 0, 0);
+		glTexCoord2i(0, t);
+		glVertex3f(0, 0, z);
+		glTexCoord2i(s, t);
+		glVertex3f(x, 0, z);
+		glTexCoord2i(s, 0);
+		glVertex3f(x, 0, 0);
+	glEnd();
+}
+
+void drawBullet (object_t *this)
+{
+	float rot_x_rad = this->rot_x / 180*3.141592654f;
+	float rot_y_rad = this->rot_y / 180*3.141592654f;
+	
+	this->pos_x += sin(rot_y_rad)*this->vel;
+	this->pos_z += cos(rot_y_rad)*this->vel;
+	this->pos_y += sin(rot_x_rad)*this->vel;
+
+	glPushMatrix();
+		glDisable (GL_TEXTURE_2D);
+		glColor3f (1, 1, 0);
+		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
+		glutSolidSphere (0.01, 8, 8);
+		glEnable (GL_TEXTURE_2D);
+	glPopMatrix();
+}
+
+/****** collision functions *******/
+void bulletCollision (object_t *this)
+{
+	this->energy = 0;
+}
+
+
+/****** Create functions *******/
+
+object_t *newWall (float min_x, float max_x, float min_z, float max_z) {
 	object_t *wall = malloc(sizeof(object_t));
 	wall->min_x = min_x;
 	wall->max_x = max_x;
@@ -106,26 +164,57 @@ object_t *newWall(float min_x, float max_x, float min_z, float max_z) {
 	wall->max_z = max_z;
 	wall->type = TYPE_WALL;
 	wall->display = drawWall;
+	wall->energy = 1000;
 	return wall;
 }
 
-void drawBullet (object_t *obj)
+object_t *newBullet (float pos_x, float pos_y, float pos_z, float rot_x, float rot_y)
 {
-	float rot_x_rad = obj->rot_x / 180*3.141592654f;
-	float rot_y_rad = obj->rot_y / 180*3.141592654f;
+	object_t *bullet = malloc (sizeof(object_t));
+	bullet->pos_x = pos_x;
+	bullet->pos_y = pos_y;
+	bullet->pos_z = pos_z;
+	bullet->rot_x = rot_x;
+	bullet->rot_y = rot_y;
+	bullet->vel = 0.5;
+	bullet->type = TYPE_BULLET;
+	bullet->energy = 1;
 	
-	obj->pos_x += sin(rot_y_rad)*obj->vel;
-	obj->pos_z += cos(rot_y_rad)*obj->vel;
-	obj->pos_y += sin(rot_x_rad)*obj->vel;
-
-	glPushMatrix();
-	glDisable (GL_TEXTURE_2D);
-	glColor3f (1, 1, 0);
-	glTranslatef (obj->pos_x, obj->pos_y, obj->pos_z);
-	glutSolidSphere (0.01, 8, 8);
-	glEnable (GL_TEXTURE_2D);
-	glPopMatrix();
+	bullet->display = drawBullet;
+	bullet->onCollision = bulletCollision;
+	return bullet;
 }
 
+object_t *newFloor (float max_x, float max_y, float max_z)
+{
+	object_t *floor = malloc (sizeof(object_t));
+	floor->max_x = max_x;
+	floor->max_y = max_y;
+	floor->max_z = max_z;
+	floor->min_x = 0;
+	floor->min_y = 0;
+	floor->min_z = 0;
+	floor->type = TYPE_FLOOR;
+	floor->energy = 1;
+	
+	floor->display = drawFloor;
+	return floor;
+}
+
+object_t *newTop (float max_x, float max_y, float max_z)
+{
+	object_t *top = malloc (sizeof(object_t));
+	top->max_x = max_x;
+	top->max_y = max_y;
+	top->max_z = max_z;
+	top->min_x = 0;
+	top->min_y = 0;
+	top->min_z = 0;
+	top->type = TYPE_TOP;
+	top->energy = 1;
+	
+	top->display = drawTop;
+	return top;
+}
 
 

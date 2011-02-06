@@ -4,6 +4,7 @@
 
 #include "camera.h"
 #include "objectlist.h"
+#include "object.h"
 #include "input.h"
 
 // mouse position in previous frame
@@ -29,23 +30,9 @@ enum
 	MOUSE_SCROLL_DOWN = 4
 };
 
-void shoot (void)
-{
-	object_t *bullet = malloc (sizeof(object_t));
-	bullet->pos_x = cam->pos_x;
-	bullet->pos_y = cam->pos_y;
-	bullet->pos_z = cam->pos_z;
-	bullet->rot_x = cam->rot_x;
-	bullet->rot_y = cam->rot_y;
-	bullet->vel = 0.1;
-	bullet->type = TYPE_BULLET;
-	object_list->append (bullet);
-	glutPostRedisplay ();
-}
-
 void mouse_func (int button, int state, int x, int y)
 {
-	mouse_button_state[button] = state == GLUT_DOWN ? DOWN : UP;
+	mouse_button_state[button] = (state == GLUT_DOWN) ? DOWN : UP;
 }
 
 void mouse_motion (int x, int y)
@@ -155,13 +142,16 @@ void input_update (void)
 	}
 	if (mouse_button_state[MOUSE_LEFT_BUTTON] == DOWN)
 	{
-		// spara un colpo ogni 0.01 secondi circa
+		// spara un colpo ogni 0.1 secondi circa
 		curr = clock();
 		if (prev == 0)
 			prev = clock();
 		double diff = curr - prev;
 		if (diff / CLOCKS_PER_SEC > 0.1) {
-			shoot();
+			object_t *bullet = newBullet (
+				cam->pos_x, cam->pos_y, cam->pos_z, cam->rot_x, cam->rot_y);
+			object_list->append (bullet);
+			glutPostRedisplay ();
 			prev = curr;
 		}
 	}

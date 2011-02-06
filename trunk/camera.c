@@ -67,12 +67,20 @@ void strafe_right (void)
 
 void rotate_left (void)
 {
-	cam->rot_y += cam->vel;
+	cam->rot_y += 0.3;
 }
 
 void rotate_right (void)
 {
-	cam->rot_y -= cam->vel;
+	cam->rot_y -= 0.3;
+}
+
+void update (void)
+{
+	glRotatef (-cam->rot_x, 1.0, 0.0, 0.0);
+	glRotatef (-cam->rot_y, 0.0, 1.0, 0.0);
+	glRotatef (180, 0.0, 1.0, 0.0);
+	glTranslatef (-cam->pos_x, -cam->pos_y, -cam->pos_z);
 }
 
 void init_camera (void)
@@ -84,7 +92,7 @@ void init_camera (void)
 	cam->strafe_right = strafe_right;
 	cam->rotate_left = rotate_left;
 	cam->rotate_right = rotate_right;
-
+	cam->update = update;
 	cam->rot_x = 0;
 	cam->rot_y = 0;
 	cam->pos_x = 10;

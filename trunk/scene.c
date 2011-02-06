@@ -9,8 +9,6 @@
 #include "objectlist.h"
 #include "texture.h"
 
-
-
 scene_t *scene;
 
 char *buffer;
@@ -21,102 +19,18 @@ char getSceneCell(int i, int j) {
 	return buffer[index];
 }
 
-
-
-void drawBound(float min_x, float max_x, float min_z, float max_z) {
-	glBegin(GL_LINE_LOOP);
-		//north 
-		glColor3f(0,1,0);
-		glVertex3f(max_x, 0, min_z);
-		glVertex3f(min_x, 0, min_z);
-		glVertex3f(min_x, WALL_HEIGHT, min_z);
-		glVertex3f(max_x, WALL_HEIGHT, min_z);
-		//east 
-		glVertex3f(max_x, 0, max_z);
-		glVertex3f(max_x, 0, min_z);
-		glVertex3f(max_x, WALL_HEIGHT, min_z);
-		glVertex3f(max_x, WALL_HEIGHT, max_z);
-		//south 
-		glVertex3f(min_x, 0, max_z);
-		glVertex3f(max_x, 0, max_z);
-		glVertex3f(max_x, WALL_HEIGHT, max_z);
-		glVertex3f(min_x, WALL_HEIGHT, max_z);
-		//west 
-		glVertex3f(min_x, 0, min_z);
-		glVertex3f(min_x, 0, max_z);
-		glVertex3f(min_x, WALL_HEIGHT, max_z);
-		glVertex3f(min_x, WALL_HEIGHT, min_z);
-	glEnd();
-}
-
-void drawBounds() {
+void drawScene() {
 	object_list_iterator *i = object_list->first;
 	while (i != NULL) {
 		object_t *obj = i->value;
-		drawBound(obj->min_x, obj->max_x, obj->min_z, obj->max_z);
-		i = i->next;
-	}
-}
-
-
-void drawObjects() {
-	object_list_iterator *i = object_list->first;
-	while (i != NULL) {
-		object_t *obj = i->value;
-		if (obj->type == TYPE_WALL) {
+		if (obj->energy > 0) {
 			obj->display(obj);
 			i = i->next;
-		}
-		else if (obj->type == TYPE_BULLET)
-		{
+		} else {
 			i = i->next;
-			object_t *coll = scene->checkCollisions (obj->pos_x, obj->pos_y, obj->pos_z, NULL, NULL, NULL);
-			if (coll == NULL) {
-				drawBullet(obj);
-			} else if (coll->type == TYPE_TURRET) {
-				// do something
-			} else {
-				object_list->delete (obj);
-			}
-				
+			object_list->delete (obj);
 		}
 	}
-}
-
-void drawTop() {
-	glColor3f(0.5,0.5,0.5);
-	glBegin(GL_QUADS);
-		glVertex3f(0, WALL_HEIGHT, 0);
-		glVertex3f(cols*CELLSIZE, WALL_HEIGHT, 0);
-		glVertex3f(cols*CELLSIZE, WALL_HEIGHT, lines*CELLSIZE);
-		glVertex3f(0, WALL_HEIGHT, lines*CELLSIZE);
-	glEnd();
-}
-
-void drawFloor() {
-	glColor3f(1,1,1);
-	loadTexture(TEXTURE_METAL2);
-	int t = lines*CELLSIZE;
-	int s = cols*CELLSIZE;
-	float x = cols*CELLSIZE;
-	float z = lines*CELLSIZE;
-	glBegin(GL_QUADS);
-		glTexCoord2i(0, 0);
-		glVertex3f(0, 0, 0);
-		glTexCoord2i(0, t);
-		glVertex3f(0, 0, z);
-		glTexCoord2i(s, t);
-		glVertex3f(x, 0, z);
-		glTexCoord2i(s, 0);
-		glVertex3f(x, 0, 0);
-	glEnd();
-}
-
-void drawAll() {
-	drawObjects();
-	drawFloor();
-	drawTop();
-	//drawBounds();
 }
 
 
@@ -145,8 +59,6 @@ char *readData(char *file, int *lines, int *cols) {
 	
 	return buffer;
 }
-
-
 
 void findWalls() {
 	int i,j;
@@ -201,7 +113,14 @@ void loadScene(char *file) {
 	buffer = readData(file, &lines, &cols);
 	createObjectList();
 	findWalls();
-	scene->display = drawAll;
+	float max_x = cols*CELLSIZE;
+	float max_z = lines*CELLSIZE;
+	object_t *floor = newFloor (max_x, WALL_HEIGHT, max_z);
+	object_list->append (floor);
+	object_t *top = newTop (max_x, WALL_HEIGHT, max_z);
+	object_list->append (top);
+	
+	scene->display = drawScene;
 	scene->checkCollisions = checkCollisions;
 	free(buffer);
 }

@@ -3,7 +3,7 @@
 
 #define PI 3.141592654f;
 
-struct camera_t
+typedef struct camera_t
 {
 	// camera position
 	float pos_x, pos_y, pos_z;
@@ -20,9 +20,9 @@ struct camera_t
 	void (*strafe_right) (void);
 	void (*rotate_left) (void);
 	void (*rotate_right) (void);
-};
-
-typedef struct camera_t camera_t;
+	void (*update) (void);
+	
+} camera_t;
 
 extern camera_t *cam;
 

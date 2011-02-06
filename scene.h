@@ -8,19 +8,16 @@
 #define WALL '1'
 
 
-struct scene_t {
+typedef struct scene_t {
 	
-	void (*display)();
-	object_t * (*checkCollisions)(float, float, float, float *, float *, float *);
-};
+	void (*display) (void);
+	object_t * (*checkCollisions) (float, float, float, float *, float *, float *);
+	
+} scene_t;
 
-typedef struct scene_t scene_t;
 extern scene_t *scene;
 
-
-
-void loadScene(char *file);
-void clean();
-
+void loadScene (char *file);
+void clean (void);
 
 #endif

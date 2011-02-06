@@ -8,6 +8,8 @@
 #include "input.h"
 #include "hud.h"
 
+char *resolution = "1280x800:32@60";
+
 void init (void)
 {
 	glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -35,15 +37,11 @@ void display()
 	input_update();
 
 	glPushMatrix();
-		glRotatef (-cam->rot_x, 1.0, 0.0, 0.0);
-		glRotatef (-cam->rot_y, 0.0, 1.0, 0.0);
-		glRotatef (180, 0.0, 1.0, 0.0);
-		glTranslatef (-cam->pos_x, -cam->pos_y, -cam->pos_z);
-
+		cam->update();
 		scene->display();
 	glPopMatrix();
 
-	draw_hud();
+	draw_hud(); 
 
 	glutSwapBuffers();
 }
@@ -52,7 +50,7 @@ int main (int argc, char **argv)
 {
 	glutInit (&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutGameModeString ("1280x800:32@60"); // fullscreen
+	glutGameModeString (resolution); // fullscreen
 	glutEnterGameMode();
 	
 	init();

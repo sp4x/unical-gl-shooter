@@ -67,7 +67,11 @@ void findWalls() {
 	//horizontal walls
 	for (i=0; i<lines; i++)
 		for (j=0; j<cols; j++) {
-			if ( !wall && getSceneCell(i,j) == WALL && j<cols-1 && getSceneCell(i,j+1) != FREE_SPACE ) {
+			if ( !wall && getSceneCell(i,j) == TURRET) {
+				object_t *turret = newTurret( j*CELLSIZE, (j+1)*CELLSIZE, i*CELLSIZE, (i+1)*CELLSIZE);
+				object_list->append(turret);
+			}
+			else if ( !wall && getSceneCell(i,j) == WALL && j<cols-1 && getSceneCell(i,j+1) != FREE_SPACE ) {
 				wall = newWall( j*CELLSIZE, 0, i*CELLSIZE, (i+1)*CELLSIZE);
 			}
 			else if ( wall ) {
@@ -97,15 +101,43 @@ void findWalls() {
 		}
 }
 
-object_t *checkCollisions(float x, float y, float z, float *available_x, float *available_y, float *available_z) {
+object_t *checkCollisions(object_t *collider, int modify ) {
+	float *available_x, *available_y, *available_z;
+	if (!modify) {
+		available_x = available_y = available_z = NULL;
+	}
+	else {
+		available_x = &collider->pos_x;
+		available_y = &collider->pos_y;
+		available_z = &collider->pos_z;
+	}
 	object_list_iterator *i = object_list->first;
 	object_t *obj = NULL;
 	while (i != NULL) {
-		if ( hasCollision(i->value, x, y, z, available_x, available_y, available_z) )
+		if ( hasCollision(i->value, collider->pos_x, collider->pos_y, collider->pos_z, available_x, available_y, available_z) )
 			obj = i->value;
 		i = i->next;
 	}
 	return obj;
+}
+
+void updateFunc() {
+	object_list_iterator *i = object_list->first;
+	object_t *obj = NULL;
+	while (i != NULL) {
+		object_t *collider = i->value;
+		if ( collider->type == TYPE_BULLET) {
+			obj = checkCollisions(collider, 0 );
+			if ( obj!=NULL && obj->type != TYPE_CHARACTER ) {
+				obj->onCollision(obj);
+				collider->energy = 0;
+			}
+		}
+		else if ( collider->type == TYPE_CHARACTER ) {
+			obj = checkCollisions(collider, 1 );
+		}
+		i = i->next;
+	}
 }
 
 void loadScene(char *file) {
@@ -121,6 +153,7 @@ void loadScene(char *file) {
 	object_list->append (top);
 	
 	scene->display = drawScene;
+	scene->update = updateFunc;
 	scene->checkCollisions = checkCollisions;
 	free(buffer);
 }
@@ -131,6 +164,8 @@ void clean() {
 	object_list->clear();
 	cleanTextures();
 }
+
+
 
 
 

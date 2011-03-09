@@ -7,6 +7,7 @@
 #define TYPE_TURRET 2
 #define TYPE_FLOOR 3
 #define TYPE_TOP 4
+#define TYPE_CHARACTER 5
 
 #define CELLSIZE 5
 #define WALL_HEIGHT 10
@@ -37,5 +38,7 @@ object_t *newWall (float min_x, float max_x, float min_z, float max_z);
 object_t *newBullet (float pos_x, float pos_y, float pos_z, float rot_x, float rot_y);
 object_t *newFloor (float max_x, float max_y, float max_z);
 object_t *newTop (float max_x, float max_y, float max_z);
+object_t *newTurret (float min_x, float max_x, float min_z, float max_z);
+void doNothing();
 
 #endif

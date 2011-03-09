@@ -6,12 +6,14 @@
 
 #define FREE_SPACE '0'
 #define WALL '1'
+#define TURRET 't'
 
 
 typedef struct scene_t {
 	
 	void (*display) (void);
-	object_t * (*checkCollisions) (float, float, float, float *, float *, float *);
+	void (*update) (void);
+	object_t * (*checkCollisions) (object_t *collider, int modify );
 	
 } scene_t;
 

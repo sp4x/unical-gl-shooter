@@ -46,14 +46,14 @@ void mouse_motion (int x, int y)
 	float x_diff = x - mouse_x;
 	float y_diff = y - mouse_y;	
 
-	cam->rot_x -= y_diff;
-	if (cam->rot_x > 90)
-		cam->rot_x = 90;
-	if (cam->rot_x < -90)
-		cam->rot_x = -90;
-	cam->rot_y -= x_diff;
-	if (cam->rot_y > 360 || cam->rot_y < -360)
-		cam->rot_y = 0;
+	cam->character->rot_x -= y_diff;
+	if (cam->character->rot_x > 90)
+		cam->character->rot_x = 90;
+	if (cam->character->rot_x < -90)
+		cam->character->rot_x = -90;
+	cam->character->rot_y -= x_diff;
+	if (cam->character->rot_y > 360 || cam->character->rot_y < -360)
+		cam->character->rot_y = 0;
 
 	mouse_x = x;
 	mouse_y = y;
@@ -149,7 +149,7 @@ void input_update (void)
 		double diff = curr - prev;
 		if (diff / CLOCKS_PER_SEC > 0.1) {
 			object_t *bullet = newBullet (
-				cam->pos_x, cam->pos_y, cam->pos_z, cam->rot_x, cam->rot_y);
+				cam->character->pos_x, cam->character->pos_y, cam->character->pos_z, cam->character->rot_x, cam->character->rot_y);
 			object_list->append (bullet);
 			glutPostRedisplay ();
 			prev = curr;

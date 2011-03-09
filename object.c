@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <GL/gl.h>
+#include <GL/glut.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -145,12 +146,23 @@ void drawBullet (object_t *this)
 	glPopMatrix();
 }
 
-/****** collision functions *******/
-void bulletCollision (object_t *this)
+
+void drawTurret (object_t *this)
 {
-	this->energy = 0;
+	glPushMatrix();
+	glTranslatef(this->pos_x, this->pos_y, this->pos_z);
+	glRotatef( -90, 1, 0, 0 );
+	glutSolidCone(CELLSIZE/2, this->max_y, 30, 30);
+	//~ glutSolidCube(CELLSIZE/2);
+	glPopMatrix();
 }
 
+/****** collision functions *******/
+
+void turretCollision (object_t *this)
+{
+	this->energy -= 10;
+}
 
 /****** Create functions *******/
 
@@ -165,6 +177,7 @@ object_t *newWall (float min_x, float max_x, float min_z, float max_z) {
 	wall->type = TYPE_WALL;
 	wall->display = drawWall;
 	wall->energy = 1000;
+	wall->onCollision = doNothing;
 	return wall;
 }
 
@@ -181,7 +194,7 @@ object_t *newBullet (float pos_x, float pos_y, float pos_z, float rot_x, float r
 	bullet->energy = 1;
 	
 	bullet->display = drawBullet;
-	bullet->onCollision = bulletCollision;
+	bullet->onCollision = doNothing;
 	return bullet;
 }
 
@@ -189,7 +202,7 @@ object_t *newFloor (float max_x, float max_y, float max_z)
 {
 	object_t *floor = malloc (sizeof(object_t));
 	floor->max_x = max_x;
-	floor->max_y = max_y;
+	floor->max_y = 0;
 	floor->max_z = max_z;
 	floor->min_x = 0;
 	floor->min_y = 0;
@@ -198,6 +211,7 @@ object_t *newFloor (float max_x, float max_y, float max_z)
 	floor->energy = 1;
 	
 	floor->display = drawFloor;
+	floor->onCollision = doNothing;
 	return floor;
 }
 
@@ -208,13 +222,35 @@ object_t *newTop (float max_x, float max_y, float max_z)
 	top->max_y = max_y;
 	top->max_z = max_z;
 	top->min_x = 0;
-	top->min_y = 0;
+	top->min_y = max_y;
 	top->min_z = 0;
 	top->type = TYPE_TOP;
 	top->energy = 1;
 	
 	top->display = drawTop;
+	top->onCollision = doNothing;
 	return top;
 }
+
+object_t *newTurret (float min_x, float max_x, float min_z, float max_z) {
+	object_t *turret = malloc(sizeof(object_t));
+	turret->min_x = min_x;
+	turret->max_x = max_x;
+	turret->min_y = 0;
+	turret->max_y = WALL_HEIGHT/2;
+	turret->min_z = min_z;
+	turret->max_z = max_z;
+	turret->type = TYPE_TURRET;
+	turret->display = drawTurret;
+	turret->energy = 100;
+	turret->pos_x = min_x+CELLSIZE/2;
+	turret->pos_y = 0;
+	turret->pos_z = min_z+CELLSIZE/2;
+	turret->onCollision = turretCollision;
+	return turret;
+}
+
+void doNothing() {}
+
 
 

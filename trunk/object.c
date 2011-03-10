@@ -7,6 +7,7 @@
 
 #include "object.h"
 #include "texture.h"
+#include "camera.h"
 
 #define COLLISION_GAP 0.1
 #define WALL_GAP (CELLSIZE-1)/2
@@ -150,10 +151,17 @@ void drawBullet (object_t *this)
 void drawTurret (object_t *this)
 {
 	glPushMatrix();
-	glTranslatef(this->pos_x, this->pos_y, this->pos_z);
-	glRotatef( -90, 1, 0, 0 );
-	glutSolidCone(CELLSIZE/2, this->max_y, 30, 30);
-	//~ glutSolidCube(CELLSIZE/2);
+	glTranslatef(this->pos_x, this->pos_y+CELLSIZE/2, this->pos_z);
+	object_t *character = cam->character;
+	float vector[] = { character->pos_x-this->pos_x, 0, character->pos_z-this->pos_z };
+	float radius = sqrt( vector[0]*vector[0] + vector[2]*vector[2] );
+	float angle = acos( vector[0]/radius );
+	this->rot_y = angle*180/M_PI - 90;
+	if ( vector[2] < 0 )
+		this->rot_y = 180-this->rot_y;
+	glRotatef( -this->rot_y, 0, 1, 0 );
+	glColor3f(1,0,0);
+	glutSolidCone(CELLSIZE/4, CELLSIZE/2, 30, 30);
 	glPopMatrix();
 }
 

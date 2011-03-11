@@ -13,10 +13,12 @@ char *resolution = "1280x800:32@60";
 void init (void)
 {
 	glClearColor (0.0, 0.0, 0.0, 0.0);
-	glShadeModel (GL_FLAT);
+	glShadeModel (GL_SMOOTH);
 	glEnable (GL_CULL_FACE);
 	glCullFace (GL_BACK);
 	glEnable (GL_DEPTH_TEST);
+	glEnable (GL_LIGHTING);
+	glEnable (GL_COLOR_MATERIAL);
 	glEnable (GL_TEXTURE_2D);
 }
 

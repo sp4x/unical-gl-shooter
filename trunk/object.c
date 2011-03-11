@@ -57,6 +57,7 @@ void drawWall (object_t *this) {
 	float sx = max_x/10, sz = max_z/10, t = WALL_HEIGHT/2;
 	glBegin(GL_QUADS);
 	//north wall
+	glNormal3f(0,0,-1);
 	glColor3f(1,1,1);
 	glTexCoord2d( sx, 0);
 	glVertex3f(max_x, 0, min_z);
@@ -67,6 +68,7 @@ void drawWall (object_t *this) {
 	glTexCoord2d( sx, t);
 	glVertex3f(max_x, WALL_HEIGHT, min_z);
 	//south wall
+	glNormal3f(0,0,1);
 	//~ glColor3f(0,0,1);
 	glTexCoord2d( 0, 0);
 	glVertex3f(min_x, 0, max_z);
@@ -78,6 +80,7 @@ void drawWall (object_t *this) {
 	glVertex3f(min_x, WALL_HEIGHT, max_z);
 	
 	//east wall
+	glNormal3f(1,0,0);
 	//~ glColor3f(0,1,0);
 	glTexCoord2d( sz, 0);
 	glVertex3f(max_x, 0, max_z);
@@ -88,6 +91,7 @@ void drawWall (object_t *this) {
 	glTexCoord2d( sz, t);
 	glVertex3f(max_x, WALL_HEIGHT, max_z);
 	//west wall
+	glNormal3f(-1,0,0);
 	//~ glColor3f(1,1,0);
 	glTexCoord2d( 0, 0);
 	glVertex3f(min_x, 0, min_z);
@@ -103,6 +107,7 @@ void drawWall (object_t *this) {
 void drawTop (object_t *this) {
 	glColor3f(0.5,0.5,0.5);
 	glBegin(GL_QUADS);
+		glNormal3f(0,-1,0);
 		glVertex3f(0, this->max_y, 0);
 		glVertex3f(this->max_x, this->max_y, 0);
 		glVertex3f(this->max_x, this->max_y, this->max_z);
@@ -118,6 +123,7 @@ void drawFloor (object_t *this) {
 	float x = this->max_x;
 	float z = this->max_z;
 	glBegin(GL_QUADS);
+		glNormal3f(0,1,0);
 		glTexCoord2i(0, 0);
 		glVertex3f(0, 0, 0);
 		glTexCoord2i(0, t);

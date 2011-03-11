@@ -19,7 +19,15 @@ char getSceneCell(int i, int j) {
 	return buffer[index];
 }
 
+void placeLights() {
+	GLfloat position[] = {cols/2*CELLSIZE, WALL_HEIGHT*2, lines/2*CELLSIZE, 1};
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
+	//~ GLfloat spot_direction[] = {0,-1,0};
+	//~ glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
+}
+
 void drawScene() {
+	placeLights();
 	object_list_iterator *i = object_list->first;
 	while (i != NULL) {
 		object_t *obj = i->value;
@@ -140,6 +148,17 @@ void updateFunc() {
 	}
 }
 
+void addLighting() {
+	//~ GLfloat ambient[] = {0.1,0.1,0.1,0};
+	//~ glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	
+	GLfloat diffuse[] = {0.7,0.7,0.7,0};
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	
+	glEnable(GL_LIGHT0);
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+}
+
 void loadScene(char *file) {
 	scene = malloc(sizeof(scene_t));
 	buffer = readData(file, &lines, &cols);
@@ -156,6 +175,8 @@ void loadScene(char *file) {
 	scene->update = updateFunc;
 	scene->checkCollisions = checkCollisions;
 	free(buffer);
+	
+	addLighting();
 }
 
 

@@ -1,7 +1,6 @@
 
 #include <stdio.h>
-#include <GL/gl.h>
-#include <GL/glut.h>
+#include <GL/glu.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -156,19 +155,29 @@ void drawBullet (object_t *this)
 
 void drawTurret (object_t *this)
 {
-	glPushMatrix();
-	glTranslatef(this->pos_x, this->pos_y+CELLSIZE/2, this->pos_z);
 	object_t *character = cam->character;
 	float vector[] = { character->pos_x-this->pos_x, 0, character->pos_z-this->pos_z };
 	float radius = sqrt( vector[0]*vector[0] + vector[2]*vector[2] );
 	float angle = acos( vector[0]/radius );
-	this->rot_y = angle*180/M_PI - 90;
-	if ( vector[2] < 0 )
-		this->rot_y = 180-this->rot_y;
-	glRotatef( -this->rot_y, 0, 1, 0 );
-	glColor3f(1,0,0);
-	glutSolidCone(CELLSIZE/4, CELLSIZE/2, 30, 30);
+	this->rot_y = ( vector[2]>=0 ? 0 : 180);
+	this->rot_y -= (angle*180/M_PI - 90);
+	this->rot_y *= ( vector[2]>=0 ? 1 : -1);
+	
+	GLUquadricObj *quadric = gluNewQuadric();
+	glPushMatrix();
+		glTranslatef(this->pos_x, this->pos_y, this->pos_z);
+		glPushMatrix();
+			glRotatef(-90, 1, 0, 0);
+			gluCylinder(quadric, 0.5, 0.5, this->max_y*0.5, 20, 20);
+		glPopMatrix();
+		glTranslatef(0, this->max_y*0.5, 0);
+		gluSphere(quadric, 0.6, 20, 20);
+		glRotatef( this->rot_y, 0, 1, 0);
+		glDisable(GL_CULL_FACE);
+		gluCylinder(quadric, 0.1, 0.1, CELLSIZE/2, 20, 20);
+		glEnable(GL_CULL_FACE);
 	glPopMatrix();
+	gluDeleteQuadric(quadric);
 }
 
 /****** collision functions *******/

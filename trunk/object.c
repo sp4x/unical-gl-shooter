@@ -11,6 +11,7 @@
 #define COLLISION_GAP 0.1
 #define WALL_GAP (CELLSIZE-1)/2
 
+void doNothing (object_t *this, object_t *obj) {}
 
 int hasCollision(object_t *obj, float x, float y, float z, float *available_x, float *available_y, float *available_z) {
 	if (x > obj->min_x && x < obj->max_x 
@@ -180,16 +181,47 @@ void drawTurret (object_t *this)
 	gluDeleteQuadric(quadric);
 }
 
-/****** collision functions *******/
+/****** onCollision functions *******/
 
-void turretCollision (object_t *this)
+void turretCollision (object_t *this, object_t *obj)
 {
 	this->energy -= 10;
 }
 
+void bulletCollision (object_t *this, object_t *obj)
+{
+	this->energy = 0;
+}
+
+void characterCollision (object_t *this, object_t *obj)
+{
+	if (obj->type == TYPE_BULLET)
+		this->energy -= 1;
+}
+
 /****** Create functions *******/
 
-object_t *newWall (float min_x, float max_x, float min_z, float max_z) {
+void displayNothing (object_t *this) {}
+
+object_t *newCharacter (int pos_x, int pos_y, int pos_z)
+{
+	object_t *character = malloc(sizeof(object_t));
+	character->type = TYPE_CHARACTER;
+	character->rot_x = 0;
+	character->rot_y = 0;
+	character->pos_x = pos_x;
+	character->pos_y = pos_y;
+	character->pos_z = pos_z;
+	character->vel = 0.1;
+	character->energy = 100;
+	character->score = 0;
+	character->display = displayNothing;
+	character->onCollision = characterCollision;
+	return character;
+}
+
+object_t *newWall (float min_x, float max_x, float min_z, float max_z) 
+{
 	object_t *wall = malloc(sizeof(object_t));
 	wall->min_x = min_x;
 	wall->max_x = max_x;
@@ -217,7 +249,7 @@ object_t *newBullet (float pos_x, float pos_y, float pos_z, float rot_x, float r
 	bullet->energy = 1;
 	
 	bullet->display = drawBullet;
-	bullet->onCollision = doNothing;
+	bullet->onCollision = bulletCollision;
 	return bullet;
 }
 
@@ -272,8 +304,4 @@ object_t *newTurret (float min_x, float max_x, float min_z, float max_z) {
 	turret->onCollision = turretCollision;
 	return turret;
 }
-
-void doNothing() {}
-
-
 

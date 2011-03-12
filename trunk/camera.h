@@ -8,12 +8,6 @@
 typedef struct camera_t
 {
 	object_t *character;
-	// camera position
-	//~ float pos_x, pos_y, pos_z;
-	// camera rotation
-	//~ float rot_x, rot_y;
-	// movement's velocity
-	//~ float vel;
 	// movements limits
 	int min_y, max_y;
 	

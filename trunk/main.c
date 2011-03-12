@@ -1,10 +1,6 @@
-#include <X11/Xlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glxext.h>
 #include <GL/glut.h>
 
 #include "scene.h"
@@ -46,17 +42,17 @@ void display()
 
 	glPushMatrix();
 	gettimeofday (&current_millisecs, NULL);
-	double curr = current_millisecs.tv_sec + (current_millisecs.tv_usec / 1000000.0);
-	double prev = last_milisecs_drawn.tv_sec + (last_milisecs_drawn.tv_usec / 1000000.0);
+	double curr = current_millisecs.tv_sec + (current_millisecs.tv_usec / 1.0E6);
+	double prev = last_milisecs_drawn.tv_sec + (last_milisecs_drawn.tv_usec / 1.0E6);
 	//~ printf ("%f %f diff: %f > %f\n ", curr, prev, curr-prev, 1.0/60.0);
-	if ((curr - prev) >= 1.0/60.0)
+	if ((curr - prev) >= 0.0167)
     {	
 		gettimeofday (&last_milisecs_drawn, NULL);
-		printf ("ok, %f\n", curr-prev);
+		//~ printf ("ok, %f\n", curr-prev);
 		input_update();
-		scene->update();
 	}
 
+	scene->update();
 	cam->update();
 	scene->display();
 	glPopMatrix();

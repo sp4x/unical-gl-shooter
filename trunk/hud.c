@@ -34,7 +34,7 @@ void draw_text2d (int x, int y, char *string)
 	glRasterPos2i(x, y);
 	len = (int)strlen(string);
 	for(i = 0; i < len; i++)
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[i]);
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[i]);
 }
 
 /* Draws the heads up display on screen */
@@ -51,7 +51,11 @@ void draw_hud()
 		glVertex2f (640, 390);
 		glVertex2f (640, 410);
 	glEnd();
-	draw_text2d(20, 30, "Score:");
+	char s[50];
+	sprintf (s, "Energy: %d", cam->character->energy);
+	draw_text2d(20, 30, s);
+	sprintf (s, "Score: %d", cam->character->score);
+	draw_text2d(20, 50, s);
 	
 	exit_ortho_mode();	
 }

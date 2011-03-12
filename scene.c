@@ -135,13 +135,13 @@ void updateFunc() {
 	while (i != NULL) {
 		object_t *collider = i->value;
 		if ( collider->type == TYPE_BULLET) {
-			obj = checkCollisions(collider, 0 );
-			if ( obj!=NULL && obj->type != TYPE_CHARACTER ) {
-				obj->onCollision(obj);
-				collider->energy = 0;
+			obj = checkCollisions (collider, 0);
+			if (obj != NULL) {
+				obj->onCollision (obj, collider);
+				collider->onCollision (collider, obj);
 			}
 		}
-		else if ( collider->type == TYPE_CHARACTER ) {
+		else if (collider->type == TYPE_CHARACTER) {
 			obj = checkCollisions(collider, 1 );
 		}
 		i = i->next;

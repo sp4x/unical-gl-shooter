@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "camera.h"
-#include "scene.h"
+//~ #include "scene.h"
 #include "objectlist.h"
 
 // externalized instance
@@ -79,8 +79,7 @@ void update (void)
 void init_camera (void)
 {
 	cam = malloc (sizeof (camera_t));
-	cam->character = malloc(sizeof(object_t));
-	
+
 	cam->move_forward = move_forward;
 	cam->move_backward = move_backward;
 	cam->strafe_left = strafe_left;
@@ -88,19 +87,11 @@ void init_camera (void)
 	cam->rotate_left = rotate_left;
 	cam->rotate_right = rotate_right;
 	cam->update = update;
-	cam->character->type = TYPE_CHARACTER;
-	cam->character->rot_x = 0;
-	cam->character->rot_y = 0;
-	cam->character->pos_x = 10;
-	cam->character->pos_y = 3;
-	cam->character->pos_z = 10;
-	cam->character->vel = 0.1;
-	cam->character->energy = 1;
-	cam->character->display = doNothing;
 	cam->min_y = 3;
 	cam->max_y = 3;
 	
-	object_list->append(cam->character);
+	cam->character = newCharacter (10, 3, 10);
+	object_list->append (cam->character);
 }
 
 void clean_camera (void)

@@ -23,22 +23,22 @@ typedef struct object_t {
 	float vel; 						/* movement's vel */
 	int type; 						/* obj type 	*/
 	int energy; 					/* current energy */
+	int score;						/* current score (just for player) */
 
 	/** draw this object */
 	void (*display) (struct object_t *this);
-	/** what to do on collision? */
-	void (*onCollision) (struct object_t *this);
+	/** what to do on collision with obj? */
+	void (*onCollision) (struct object_t *this, struct object_t *obj);
 	
 } object_t;
 
 int hasCollision (object_t *obj, float x, float z, float y, float *available_x, float *available_y, float *available_z);
 
 /** create functions */
+object_t *newCharacter (int pos_x, int pos_y, int pos_z);
 object_t *newWall (float min_x, float max_x, float min_z, float max_z);
 object_t *newBullet (float pos_x, float pos_y, float pos_z, float rot_x, float rot_y);
 object_t *newFloor (float max_x, float max_y, float max_z);
 object_t *newTop (float max_x, float max_y, float max_z);
 object_t *newTurret (float min_x, float max_x, float min_z, float max_z);
-void doNothing();
-
 #endif

@@ -1,6 +1,9 @@
 #ifndef HUD_H
 #define HUD_H
 
+#include "camera.h"
+#include <stdio.h>
+
 /* Enters othographics projection mode to draw text or images to the
  * front of the screen */
 void enter_ortho_mode();

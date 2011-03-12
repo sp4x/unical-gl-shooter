@@ -225,10 +225,10 @@ object_t *newFloor (float max_x, float max_y, float max_z)
 {
 	object_t *floor = malloc (sizeof(object_t));
 	floor->max_x = max_x;
-	floor->max_y = 0;
+	floor->max_y = 3;
 	floor->max_z = max_z;
 	floor->min_x = 0;
-	floor->min_y = 0;
+	floor->min_y = -3;
 	floor->min_z = 0;
 	floor->type = TYPE_FLOOR;
 	floor->energy = 1;
@@ -245,7 +245,7 @@ object_t *newTop (float max_x, float max_y, float max_z)
 	top->max_y = max_y;
 	top->max_z = max_z;
 	top->min_x = 0;
-	top->min_y = max_y;
+	top->min_y = max_y-6;
 	top->min_z = 0;
 	top->type = TYPE_TOP;
 	top->energy = 1;

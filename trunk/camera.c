@@ -19,8 +19,6 @@ void move_forward (void)
 	cam->character->pos_z += cos(rot_y_rad)*cam->character->vel;
 	cam->character->pos_y += sin(rot_x_rad)*cam->character->vel;
 	
-	//~ scene->checkCollisions(cam->character->pos_x, cam->character->pos_y, cam->character->pos_z, &cam->character->pos_x, &cam->character->pos_y, &cam->character->pos_z);
-
 	if (cam->character->pos_y < cam->min_y)
 		cam->character->pos_y = cam->min_y;
 	if (cam->character->pos_y > cam->max_y)
@@ -36,8 +34,6 @@ void move_backward (void)
 	cam->character->pos_z -= cos(rot_y_rad)*cam->character->vel;
 	cam->character->pos_y -= sin(rot_x_rad)*cam->character->vel;
 	
-	//~ scene->checkCollisions(cam->character->pos_x, cam->character->pos_y, cam->character->pos_z, &cam->character->pos_x, &cam->character->pos_y, &cam->character->pos_z);
-
 	if (cam->character->pos_y < cam->min_y)
 		cam->character->pos_y = cam->min_y;
 	if (cam->character->pos_y > cam->max_y)
@@ -51,8 +47,6 @@ void strafe_left (void)
 	
 	cam->character->pos_x += cos(rot_y_rad)*cam->character->vel;
 	cam->character->pos_z -= sin(rot_y_rad)*cam->character->vel;
-	
-	//~ scene->checkCollisions(cam->character->pos_x, cam->character->pos_y, cam->character->pos_z, &cam->character->pos_x, &cam->character->pos_y, &cam->character->pos_z);
 }
 
 void strafe_right (void)
@@ -62,8 +56,6 @@ void strafe_right (void)
 	
 	cam->character->pos_x -= cos(rot_y_rad)*cam->character->vel;
 	cam->character->pos_z += sin(rot_y_rad)*cam->character->vel;
-	
-	//~ scene->checkCollisions(cam->character->pos_x, cam->character->pos_y, cam->character->pos_z, &cam->character->pos_x, &cam->character->pos_y, &cam->character->pos_z);
 }
 
 void rotate_left (void)
@@ -102,7 +94,7 @@ void init_camera (void)
 	cam->character->pos_x = 10;
 	cam->character->pos_y = 3;
 	cam->character->pos_z = 10;
-	cam->character->vel = 0.05;
+	cam->character->vel = 0.1;
 	cam->character->energy = 1;
 	cam->character->display = doNothing;
 	cam->min_y = 3;

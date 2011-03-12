@@ -14,6 +14,7 @@ void enter_ortho_mode()
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
+	glDisable (GL_LIGHTING);
 }
 
 /* Gets back to perspective projection mode after entering orthographic mode */
@@ -23,6 +24,7 @@ void exit_ortho_mode()
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+	glEnable (GL_LIGHTING);
 }
 
 /* Writes red text on screen in the specified position */
@@ -40,7 +42,7 @@ void draw_hud()
 {
 	enter_ortho_mode();
 
-	glColor3f (1, 0, 0);
+	glColor3f (1, 1, 1);
 	glLineWidth (2);
 	glBegin (GL_LINES);
 		glVertex2f (630, 400);

@@ -1,7 +1,11 @@
-#include <GL/glut.h>
+#include <X11/Xlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <GL/gl.h>
+#include <GL/glx.h>
+#include <GL/glxext.h>
+#include <GL/glut.h>
 
 #include "scene.h"
 #include "camera.h"
@@ -11,6 +15,7 @@
 
 
 char *resolution = "1280x800:32@60";
+struct timeval current_millisecs, last_milisecs_drawn;
 
 void init (void)
 {
@@ -36,21 +41,29 @@ void reshape (int w, int h)
 
 void display()
 {
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	frameStart();
 
-	input_update();
-	
 	glPushMatrix();
-		cam->update();
+	gettimeofday (&current_millisecs, NULL);
+	double curr = current_millisecs.tv_sec + (current_millisecs.tv_usec / 1000000.0);
+	double prev = last_milisecs_drawn.tv_sec + (last_milisecs_drawn.tv_usec / 1000000.0);
+	//~ printf ("%f %f diff: %f > %f\n ", curr, prev, curr-prev, 1.0/60.0);
+	if ((curr - prev) >= 1.0/60.0)
+    {	
+		gettimeofday (&last_milisecs_drawn, NULL);
+		printf ("ok, %f\n", curr-prev);
+		input_update();
 		scene->update();
-		scene->display();
+	}
+
+	cam->update();
+	scene->display();
 	glPopMatrix();
-
-	draw_hud(); 
 	
+	draw_hud(); 
 	frameEnd(GLUT_BITMAP_HELVETICA_10, 1.0, 1.0, 1.0, 0.90, 0.95);
-
+	
 	glutSwapBuffers();
 }
 
@@ -80,6 +93,8 @@ int main (int argc, char **argv)
 	atexit(clean);
 	atexit(clean_camera);
 	
+	gettimeofday(&last_milisecs_drawn, NULL);
+	gettimeofday(&current_millisecs, NULL);
 	glutMainLoop();
 	
     return 0;

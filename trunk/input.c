@@ -143,16 +143,15 @@ void input_update (void)
 	if (mouse_button_state[MOUSE_LEFT_BUTTON] == DOWN)
 	{
 		// spara un colpo ogni 0.1 secondi circa
-		curr = clock();
-		if (prev == 0)
-			prev = clock();
-		double diff = curr - prev;
-		if (diff / CLOCKS_PER_SEC > 0.1) {
+		//~ curr = clock();
+		//~ if (prev == 0)
+			//~ prev = clock();
+		//~ double diff = curr - prev;
+		//~ if (diff / CLOCKS_PER_SEC > 0.1) {
 			object_t *bullet = newBullet (
 				cam->character->pos_x, cam->character->pos_y, cam->character->pos_z, cam->character->rot_x, cam->character->rot_y);
 			object_list->append (bullet);
-			glutPostRedisplay ();
-			prev = curr;
-		}
+			//~ prev = curr;
+		//~ }
 	}
 }

@@ -7,6 +7,8 @@
 #include "camera.h"
 #include "input.h"
 #include "hud.h"
+#include "frames.h"
+
 
 char *resolution = "1280x800:32@60";
 
@@ -35,6 +37,7 @@ void reshape (int w, int h)
 void display()
 {
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	frameStart();
 
 	input_update();
 	
@@ -45,6 +48,8 @@ void display()
 	glPopMatrix();
 
 	draw_hud(); 
+	
+	frameEnd(GLUT_BITMAP_HELVETICA_10, 1.0, 1.0, 1.0, 0.90, 0.95);
 
 	glutSwapBuffers();
 }

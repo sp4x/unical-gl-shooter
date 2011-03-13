@@ -9,7 +9,7 @@
 #include "util.h"
 
 // mouse position in previous frame
-float mouse_x = 0, mouse_y = 0;
+double mouse_x = 0, mouse_y = 0;
 
 // true if running
 int speed = 0;
@@ -34,6 +34,12 @@ enum
 void mouse_func (int button, int state, int x, int y)
 {
 	mouse_button_state[button] = (state == GLUT_DOWN) ? DOWN : UP;
+	
+	//~ if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) 
+	//~ {
+		//~ object_t *bullet = newBullet (cam->character);
+		//~ object_list->append (bullet);
+	//~ }
 }
 
 void mouse_motion (int x, int y)
@@ -44,8 +50,8 @@ void mouse_motion (int x, int y)
 		mouse_y = y;
 		first_time = 0;
 	}
-	float x_diff = x - mouse_x;
-	float y_diff = y - mouse_y;	
+	double x_diff = x - mouse_x;
+	double y_diff = y - mouse_y;	
 
 	cam->character->rot_x -= y_diff;
 	if (cam->character->rot_x > 90)
@@ -83,14 +89,30 @@ void mouse_motion (int x, int y)
 
 void key_down (unsigned char key, int x, int y)
 {
-	// DEBUG: stampa la lista degli elementi
+	// DEBUG: print list of objects
 	if (key == 'k')
 	{
 		object_list_iterator *it = object_list->first;
 		for (it; it != NULL; it = it->next)
 		{	
-			printf ("%s\n", (it->value->type == TYPE_WALL) ? "wall" : "bullet");
+			char *s;
+			switch (it->value->type)
+			{
+				case TYPE_FLOOR: s = "floor"; break;
+				case TYPE_TOP: s = "top"; break;
+				case TYPE_WALL: s = "wall"; break;
+				case TYPE_TURRET: s = "turret"; break;
+				case TYPE_CHARACTER: s = "character"; break;
+				case TYPE_BULLET: s = "bullet"; break;
+				default: s = "nothing"; break;
+			}
+			printf ("%s\n", s);
 		}
+	}
+	// DEBUG: show objects bounds
+	if (key == 'b')
+	{
+		showbounds = !showbounds;
 	}
 	key_state[key] = DOWN;
 }

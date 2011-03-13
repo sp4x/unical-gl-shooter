@@ -8,6 +8,9 @@ GLboolean gameover;
 char resolution[30];
 int width, height;
 
+/* true if you want to show objects bounds */
+GLboolean showbounds;
+
 /* global timer */
 extern struct timeval timer;
 

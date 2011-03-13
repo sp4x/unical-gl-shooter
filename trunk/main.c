@@ -68,6 +68,8 @@ int main (int argc, char **argv)
 	glutInit (&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	
+	showbounds = GL_FALSE;
+	
 	width = glutGet(GLUT_SCREEN_WIDTH); 
 	height = glutGet(GLUT_SCREEN_HEIGHT); 
 	

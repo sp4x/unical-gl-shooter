@@ -26,8 +26,67 @@ void placeLights() {
 	//~ glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
 }
 
+void drawBounds (void)
+{
+	object_list_iterator *i = object_list->first;
+	glDisable (GL_LIGHTING);
+	while (i != NULL)
+	{
+		object_t *obj = i->value;
+		if (obj->type != TYPE_BULLET) 
+		{
+			float min_x = obj->min_x;
+			float min_y = obj->min_y;
+			float min_z = obj->min_z;
+			float max_x = obj->max_x;
+			float max_y = obj->max_y;
+			float max_z = obj->max_z;
+			glBegin (GL_LINE_LOOP);
+				glVertex3f (min_x, min_y, min_z);
+				glVertex3f (min_x, min_y, max_z);
+				glVertex3f (max_x, min_y, max_z);
+				glVertex3f (max_x, min_y, min_z);
+			glEnd();
+			glBegin (GL_LINE_LOOP);
+				glVertex3f (min_x, max_y, min_z);
+				glVertex3f (min_x, max_y, max_z);
+				glVertex3f (max_x, max_y, max_z);
+				glVertex3f (max_x, max_y, min_z);
+			glEnd();	
+			glBegin (GL_LINE_LOOP);
+				glVertex3f (min_x, min_y, min_z);
+				glVertex3f (min_x, min_y, max_z);
+				glVertex3f (min_x, max_y, max_z);
+				glVertex3f (min_x, max_y, min_z);
+			glEnd();	
+			glBegin (GL_LINE_LOOP);
+				glVertex3f (max_x, min_y, min_z);
+				glVertex3f (max_x, min_y, max_z);
+				glVertex3f (max_x, max_y, max_z);
+				glVertex3f (max_x, max_y, min_z);
+			glEnd();	
+			glBegin (GL_LINE_LOOP);
+				glVertex3f (min_x, min_y, min_z);
+				glVertex3f (max_x, min_y, min_z);
+				glVertex3f (max_x, max_y, min_z);
+				glVertex3f (min_x, max_y, min_z);
+			glEnd();
+			glBegin (GL_LINE_LOOP);
+				glVertex3f (min_x, min_y, max_z);
+				glVertex3f (max_x, min_y, max_z);
+				glVertex3f (max_x, max_y, max_z);
+				glVertex3f (min_x, max_y, max_z);
+			glEnd();
+		}
+		i = i->next;
+	}
+	glEnable (GL_LIGHTING);
+}
+
 void drawScene() {
 	placeLights();
+	if (showbounds)
+		drawBounds();
 	object_list_iterator *i = object_list->first;
 	while (i != NULL) {
 		object_t *obj = i->value;
@@ -111,40 +170,65 @@ void findWalls() {
 		}
 }
 
-object_t *checkCollisions(object_t *collider, int modify ) {
-	float *available_x, *available_y, *available_z;
-	if (!modify) {
-		available_x = available_y = available_z = NULL;
-	}
-	else {
+object_t *checkCollisions (object_t *collider) 
+{
+	float *available_x = NULL, *available_y = NULL, *available_z = NULL;
+	object_t *obj = NULL;
+	
+	if (collider->type == TYPE_CHARACTER) 
+	{
 		available_x = &collider->pos_x;
 		available_y = &collider->pos_y;
 		available_z = &collider->pos_z;
 	}
+	
 	object_list_iterator *i = object_list->first;
-	object_t *obj = NULL;
-	while (i != NULL) {
-		if ( hasCollision(i->value, collider->pos_x, collider->pos_y, collider->pos_z, available_x, available_y, available_z) )
-			obj = i->value;
+	while (i != NULL) 
+	{
+		if (i->value->type != TYPE_BULLET)
+			if (hasCollision (collider, i->value)) 
+				obj = i->value;
 		i = i->next;
 	}
 	return obj;
 }
 
-void updateFunc() {
+void updateFunc() 
+{
 	object_list_iterator *i = object_list->first;
-	object_t *obj = NULL;
-	while (i != NULL) {
+	while (i != NULL) 
+	{
 		object_t *collider = i->value;
-		if (collider->type == TYPE_BULLET) {
-			obj = checkCollisions (collider, 0);
-			if (obj != NULL && collider->owner != obj) {
+		if (collider->type == TYPE_BULLET || collider->type == TYPE_CHARACTER)
+		{
+			object_t *obj = checkCollisions (collider);
+			if (obj != NULL) 
+			{
+				char *s, *s1;
+				switch (obj->type)
+				{
+					case TYPE_FLOOR: s = "floor"; break;
+					case TYPE_TOP: s = "top"; break;
+					case TYPE_WALL: s = "wall"; break;
+					case TYPE_TURRET: s = "turret"; break;
+					case TYPE_CHARACTER: s = "character"; break;
+					case TYPE_BULLET: s = "bullet"; break;
+					default: s = "nothing"; break;
+				}
+				switch (collider->type)
+				{
+					case TYPE_FLOOR: s1 = "floor"; break;
+					case TYPE_TOP: s1 = "top"; break;
+					case TYPE_WALL: s1 = "wall"; break;
+					case TYPE_TURRET: s1 = "turret"; break;
+					case TYPE_CHARACTER: s1 = "character"; break;
+					case TYPE_BULLET: s1 = "bullet"; break;
+					default: s1 = "nothing"; break;
+				}
+				printf("%s collides with %s\n", s1, s);
 				obj->onCollision (obj, collider);
 				collider->onCollision (collider, obj);
 			}
-		}
-		else if (collider->type == TYPE_CHARACTER) {
-			obj = checkCollisions (collider, 1 );
 		}
 		i = i->next;
 	}

@@ -9,14 +9,14 @@
 // externalized instance
 camera_t *cam;
 
-void set_bounds ()
+void update_bounds (void)
 {
-	cam->character->min_x -= 1;
-	cam->character->max_x += 1;
-	cam->character->min_y = 2;
+	cam->character->min_x = cam->character->pos_x - 0.5;
+	cam->character->max_x = cam->character->pos_x + 0.5;
+	cam->character->min_y = 0;
 	cam->character->max_y = 4;
-	cam->character->min_z -= 1;
-	cam->character->max_z += 1;
+	cam->character->min_z = cam->character->pos_z - 0.5;
+	cam->character->max_z = cam->character->pos_z + 0.5;
 }
 
 void move_forward (void)
@@ -28,7 +28,15 @@ void move_forward (void)
 	cam->character->pos_z += cos(rot_y_rad)*cam->character->vel;
 	cam->character->pos_y += sin(rot_x_rad)*cam->character->vel;
 	
-	set_bounds();
+	//~ if (checkCollisions (cam->character))
+	//~ {
+		//~ cam->character->pos_x -= sin(rot_y_rad)*cam->character->vel;
+		//~ cam->character->pos_z -= cos(rot_y_rad)*cam->character->vel;
+		//~ cam->character->pos_y -= sin(rot_x_rad)*cam->character->vel;
+	//~ }
+	
+	update_bounds();
+	
 	if (cam->character->pos_y < cam->min_y)
 		cam->character->pos_y = cam->min_y;
 	if (cam->character->pos_y > cam->max_y)
@@ -44,7 +52,8 @@ void move_backward (void)
 	cam->character->pos_z -= cos(rot_y_rad)*cam->character->vel;
 	cam->character->pos_y -= sin(rot_x_rad)*cam->character->vel;
 	
-	set_bounds();
+	update_bounds();
+	
 	if (cam->character->pos_y < cam->min_y)
 		cam->character->pos_y = cam->min_y;
 	if (cam->character->pos_y > cam->max_y)
@@ -56,7 +65,8 @@ void strafe_left (void)
 	float rot_x_rad = cam->character->rot_x / 180*PI;
 	float rot_y_rad = cam->character->rot_y / 180*PI;
 	
-	set_bounds();
+	update_bounds();
+	
 	cam->character->pos_x += cos(rot_y_rad)*cam->character->vel;
 	cam->character->pos_z -= sin(rot_y_rad)*cam->character->vel;
 }
@@ -66,7 +76,8 @@ void strafe_right (void)
 	float rot_x_rad = cam->character->rot_x / 180*PI;
 	float rot_y_rad = cam->character->rot_y / 180*PI;
 	
-	set_bounds();
+	update_bounds();
+	
 	cam->character->pos_x -= cos(rot_y_rad)*cam->character->vel;
 	cam->character->pos_z += sin(rot_y_rad)*cam->character->vel;
 }

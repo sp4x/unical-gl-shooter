@@ -19,7 +19,7 @@ typedef struct object_t {
 			min_y, max_y, 
 			min_z, max_z; 			/* bounds */
 
-	float rot_x, rot_y; 			/* direction */
+	double rot_x, rot_y; 			/* direction */
 	float vel; 						/* movement's vel */
 	int type; 						/* obj type 	*/
 	int energy; 					/* current energy */
@@ -27,7 +27,7 @@ typedef struct object_t {
 
 	double curr_time, last_time;	/* useful for timer-dependent functions (e.g. shoot) */
 
-	struct object_t *owner; 		/* just for bullet: who shoot this bullet? */
+	int owner_type; 				/* just for bullet: who shoot this bullet? */
 
 	/** draw this object */
 	void (*display) (struct object_t *this);
@@ -36,7 +36,7 @@ typedef struct object_t {
 	
 } object_t;
 
-int hasCollision (object_t *obj, float x, float z, float y, float *available_x, float *available_y, float *available_z);
+int hasCollision (object_t *this, object_t *obj);
 
 /** create functions */
 object_t *newCharacter (int pos_x, int pos_y, int pos_z);

@@ -13,5 +13,6 @@ void key_up (unsigned char key, int x, int y);
 void spec_key_down (int key, int x, int y);
 void spec_key_up (int key, int x, int y);
 void input_update (void);
+void input_disable (void);
 
 #endif

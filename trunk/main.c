@@ -8,10 +8,9 @@
 #include "input.h"
 #include "hud.h"
 #include "frames.h"
+#include "util.h"
 
-
-char *resolution = "1280x800:32@60";
-struct timeval current_millisecs, last_milisecs_drawn;
+double curr, last;
 
 void init (void)
 {
@@ -23,6 +22,9 @@ void init (void)
 	glEnable (GL_LIGHTING);
 	glEnable (GL_COLOR_MATERIAL);
 	glEnable (GL_TEXTURE_2D);
+	
+	update_timer();
+	curr = last = get_time();
 }
 
 void reshape (int w, int h)
@@ -39,16 +41,14 @@ void display()
 {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	frameStart();
+	update_timer();
 
 	glPushMatrix();
-	gettimeofday (&current_millisecs, NULL);
-	double curr = current_millisecs.tv_sec + (current_millisecs.tv_usec / 1.0E6);
-	double prev = last_milisecs_drawn.tv_sec + (last_milisecs_drawn.tv_usec / 1.0E6);
-	//~ printf ("%f %f diff: %f > %f\n ", curr, prev, curr-prev, 1.0/60.0);
-	if ((curr - prev) >= 0.0167)
+	
+	curr = get_time();
+	if ((curr - last) >= 0.0167)
     {	
-		gettimeofday (&last_milisecs_drawn, NULL);
-		//~ printf ("ok, %f\n", curr-prev);
+		last = curr;
 		input_update();
 	}
 
@@ -67,6 +67,16 @@ int main (int argc, char **argv)
 {
 	glutInit (&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	
+	width = glutGet(GLUT_SCREEN_WIDTH); 
+	height = glutGet(GLUT_SCREEN_HEIGHT); 
+	
+	printf ("screen resolution: %dx%d\n", width, height);
+	
+	sprintf (resolution, "%dx%d:32@60", width, height);
+	printf ("game resolution: %s\n", resolution);
+	gameover = 0;
+	
 	glutGameModeString (resolution); // fullscreen
 	glutEnterGameMode();
 	
@@ -89,8 +99,6 @@ int main (int argc, char **argv)
 	atexit(clean);
 	atexit(clean_camera);
 	
-	gettimeofday(&last_milisecs_drawn, NULL);
-	gettimeofday(&current_millisecs, NULL);
 	glutMainLoop();
 	
     return 0;

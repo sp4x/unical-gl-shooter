@@ -5,8 +5,10 @@
 #include <math.h>
 
 #include "object.h"
+#include "objectlist.h"
 #include "texture.h"
 #include "camera.h"
+#include "util.h"
 
 #define COLLISION_GAP 0.1
 #define WALL_GAP (CELLSIZE-1)/2
@@ -105,13 +107,22 @@ void drawWall (object_t *this) {
 }
 
 void drawTop (object_t *this) {
-	glColor3f(0.5,0.5,0.5);
+	glColor3f(1,1,1);
+	loadTexture(TEXTURE_METAL2);
+	int t = this->max_z;
+	int s = this->max_x;
+	float x = this->max_x;
+	float z = this->max_z;
 	glBegin(GL_QUADS);
-		glNormal3f(0,-1,0);
+		glNormal3f(0,1,0);
+		glTexCoord2i(0, 0);
 		glVertex3f(0, this->max_y, 0);
-		glVertex3f(this->max_x, this->max_y, 0);
-		glVertex3f(this->max_x, this->max_y, this->max_z);
-		glVertex3f(0, this->max_y, this->max_z);
+		glTexCoord2i(0, t);
+		glVertex3f(x, this->max_y, 0);
+		glTexCoord2i(s, t);
+		glVertex3f(x, this->max_y, z);
+		glTexCoord2i(s, 0);
+		glVertex3f(0, this->max_y, z);
 	glEnd();
 }
 
@@ -143,13 +154,15 @@ void drawBullet (object_t *this)
 	this->pos_x += sin(rot_y_rad)*this->vel;
 	this->pos_z += cos(rot_y_rad)*this->vel;
 	this->pos_y += sin(rot_x_rad)*this->vel;
-
+	
 	glPushMatrix();
 		glDisable (GL_TEXTURE_2D);
+		glDisable (GL_LIGHTING);
 		glColor3f (1, 1, 0);
 		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
 		glutSolidSphere (0.01, 8, 8);
 		glEnable (GL_TEXTURE_2D);
+		glEnable (GL_LIGHTING);
 	glPopMatrix();
 }
 
@@ -163,6 +176,14 @@ void drawTurret (object_t *this)
 	this->rot_y = ( vector[2]>=0 ? 0 : 180);
 	this->rot_y -= (angle*180/M_PI - 90);
 	this->rot_y *= ( vector[2]>=0 ? 1 : -1);
+	
+	//~ this->curr_time = get_time();
+	//~ if (this->curr_time - this->last_time > 1)
+	//~ {
+		//~ this->last_time = this->curr_time;
+		//~ object_t *bullet = newBullet (this);
+		//~ object_list->append (bullet);
+	//~ }
 	
 	GLUquadricObj *quadric = gluNewQuadric();
 	glPushMatrix();
@@ -205,103 +226,125 @@ void displayNothing (object_t *this) {}
 
 object_t *newCharacter (int pos_x, int pos_y, int pos_z)
 {
-	object_t *character = malloc(sizeof(object_t));
-	character->type = TYPE_CHARACTER;
-	character->rot_x = 0;
-	character->rot_y = 0;
-	character->pos_x = pos_x;
-	character->pos_y = pos_y;
-	character->pos_z = pos_z;
-	character->vel = 0.1;
-	character->energy = 100;
-	character->score = 0;
-	character->display = displayNothing;
-	character->onCollision = characterCollision;
-	return character;
+	object_t *this = malloc(sizeof(object_t));
+	this->type = TYPE_CHARACTER;
+	this->rot_x = 0;
+	this->rot_y = 0;
+	this->pos_x = pos_x;
+	this->pos_y = pos_y;
+	this->pos_z = pos_z;
+	this->min_x = pos_x - 1;
+	this->max_x = pos_x + 1;
+	this->min_y = 2;
+	this->max_y = 4;
+	this->min_z = pos_z - 1;
+	this->max_z = pos_z + 1;
+	this->vel = 0.1;
+	this->energy = 100;
+	this->score = 0;
+	
+	// init timer
+	this->curr_time = get_time();
+	this->last_time = get_time();
+	
+	this->display = displayNothing;
+	this->onCollision = characterCollision;
+	return this;
 }
 
 object_t *newWall (float min_x, float max_x, float min_z, float max_z) 
 {
-	object_t *wall = malloc(sizeof(object_t));
-	wall->min_x = min_x;
-	wall->max_x = max_x;
-	wall->min_y = 0;
-	wall->max_y = WALL_HEIGHT;
-	wall->min_z = min_z;
-	wall->max_z = max_z;
-	wall->type = TYPE_WALL;
-	wall->display = drawWall;
-	wall->energy = 1000;
-	wall->onCollision = doNothing;
-	return wall;
+	object_t *this = malloc(sizeof(object_t));
+	this->min_x = min_x;
+	this->max_x = max_x;
+	this->min_y = 0;
+	this->max_y = WALL_HEIGHT;
+	this->min_z = min_z;
+	this->max_z = max_z;
+	this->type = TYPE_WALL;
+	this->display = drawWall;
+	this->energy = 1000;
+	this->onCollision = doNothing;
+	return this;
 }
 
-object_t *newBullet (float pos_x, float pos_y, float pos_z, float rot_x, float rot_y)
+object_t *newBullet (struct object_t *owner)
 {
-	object_t *bullet = malloc (sizeof(object_t));
-	bullet->pos_x = pos_x;
-	bullet->pos_y = pos_y;
-	bullet->pos_z = pos_z;
-	bullet->rot_x = rot_x;
-	bullet->rot_y = rot_y;
-	bullet->vel = 0.5;
-	bullet->type = TYPE_BULLET;
-	bullet->energy = 1;
+	object_t *this = malloc (sizeof(object_t));
 	
-	bullet->display = drawBullet;
-	bullet->onCollision = bulletCollision;
-	return bullet;
+	this->owner = owner;
+	this->pos_x = owner->pos_x;
+	this->pos_y = owner->pos_y;
+	this->pos_z = owner->pos_z;
+	this->rot_x = owner->rot_x;
+	this->rot_y = owner->rot_y;
+	this->vel = 0.5;
+	this->type = TYPE_BULLET;
+	this->energy = 1;
+	
+	// init timer
+	this->curr_time = get_time();
+	this->last_time = get_time();
+	
+	this->display = drawBullet;
+	this->onCollision = bulletCollision;
+	return this;
 }
 
 object_t *newFloor (float max_x, float max_y, float max_z)
 {
-	object_t *floor = malloc (sizeof(object_t));
-	floor->max_x = max_x;
-	floor->max_y = 3;
-	floor->max_z = max_z;
-	floor->min_x = 0;
-	floor->min_y = -3;
-	floor->min_z = 0;
-	floor->type = TYPE_FLOOR;
-	floor->energy = 1;
+	object_t *this = malloc (sizeof(object_t));
+	this->max_x = max_x;
+	this->max_y = 1;
+	this->max_z = max_z;
+	this->min_x = 0;
+	this->min_y = -3;
+	this->min_z = 0;
+	this->type = TYPE_FLOOR;
+	this->energy = 1;
 	
-	floor->display = drawFloor;
-	floor->onCollision = doNothing;
-	return floor;
+	this->display = drawFloor;
+	this->onCollision = doNothing;
+	return this;
 }
 
 object_t *newTop (float max_x, float max_y, float max_z)
 {
-	object_t *top = malloc (sizeof(object_t));
-	top->max_x = max_x;
-	top->max_y = max_y;
-	top->max_z = max_z;
-	top->min_x = 0;
-	top->min_y = max_y-6;
-	top->min_z = 0;
-	top->type = TYPE_TOP;
-	top->energy = 1;
+	object_t *this = malloc (sizeof(object_t));
+	this->max_x = max_x;
+	this->max_y = max_y;
+	this->max_z = max_z;
+	this->min_x = 0;
+	this->min_y = max_y-6;
+	this->min_z = 0;
+	this->type = TYPE_TOP;
+	this->energy = 1;
 	
-	top->display = drawTop;
-	top->onCollision = doNothing;
-	return top;
+	this->display = drawTop;
+	this->onCollision = doNothing;
+	return this;
 }
 
 object_t *newTurret (float min_x, float max_x, float min_z, float max_z) {
-	object_t *turret = malloc(sizeof(object_t));
-	turret->min_x = min_x;
-	turret->max_x = max_x;
-	turret->min_y = 0;
-	turret->max_y = WALL_HEIGHT/2;
-	turret->min_z = min_z;
-	turret->max_z = max_z;
-	turret->type = TYPE_TURRET;
-	turret->display = drawTurret;
-	turret->energy = 100;
-	turret->pos_x = min_x+CELLSIZE/2;
-	turret->pos_y = 0;
-	turret->pos_z = min_z+CELLSIZE/2;
-	turret->onCollision = turretCollision;
-	return turret;
+	object_t *this = malloc(sizeof(object_t));
+	this->min_x = min_x;
+	this->max_x = max_x;
+	this->min_y = 0;
+	this->max_y = WALL_HEIGHT/2;
+	this->min_z = min_z;
+	this->max_z = max_z;
+	this->type = TYPE_TURRET;
+	this->energy = 100;
+	this->pos_x = min_x+CELLSIZE/2;
+	this->pos_y = 0;
+	this->pos_z = min_z+CELLSIZE/2;
+	
+	// init timer
+	this->curr_time = get_time();
+	this->last_time = get_time();
+	
+	this->display = drawTurret;
+	this->onCollision = turretCollision;
+	return this;
 }
 

@@ -6,6 +6,7 @@
 #include "objectlist.h"
 #include "object.h"
 #include "input.h"
+#include "util.h"
 
 // mouse position in previous frame
 float mouse_x = 0, mouse_y = 0;
@@ -60,20 +61,20 @@ void mouse_motion (int x, int y)
 	
 	if (x == 0)
 	{
-		glutWarpPointer (1278, y);
-		mouse_x = 1278;
+		glutWarpPointer (width-2, y);
+		mouse_x = width-2;
 	}
-	if (x == 1279)
+	if (x == width-1)
 	{
 		glutWarpPointer (1, y);
 		mouse_x = 1;
 	}
 	if (y == 0)
 	{
-		glutWarpPointer (x, 798);
-		mouse_y = 798;
+		glutWarpPointer (x, height-2);
+		mouse_y = height-2;
 	}
-	if (y == 799)
+	if (y == height-1)
 	{
 		glutWarpPointer (x, 1);
 		mouse_y = 1;
@@ -142,7 +143,23 @@ void input_update (void)
 	}
 	if (mouse_button_state[MOUSE_LEFT_BUTTON] == DOWN)
 	{
-		object_t *bullet = newBullet (cam->character->pos_x, cam->character->pos_y, cam->character->pos_z, cam->character->rot_x, cam->character->rot_y);
-		object_list->append (bullet);
+		cam->character->curr_time = get_time();
+		if (cam->character->curr_time - cam->character->last_time >= 0.05)
+		{
+			cam->character->last_time = get_time();
+			object_t *bullet = newBullet (cam->character);
+			object_list->append (bullet);
+		}
 	}
+}
+
+void input_disable (void)
+{
+	glutPassiveMotionFunc (NULL);
+	glutMotionFunc (NULL);
+	glutMouseFunc (NULL);
+	glutKeyboardFunc (NULL);
+	glutKeyboardUpFunc (NULL);
+	glutSpecialFunc (NULL);
+	glutSpecialUpFunc (NULL);
 }

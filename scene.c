@@ -1,13 +1,13 @@
 
-#include <GL/gl.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 
 #include "scene.h"
 #include "object.h"
 #include "objectlist.h"
 #include "texture.h"
+#include "hud.h"
+#include "util.h"
 
 scene_t *scene;
 
@@ -35,6 +35,8 @@ void drawScene() {
 			obj->display(obj);
 			i = i->next;
 		} else {
+			if (obj->type == TYPE_CHARACTER)
+				game_over();
 			i = i->next;
 			object_list->delete (obj);
 		}
@@ -134,15 +136,15 @@ void updateFunc() {
 	object_t *obj = NULL;
 	while (i != NULL) {
 		object_t *collider = i->value;
-		if ( collider->type == TYPE_BULLET) {
+		if (collider->type == TYPE_BULLET) {
 			obj = checkCollisions (collider, 0);
-			if (obj != NULL) {
+			if (obj != NULL && collider->owner != obj) {
 				obj->onCollision (obj, collider);
 				collider->onCollision (collider, obj);
 			}
 		}
 		else if (collider->type == TYPE_CHARACTER) {
-			obj = checkCollisions(collider, 1 );
+			obj = checkCollisions (collider, 1 );
 		}
 		i = i->next;
 	}

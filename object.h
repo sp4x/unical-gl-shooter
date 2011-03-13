@@ -25,6 +25,10 @@ typedef struct object_t {
 	int energy; 					/* current energy */
 	int score;						/* current score (just for player) */
 
+	double curr_time, last_time;	/* useful for timer-dependent functions (e.g. shoot) */
+
+	struct object_t *owner; 		/* just for bullet: who shoot this bullet? */
+
 	/** draw this object */
 	void (*display) (struct object_t *this);
 	/** what to do on collision with obj? */
@@ -37,7 +41,7 @@ int hasCollision (object_t *obj, float x, float z, float y, float *available_x, 
 /** create functions */
 object_t *newCharacter (int pos_x, int pos_y, int pos_z);
 object_t *newWall (float min_x, float max_x, float min_z, float max_z);
-object_t *newBullet (float pos_x, float pos_y, float pos_z, float rot_x, float rot_y);
+object_t *newBullet (struct object_t *owner);
 object_t *newFloor (float max_x, float max_y, float max_z);
 object_t *newTop (float max_x, float max_y, float max_z);
 object_t *newTurret (float min_x, float max_x, float min_z, float max_z);

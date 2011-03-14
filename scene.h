@@ -7,6 +7,7 @@
 #define FREE_SPACE '0'
 #define WALL '1'
 #define TURRET 't'
+#define CUBE 'c'
 
 
 typedef struct scene_t {

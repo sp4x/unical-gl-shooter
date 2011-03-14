@@ -12,6 +12,7 @@
 
 #define COLLISION_GAP 0.1
 #define WALL_GAP (CELLSIZE-1)/2
+//~ #define WALL_GAP CELLSIZE*0.4
 
 void doNothing (object_t *this, object_t *obj) {}
 
@@ -65,6 +66,7 @@ void drawWall (object_t *this) {
 	float max_x = this->max_x - WALL_GAP;
 	float min_z = this->min_z + WALL_GAP;
 	float max_z = this->max_z - WALL_GAP;
+		
 	
 	loadTexture(TEXTURE_BRICK);
 	   
@@ -212,6 +214,18 @@ void drawTurret (object_t *this)
 	gluDeleteQuadric(quadric);
 }
 
+void drawCube (object_t *this) 
+{
+	glPushMatrix();
+		glTranslatef(this->pos_x, this->pos_y, this->pos_z);
+		glRotatef(this->rot_y, 0, 1, 0);
+		glutSolidCube(2);
+	glPopMatrix();
+	this->rot_y+=0.5;
+	if ( this->rot_y == 360 )
+		this->rot_y = 0;
+}
+
 /****** onCollision functions *******/
 
 void turretCollision (object_t *this, object_t *obj)
@@ -229,6 +243,14 @@ void characterCollision (object_t *this, object_t *obj)
 {
 	if (obj->type == TYPE_BULLET)
 		this->energy -= 1;
+}
+
+void cubeCollision (object_t *this, object_t *obj)
+{
+	if ( obj->type == TYPE_BULLET ) {
+		cam->character->score++;
+		this->energy = 0;
+	}
 }
 
 /****** Create functions *******/
@@ -332,13 +354,10 @@ object_t *newTop (float max_x, float max_y, float max_z)
 	return this;
 }
 
-object_t *newTurret (float min_x, float max_x, float min_z, float max_z) {
-	object_t *this = malloc(sizeof(object_t));
-	double half_cellsize = (double)CELLSIZE/2.0;
-	this->pos_x = min_x+half_cellsize;
-	this->pos_y = 2.5;
-	this->pos_z = min_z+half_cellsize;
+object_t *newTurret (float min_x, float min_z) {
+	object_t *this = newObject(min_x, 0, min_z);
 	
+	this->pos_y = 2.5;
 	this->min_x = this->pos_x - 1;
 	this->max_x = this->pos_x + 1;
 	this->min_y = 0;
@@ -357,3 +376,30 @@ object_t *newTurret (float min_x, float max_x, float min_z, float max_z) {
 	return this;
 }
 
+object_t *newCube(float min_x, float min_z) {
+	object_t *this = newObject(min_x, 1, min_z);
+	this->max_y = 2;
+	this->type = TYPE_CUBE;
+	this->display = drawCube;
+	this->onCollision = cubeCollision;
+	return this;
+}
+
+object_t *newObject(float min_x, float min_y, float min_z) {
+	object_t *this = malloc(sizeof(object_t));
+	this->min_x = min_x;
+	this->min_y = min_y;
+	this->min_z = min_z;
+	this->max_x = min_x+CELLSIZE;
+	this->max_y = WALL_HEIGHT;
+	this->max_z = min_z+CELLSIZE;
+	this->energy = 100;
+	this->rot_x = this->rot_y = 0;
+	
+	double half_cellsize = (double)CELLSIZE/2.0;
+	this->pos_x = min_x+half_cellsize;
+	this->pos_y = min_y;
+	this->pos_z = min_z+half_cellsize;
+	
+	return this;
+}

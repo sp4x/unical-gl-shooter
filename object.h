@@ -8,6 +8,7 @@
 #define TYPE_FLOOR 3
 #define TYPE_TOP 4
 #define TYPE_CHARACTER 5
+#define TYPE_CUBE 6
 
 #define CELLSIZE 5
 #define WALL_HEIGHT 10
@@ -39,10 +40,12 @@ typedef struct object_t {
 int hasCollision (object_t *this, object_t *obj);
 
 /** create functions */
+object_t *newObject(float min_x, float min_y, float min_z);
 object_t *newCharacter (int pos_x, int pos_y, int pos_z);
 object_t *newWall (float min_x, float max_x, float min_z, float max_z);
 object_t *newBullet (struct object_t *owner);
 object_t *newFloor (float max_x, float max_y, float max_z);
 object_t *newTop (float max_x, float max_y, float max_z);
-object_t *newTurret (float min_x, float max_x, float min_z, float max_z);
+object_t *newTurret (float min_x, float min_z);
+object_t *newCube(float min_x, float min_z);
 #endif

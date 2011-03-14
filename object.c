@@ -377,8 +377,12 @@ object_t *newTurret (float min_x, float min_z) {
 }
 
 object_t *newCube(float min_x, float min_z) {
-	object_t *this = newObject(min_x, 1, min_z);
-	this->max_y = 2;
+	object_t *this = newObject(min_x, 0, min_z);
+	this->max_y = this->pos_y + 1;
+	this->min_x = this->pos_x - 1;
+	this->min_z = this->pos_z - 1;
+	this->max_x = this->pos_x + 1;
+	this->max_z = this->pos_z + 1;
 	this->type = TYPE_CUBE;
 	this->display = drawCube;
 	this->onCollision = cubeCollision;

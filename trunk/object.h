@@ -10,7 +10,6 @@
 #define TYPE_CHARACTER 5
 #define TYPE_CUBE 6
 
-#define CELLSIZE 5
 #define WALL_HEIGHT 10
 
 typedef struct object_t {

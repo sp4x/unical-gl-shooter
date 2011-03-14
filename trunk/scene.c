@@ -9,6 +9,8 @@
 #include "hud.h"
 #include "util.h"
 
+#define COLLISION_SLOTS 5
+
 scene_t *scene;
 
 char *buffer;
@@ -151,7 +153,7 @@ void findObjects() {
 				}
 			}
 			else if (getSceneCell(i,j) != WALL || j == cols-1) {
-					wall->max_x = (j+1)*CELLSIZE;
+					wall->max_x = (j)*CELLSIZE;
 					object_list->append(wall);
 					wall = NULL;
 			}
@@ -163,11 +165,11 @@ void findObjects() {
 			if ( !wall && getSceneCell(i,j) == WALL && i<lines-1 && getSceneCell(i+1,j) == WALL ) {
 				if ((j<cols-1 && getSceneCell(i,j+1) != WALL) || j == cols-1)
 					if ((j>0 && getSceneCell(i,j-1) != WALL) || j == 0) {
-						wall = newWall(j*CELLSIZE, (j+1)*CELLSIZE, (i-0.8)*CELLSIZE, 0);
+						wall = newWall(j*CELLSIZE, (j+1)*CELLSIZE, (i)*CELLSIZE, 0);
 					}
 			} else if ( wall ) {
 				if (getSceneCell(i,j) != WALL || i == lines - 1 ) {
-					wall->max_z = (i+0.8)*CELLSIZE;
+					wall->max_z = (i)*CELLSIZE;
 					object_list->append(wall);
 					wall = NULL;
 				}
@@ -175,19 +177,20 @@ void findObjects() {
 		}
 }
 
-object_t *checkCollisions (object_t *collider) 
+int checkCollisions (object_t *collider, object_t **with) 
 {
 	object_t *obj = NULL;
+	int j=0;
 	
 	object_list_iterator *i = object_list->first;
 	while (i != NULL) 
 	{
 		if (i->value->type != TYPE_BULLET)
 			if (hasCollision (collider, i->value)) 
-				obj = i->value;
+				with[j++] = i->value;
 		i = i->next;
 	}
-	return obj;
+	return j;
 }
 
 void updateFunc() 
@@ -198,31 +201,34 @@ void updateFunc()
 		object_t *collider = i->value;
 		if (collider->type == TYPE_BULLET || collider->type == TYPE_CHARACTER)
 		{
-			object_t *obj = checkCollisions (collider);
-			if (obj != NULL) 
+			object_t *with[COLLISION_SLOTS];
+			int with_size = checkCollisions (collider, with);
+			int j;
+			for (j=0; j<with_size; j++)
 			{
-				char *s, *s1;
-				switch (obj->type)
-				{
-					case TYPE_FLOOR: s = "floor"; break;
-					case TYPE_TOP: s = "top"; break;
-					case TYPE_WALL: s = "wall"; break;
-					case TYPE_TURRET: s = "turret"; break;
-					case TYPE_CHARACTER: s = "character"; break;
-					case TYPE_BULLET: s = "bullet"; break;
-					default: s = "nothing"; break;
-				}
-				switch (collider->type)
-				{
-					case TYPE_FLOOR: s1 = "floor"; break;
-					case TYPE_TOP: s1 = "top"; break;
-					case TYPE_WALL: s1 = "wall"; break;
-					case TYPE_TURRET: s1 = "turret"; break;
-					case TYPE_CHARACTER: s1 = "character"; break;
-					case TYPE_BULLET: s1 = "bullet"; break;
-					default: s1 = "nothing"; break;
-				}
-				printf("%s collides with %s\n", s1, s);
+				object_t *obj = with[j];
+				//~ char *s, *s1;
+				//~ switch (obj->type)
+				//~ {
+					//~ case TYPE_FLOOR: s = "floor"; break;
+					//~ case TYPE_TOP: s = "top"; break;
+					//~ case TYPE_WALL: s = "wall"; break;
+					//~ case TYPE_TURRET: s = "turret"; break;
+					//~ case TYPE_CHARACTER: s = "character"; break;
+					//~ case TYPE_BULLET: s = "bullet"; break;
+					//~ default: s = "nothing"; break;
+				//~ }
+				//~ switch (collider->type)
+				//~ {
+					//~ case TYPE_FLOOR: s1 = "floor"; break;
+					//~ case TYPE_TOP: s1 = "top"; break;
+					//~ case TYPE_WALL: s1 = "wall"; break;
+					//~ case TYPE_TURRET: s1 = "turret"; break;
+					//~ case TYPE_CHARACTER: s1 = "character"; break;
+					//~ case TYPE_BULLET: s1 = "bullet"; break;
+					//~ default: s1 = "nothing"; break;
+				//~ }
+				//~ printf("%s collides with %s\n", s1, s);
 				obj->onCollision (obj, collider);
 				collider->onCollision (collider, obj);
 			}
@@ -256,7 +262,7 @@ void loadScene(char *file) {
 	
 	scene->display = drawScene;
 	scene->update = updateFunc;
-	scene->checkCollisions = checkCollisions;
+	//~ scene->checkCollisions = checkCollisions;
 	free(buffer);
 	
 	addLighting();

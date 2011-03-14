@@ -9,10 +9,12 @@
 #include "texture.h"
 #include "camera.h"
 #include "util.h"
+#include "scene.h"
 
 #define COLLISION_GAP 0.1
-#define WALL_GAP (CELLSIZE-1)/2
-//~ #define WALL_GAP CELLSIZE*0.4
+//~ #define WALL_GAP (CELLSIZE-1)/2
+#define LEN_GAP 0//CELLSIZE*0.7
+#define DEPTH_GAP 0// CELLSIZE*0.5
 
 void doNothing (object_t *this, object_t *obj) {}
 
@@ -30,42 +32,24 @@ int hasCollision (object_t *this, object_t *obj)
 	
 	if (x > obj->min_x && x < obj->max_x && 
 		y > obj->min_y && y < obj->max_y && 
-		z > obj->min_z && z < obj->max_z) 
-	{ 
-		if (this->type != TYPE_CHARACTER)
-			return 1;
-			
-		float coords[] = { x, y, z };
-		float sides[] = { obj->min_x, obj->max_x, obj->min_y, obj->max_y,  obj->min_z, obj->max_z };
-		float *available_coords[] = { &this->pos_x, &this->pos_y, &this->pos_z };
-		int coord_index = 0, side_index = 0;
-		
-		for (coord_index = 0; coord_index < 3; coord_index++) 
-		{
-			float min_side_gap = coords[coord_index] - sides[side_index]; //c - min_side
-			float max_side_gap = sides[side_index+1] - coords[coord_index]; //max_side -c
-			
-			if ( min_side_gap > 0 && min_side_gap <= COLLISION_GAP) {
-				*( available_coords[coord_index] ) = sides[side_index];
-			}
-			else if ( max_side_gap > 0 && max_side_gap <= COLLISION_GAP) {
-				*( available_coords[coord_index] ) = sides[side_index+1];
-			}
-			
-			side_index += 2;
-		}
+		z > obj->min_z && z < obj->max_z)
 		return 1;
-	}
+	
+	float nextX = x+cos(this->rot_y*DEG_TO_RAD);
+	float nextZ = z+sin(this->rot_y*DEG_TO_RAD);
+	if (nextX > obj->min_x && nextX < obj->max_x && 
+		nextZ > obj->min_z && nextZ < obj->max_z)
+		return 1;
 	return 0;
 }
 
 /****** Draw functions *******/
 
 void drawWall (object_t *this) {
-	float min_x = this->min_x + WALL_GAP;
-	float max_x = this->max_x - WALL_GAP;
-	float min_z = this->min_z + WALL_GAP;
-	float max_z = this->max_z - WALL_GAP;
+	float min_x = this->min_x;// + WALL_GAP;
+	float max_x = this->max_x;// - WALL_GAP;
+	float min_z = this->min_z;// + WALL_GAP;
+	float max_z = this->max_z;// - WALL_GAP;
 		
 	
 	loadTexture(TEXTURE_BRICK);
@@ -186,7 +170,7 @@ void drawTurret (object_t *this)
 	float radius = sqrt( vector[0]*vector[0] + vector[2]*vector[2] );
 	float angle = acos( vector[0]/radius );
 	this->rot_y = ( vector[2]>=0 ? 0 : 180);
-	this->rot_y -= (angle*180/M_PI - 90);
+	this->rot_y -= (angle*RAD_TO_DEG - 90);
 	this->rot_y *= ( vector[2]>=0 ? 1 : -1);
 	
 	this->curr_time = get_time();
@@ -243,6 +227,28 @@ void characterCollision (object_t *this, object_t *obj)
 {
 	if (obj->type == TYPE_BULLET)
 		this->energy -= 1;
+	else if (obj->type == TYPE_WALL) 
+	{
+		float coords[] = { this->pos_x, this->pos_y, this->pos_z };
+		float sides[] = { obj->min_x, obj->max_x, obj->min_y, obj->max_y,  obj->min_z, obj->max_z };
+		float *available_coords[] = { &this->pos_x, &this->pos_y, &this->pos_z };
+		int coord_index = 0, side_index = 0;
+		
+		for (coord_index = 0; coord_index < 3; coord_index++) 
+		{
+			float min_side_gap = coords[coord_index] - sides[side_index]; //c - min_side
+			float max_side_gap = sides[side_index+1] - coords[coord_index]; //max_side -c
+			
+			if ( min_side_gap > 0 && min_side_gap <= COLLISION_GAP) {
+				*( available_coords[coord_index] ) = sides[side_index];
+			}
+			else if ( max_side_gap > 0 && max_side_gap <= COLLISION_GAP) {
+				*( available_coords[coord_index] ) = sides[side_index+1];
+			}
+			
+			side_index += 2;
+		}
+	}
 }
 
 void cubeCollision (object_t *this, object_t *obj)
@@ -285,15 +291,29 @@ object_t *newCharacter (int pos_x, int pos_y, int pos_z)
 	return this;
 }
 
-object_t *newWall (float min_x, float max_x, float min_z, float max_z) 
+object_t *newWall (float start_x, float end_x, float start_z, float end_z) 
 {
 	object_t *this = malloc(sizeof(object_t));
-	this->min_x = min_x;
-	this->max_x = max_x;
+	this->min_x = start_x;
+	this->max_x = end_x;
 	this->min_y = 0;
 	this->max_y = WALL_HEIGHT;
-	this->min_z = min_z;
-	this->max_z = max_z;
+	this->min_z = start_z;
+	this->max_z = end_z;
+	if (end_x-start_x < end_z-start_z) //horizontal wall
+	{
+		this->min_x+=LEN_GAP;
+		this->max_x-=LEN_GAP;
+		this->min_z+=DEPTH_GAP;
+		this->max_z-=DEPTH_GAP;
+	}
+	else
+	{
+		this->min_x+=DEPTH_GAP;
+		this->max_x-=DEPTH_GAP;
+		this->min_z+=LEN_GAP;
+		this->max_z-=LEN_GAP;
+	}
 	this->type = TYPE_WALL;
 	this->display = drawWall;
 	this->energy = 1000;
@@ -378,7 +398,8 @@ object_t *newTurret (float min_x, float min_z) {
 
 object_t *newCube(float min_x, float min_z) {
 	object_t *this = newObject(min_x, 0, min_z);
-	this->max_y = this->pos_y + 1;
+	this->pos_y = 1;
+	this->max_y = 2;//this->pos_y + 1;
 	this->min_x = this->pos_x - 1;
 	this->min_z = this->pos_z - 1;
 	this->max_x = this->pos_x + 1;

@@ -24,9 +24,12 @@ void move_forward (void)
 	float rot_x_rad = cam->character->rot_x / 180*PI;
 	float rot_y_rad = cam->character->rot_y / 180*PI;
 	
-	cam->character->pos_x += sin(rot_y_rad)*cam->character->vel;
-	cam->character->pos_z += cos(rot_y_rad)*cam->character->vel;
-	cam->character->pos_y += sin(rot_x_rad)*cam->character->vel;
+	//~ cam->character->pos_x += sin(rot_y_rad)*cam->character->vel;
+	//~ cam->character->pos_z += cos(rot_y_rad)*cam->character->vel;
+	//~ cam->character->pos_y += sin(rot_x_rad)*cam->character->vel;
+	cam->mov_x = sin(rot_y_rad);
+	cam->mov_y = sin(rot_x_rad);
+	cam->mov_z = cos(rot_y_rad);
 	
 	//~ if (checkCollisions (cam->character))
 	//~ {
@@ -48,9 +51,13 @@ void move_backward (void)
 	float rot_x_rad = cam->character->rot_x / 180*PI;
 	float rot_y_rad = cam->character->rot_y / 180*PI;
 	
-	cam->character->pos_x -= sin(rot_y_rad)*cam->character->vel;
-	cam->character->pos_z -= cos(rot_y_rad)*cam->character->vel;
-	cam->character->pos_y -= sin(rot_x_rad)*cam->character->vel;
+	//~ cam->character->pos_x -= sin(rot_y_rad)*cam->character->vel;
+	//~ cam->character->pos_z -= cos(rot_y_rad)*cam->character->vel;
+	//~ cam->character->pos_y -= sin(rot_x_rad)*cam->character->vel;
+	
+	cam->mov_x = -sin(rot_y_rad);
+	cam->mov_z = -cos(rot_y_rad);
+	cam->mov_y = -sin(rot_x_rad);
 	
 	update_bounds();
 	
@@ -67,8 +74,11 @@ void strafe_left (void)
 	
 	update_bounds();
 	
-	cam->character->pos_x += cos(rot_y_rad)*cam->character->vel;
-	cam->character->pos_z -= sin(rot_y_rad)*cam->character->vel;
+	//~ cam->character->pos_x += cos(rot_y_rad)*cam->character->vel;
+	//~ cam->character->pos_z -= sin(rot_y_rad)*cam->character->vel;
+	
+	cam->mov_x = cos(rot_y_rad);
+	cam->mov_z = -sin(rot_y_rad);
 }
 
 void strafe_right (void)
@@ -78,8 +88,11 @@ void strafe_right (void)
 	
 	update_bounds();
 	
-	cam->character->pos_x -= cos(rot_y_rad)*cam->character->vel;
-	cam->character->pos_z += sin(rot_y_rad)*cam->character->vel;
+	//~ cam->character->pos_x -= cos(rot_y_rad)*cam->character->vel;
+	//~ cam->character->pos_z += sin(rot_y_rad)*cam->character->vel;
+	
+	cam->mov_x = -cos(rot_y_rad);
+	cam->mov_z = sin(rot_y_rad);
 }
 
 void rotate_left (void)
@@ -97,7 +110,10 @@ void update (void)
 	glRotatef (-cam->character->rot_x, 1.0, 0.0, 0.0);
 	glRotatef (-cam->character->rot_y, 0.0, 1.0, 0.0);
 	glRotatef (180, 0.0, 1.0, 0.0);
-	glTranslatef (-cam->character->pos_x, -cam->character->pos_y, -cam->character->pos_z);	
+	glTranslatef (-cam->character->pos_x, -cam->character->pos_y, -cam->character->pos_z);
+	cam->mov_x = 0;
+	cam->mov_y = 0;
+	cam->mov_z = 0;
 }
 
 void init_camera (void)
@@ -113,6 +129,10 @@ void init_camera (void)
 	cam->update = update;
 	cam->min_y = 3;
 	cam->max_y = 3;
+	
+	cam->mov_x = 0;
+	cam->mov_y = 0;
+	cam->mov_z = 0;
 	
 	cam->character = newCharacter (10, 3, 10);
 	object_list->append (cam->character);

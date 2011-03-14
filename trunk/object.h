@@ -34,6 +34,8 @@ typedef struct object_t {
 	/** what to do on collision with obj? */
 	void (*onCollision) (struct object_t *this, struct object_t *obj);
 	
+	void (*update) (struct object_t *this);
+	
 } object_t;
 
 int hasCollision (object_t *this, object_t *obj);

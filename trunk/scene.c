@@ -233,6 +233,8 @@ void updateFunc()
 				collider->onCollision (collider, obj);
 			}
 		}
+		if (collider->type == TYPE_CHARACTER)
+			collider->update(collider);
 		i = i->next;
 	}
 }

@@ -17,11 +17,13 @@
 #define DEPTH_GAP 0// CELLSIZE*0.5
 
 void doNothing (object_t *this, object_t *obj) {}
+void notUpdate(object_t *this) {}
 
 /* check if this has a collision with obj 
  */
 int hasCollision (object_t *this, object_t *obj) 
 {
+	
 	if (obj->type == this->owner_type || this->type == obj->owner_type ||
 		obj->type == this->type )
 		return 0;
@@ -30,17 +32,56 @@ int hasCollision (object_t *this, object_t *obj)
 	float y = this->pos_y;
 	float z = this->pos_z;
 	
-	if (x > obj->min_x && x < obj->max_x && 
-		y > obj->min_y && y < obj->max_y && 
-		z > obj->min_z && z < obj->max_z)
-		return 1;
+	if ( this->type == TYPE_BULLET )
+		return (x > obj->min_x && x < obj->max_x && 
+			y > obj->min_y && y < obj->max_y && 
+			z > obj->min_z && z < obj->max_z);
 	
-	float nextX = x+cos(this->rot_y*DEG_TO_RAD);
-	float nextZ = z+sin(this->rot_y*DEG_TO_RAD);
-	if (nextX > obj->min_x && nextX < obj->max_x && 
-		nextZ > obj->min_z && nextZ < obj->max_z)
-		return 1;
-	return 0;
+	if (obj->type == TYPE_FLOOR || obj->type == TYPE_TOP)
+		return 0;
+	//~ float nextX = x+cam->mov_x*CELLSIZE;
+	//~ float nextY = y+cam->mov_y;
+	//~ float nextZ = z+cam->mov_z*CELLSIZE;
+	//~ if (nextX > obj->min_x && nextX < obj->max_x && 
+		//~ nextY > obj->min_y && nextY < obj->max_y &&
+		//~ nextZ > obj->min_z && nextZ < obj->max_z)
+	//~ {
+		//~ if (x > obj->min_x && x < obj->max_x) //movement over x done in previous step
+			//~ cam->mov_z = 0;
+		//~ if  (z > obj->min_z && z < obj->max_z)
+			//~ cam->mov_x = 0;
+		//~ return 1;
+		//~ 
+	//~ }
+	//~ return 0;
+	
+	int free_vertices[] = {1, 1, 1, 1};
+	enum { MAX_MAX, MAX_MIN, MIN_MAX, MIN_MIN };
+	if (this->max_x > obj->min_x && this->max_x < obj->max_x) 
+	{
+		if (this->max_z > obj->min_z && this->max_z < obj->max_z)
+			free_vertices[MAX_MAX] = 0; 
+		if (this->min_z > obj->min_z && this->min_z < obj->max_z)
+			free_vertices[MAX_MIN] = 0;
+	}
+	if (this->min_x > obj->min_x && this->min_x < obj->max_x)
+	{
+		if (this->max_z > obj->min_z && this->max_z < obj->max_z)
+			free_vertices[MIN_MAX] = 0;
+		if (this->min_z > obj->min_z && this->min_z < obj->max_z)
+			free_vertices[MIN_MIN] = 0;
+	}
+	
+	if ( (!free_vertices[MAX_MAX] || !free_vertices[MAX_MIN]) && cam->mov_x>0 )
+		cam->mov_x = 0;
+	if ( (!free_vertices[MAX_MAX] || !free_vertices[MIN_MAX]) && cam->mov_z>0)
+		cam->mov_z = 0;
+	if ( (!free_vertices[MIN_MAX] || !free_vertices[MIN_MIN]) && cam->mov_x<0)
+		cam->mov_x = 0;
+	if ( (!free_vertices[MIN_MIN] || !free_vertices[MAX_MIN]) && cam->mov_z<0)
+		cam->mov_z = 0;
+	
+	
 }
 
 /****** Draw functions *******/
@@ -227,28 +268,6 @@ void characterCollision (object_t *this, object_t *obj)
 {
 	if (obj->type == TYPE_BULLET)
 		this->energy -= 1;
-	else if (obj->type == TYPE_WALL) 
-	{
-		float coords[] = { this->pos_x, this->pos_y, this->pos_z };
-		float sides[] = { obj->min_x, obj->max_x, obj->min_y, obj->max_y,  obj->min_z, obj->max_z };
-		float *available_coords[] = { &this->pos_x, &this->pos_y, &this->pos_z };
-		int coord_index = 0, side_index = 0;
-		
-		for (coord_index = 0; coord_index < 3; coord_index++) 
-		{
-			float min_side_gap = coords[coord_index] - sides[side_index]; //c - min_side
-			float max_side_gap = sides[side_index+1] - coords[coord_index]; //max_side -c
-			
-			if ( min_side_gap > 0 && min_side_gap <= COLLISION_GAP) {
-				*( available_coords[coord_index] ) = sides[side_index];
-			}
-			else if ( max_side_gap > 0 && max_side_gap <= COLLISION_GAP) {
-				*( available_coords[coord_index] ) = sides[side_index+1];
-			}
-			
-			side_index += 2;
-		}
-	}
 }
 
 void cubeCollision (object_t *this, object_t *obj)
@@ -257,6 +276,15 @@ void cubeCollision (object_t *this, object_t *obj)
 		cam->character->score++;
 		this->energy = 0;
 	}
+}
+
+/****** Update functions *******/
+
+void characterUpdate(object_t *this) 
+{
+	this->pos_x += cam->mov_x*this->vel;
+	this->pos_y += cam->mov_y*this->vel;
+	this->pos_z += cam->mov_z*this->vel;
 }
 
 /****** Create functions *******/
@@ -288,6 +316,7 @@ object_t *newCharacter (int pos_x, int pos_y, int pos_z)
 	
 	this->display = displayNothing;
 	this->onCollision = characterCollision;
+	this->update = characterUpdate;
 	return this;
 }
 
@@ -420,6 +449,7 @@ object_t *newObject(float min_x, float min_y, float min_z) {
 	this->max_z = min_z+CELLSIZE;
 	this->energy = 100;
 	this->rot_x = this->rot_y = 0;
+	this->update = notUpdate;
 	
 	double half_cellsize = (double)CELLSIZE/2.0;
 	this->pos_x = min_x+half_cellsize;

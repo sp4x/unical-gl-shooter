@@ -85,6 +85,7 @@ void drawBounds (void)
 
 void drawScene() {
 	placeLights();
+	drawBounds();
 	if (showbounds)
 		drawBounds();
 	object_list_iterator *i = object_list->first;
@@ -129,26 +130,30 @@ char *readData(char *file, int *lines, int *cols) {
 	return buffer;
 }
 
-void findWalls() {
+void findObjects() {
 	int i,j;
 	object_t *wall = NULL;
 	
 	//horizontal walls
 	for (i=0; i<lines; i++)
 		for (j=0; j<cols; j++) {
-			if ( !wall && getSceneCell(i,j) == TURRET) {
-				object_t *turret = newTurret( j*CELLSIZE, (j+1)*CELLSIZE, i*CELLSIZE, (i+1)*CELLSIZE);
-				object_list->append(turret);
+			if ( !wall ) {
+				if ( getSceneCell(i,j) == TURRET) {
+					object_t *turret = newTurret( j*CELLSIZE, i*CELLSIZE );
+					object_list->append(turret);
+				}
+				else if ( getSceneCell(i,j) == CUBE ) {
+					object_t *cube = newCube( j*CELLSIZE, i*CELLSIZE );
+					object_list->append(cube);
+				}
+				else if ( getSceneCell(i,j) == WALL && j<cols-1 && getSceneCell(i,j+1) != FREE_SPACE ) {
+					wall = newWall( j*CELLSIZE, 0, i*CELLSIZE, (i+1)*CELLSIZE);
+				}
 			}
-			else if ( !wall && getSceneCell(i,j) == WALL && j<cols-1 && getSceneCell(i,j+1) != FREE_SPACE ) {
-				wall = newWall( j*CELLSIZE, 0, i*CELLSIZE, (i+1)*CELLSIZE);
-			}
-			else if ( wall ) {
-				if (getSceneCell(i,j) != WALL || j == cols-1) {
+			else if (getSceneCell(i,j) != WALL || j == cols-1) {
 					wall->max_x = (j+1)*CELLSIZE;
 					object_list->append(wall);
 					wall = NULL;
-				}
 			}
 		}
 
@@ -172,15 +177,7 @@ void findWalls() {
 
 object_t *checkCollisions (object_t *collider) 
 {
-	float *available_x = NULL, *available_y = NULL, *available_z = NULL;
 	object_t *obj = NULL;
-	
-	if (collider->type == TYPE_CHARACTER) 
-	{
-		available_x = &collider->pos_x;
-		available_y = &collider->pos_y;
-		available_z = &collider->pos_z;
-	}
 	
 	object_list_iterator *i = object_list->first;
 	while (i != NULL) 
@@ -249,7 +246,7 @@ void loadScene(char *file) {
 	scene = malloc(sizeof(scene_t));
 	buffer = readData(file, &lines, &cols);
 	createObjectList();
-	findWalls();
+	findObjects();
 	float max_x = cols*CELLSIZE;
 	float max_z = lines*CELLSIZE;
 	object_t *floor = newFloor (max_x, WALL_HEIGHT, max_z);

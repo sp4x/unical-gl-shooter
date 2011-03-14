@@ -10,6 +10,7 @@ typedef struct camera_t
 	object_t *character;
 	// movements limits
 	int min_y, max_y;
+	float mov_x, mov_y, mov_z;
 	
 	void (*move_forward) (void);
 	void (*move_backward) (void);

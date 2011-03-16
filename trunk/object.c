@@ -79,9 +79,10 @@ void drawWall (object_t *this) {
 	float max_z = this->max_z;// - WALL_GAP;
 	
 	glColor3f(0,0.5,1);
-	loadTexture(TEXTURE_METAL2);
+	loadTexture(TEXTURE_METAL_PLATE_FILL);
 	   
 	float sx = max_x/10, sz = max_z/10, t = WALL_HEIGHT/2;
+	//~ float sx = 1, sz = 1, t = 1;
 	glBegin(GL_QUADS);
 	//north wall
 	glNormal3f(0,0,-1);
@@ -151,10 +152,10 @@ void drawTop (object_t *this) {
 }
 
 void drawFloor (object_t *this) {
-	glColor3f(1,1,1);
-	loadTexture(TEXTURE_METAL2);
-	int t = this->max_z*2;
-	int s = this->max_x*2;
+	glColor3f(0.5,0.5,0.5);
+	loadTexture(TEXTURE_WHITE);
+	int t = this->max_z;
+	int s = this->max_x;
 	float x = this->max_x;
 	float z = this->max_z;
 	glBegin(GL_QUADS);

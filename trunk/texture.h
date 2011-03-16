@@ -13,6 +13,8 @@
 #define TEXTURE_STONE "texture/Stone.tga"
 #define TEXTURE_WHITE "texture/white.tga"
 
+
+
 void loadTexture(const char *texname);
 void cleanTextures();
 

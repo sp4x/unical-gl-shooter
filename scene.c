@@ -203,18 +203,13 @@ void updateFunc()
 		{
 			object_t *with[COLLISION_SLOTS];
 			int with_size = checkCollisions (collider, with);
-			if (collider->type == TYPE_BULLET && with_size > 0)
-					printf ("bullet collides with: ");
 			int j;
 			for (j=0; j<with_size; j++)
 			{
 				object_t *obj = with[j];
-				if (collider->type == TYPE_BULLET)
-					printf ("%s; ", objtype(obj));
 				obj->onCollision (obj, collider);
 				collider->onCollision (collider, obj);
 			}
-			if (collider->type == TYPE_BULLET && with_size > 0) printf ("\n");
 		}
 		collider->update (collider);
 		i = i->next;

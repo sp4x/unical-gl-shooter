@@ -33,3 +33,20 @@ double get_time (void)
 {
 	return timer.tv_sec + (timer.tv_usec / 1.0E6);
 }
+
+char *objtype (object_t *o)
+{
+	char *s = "oo";
+	switch (o->type)
+	{
+		case TYPE_BULLET: s = "bullet"; break;
+		case TYPE_CHARACTER: s = "character"; break;
+		case TYPE_CUBE: s = "cube"; break;
+		case TYPE_FLOOR: s = "floor"; break;
+		case TYPE_TOP: s = "top"; break;
+		case TYPE_TURRET: s = "turret"; break;
+		case TYPE_WALL: s = "wall"; break;
+		default: s = "nothing?"; break;
+	}
+	return s;
+}

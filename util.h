@@ -2,6 +2,8 @@
 #include <string.h>
 #include <math.h>
 
+#include "object.h"
+
 #define RAD_TO_DEG 180.0/M_PI
 #define DEG_TO_RAD M_PI/180.0
 
@@ -26,3 +28,6 @@ void update_timer (void);
 
 /* returns the current time (in seconds) */
 double get_time (void);
+
+/* return a string identifying the type of the object o */
+char *objtype (object_t *o);

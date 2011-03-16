@@ -87,7 +87,6 @@ void drawBounds (void)
 
 void drawScene() {
 	placeLights();
-	drawBounds();
 	if (showbounds)
 		drawBounds();
 	object_list_iterator *i = object_list->first;
@@ -199,42 +198,25 @@ void updateFunc()
 	while (i != NULL) 
 	{
 		object_t *collider = i->value;
+
 		if (collider->type == TYPE_BULLET || collider->type == TYPE_CHARACTER)
 		{
 			object_t *with[COLLISION_SLOTS];
 			int with_size = checkCollisions (collider, with);
+			if (collider->type == TYPE_BULLET && with_size > 0)
+					printf ("bullet collides with: ");
 			int j;
 			for (j=0; j<with_size; j++)
 			{
 				object_t *obj = with[j];
-				//~ char *s, *s1;
-				//~ switch (obj->type)
-				//~ {
-					//~ case TYPE_FLOOR: s = "floor"; break;
-					//~ case TYPE_TOP: s = "top"; break;
-					//~ case TYPE_WALL: s = "wall"; break;
-					//~ case TYPE_TURRET: s = "turret"; break;
-					//~ case TYPE_CHARACTER: s = "character"; break;
-					//~ case TYPE_BULLET: s = "bullet"; break;
-					//~ default: s = "nothing"; break;
-				//~ }
-				//~ switch (collider->type)
-				//~ {
-					//~ case TYPE_FLOOR: s1 = "floor"; break;
-					//~ case TYPE_TOP: s1 = "top"; break;
-					//~ case TYPE_WALL: s1 = "wall"; break;
-					//~ case TYPE_TURRET: s1 = "turret"; break;
-					//~ case TYPE_CHARACTER: s1 = "character"; break;
-					//~ case TYPE_BULLET: s1 = "bullet"; break;
-					//~ default: s1 = "nothing"; break;
-				//~ }
-				//~ printf("%s collides with %s\n", s1, s);
+				if (collider->type == TYPE_BULLET)
+					printf ("%s; ", objtype(obj));
 				obj->onCollision (obj, collider);
 				collider->onCollision (collider, obj);
 			}
+			if (collider->type == TYPE_BULLET && with_size > 0) printf ("\n");
 		}
-		if (collider->type == TYPE_CHARACTER)
-			collider->update(collider);
+		collider->update (collider);
 		i = i->next;
 	}
 }
@@ -264,7 +246,6 @@ void loadScene(char *file) {
 	
 	scene->display = drawScene;
 	scene->update = updateFunc;
-	//~ scene->checkCollisions = checkCollisions;
 	free(buffer);
 	
 	addLighting();

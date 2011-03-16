@@ -16,7 +16,6 @@ typedef struct scene_t {
 	
 	void (*display) (void);
 	void (*update) (void);
-	//~ object_t * (*checkCollisions) (object_t *collider);
 	
 } scene_t;
 

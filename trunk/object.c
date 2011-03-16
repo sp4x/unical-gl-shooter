@@ -17,7 +17,7 @@
 #define DEPTH_GAP 0// CELLSIZE*0.5
 
 void doNothing (object_t *this, object_t *obj) {}
-void notUpdate(object_t *this) {}
+void notUpdate (object_t *this) {}
 
 int inGap(float c, object_t *obj, int coord) {
 	if ( coord == 0)
@@ -29,7 +29,9 @@ int inGap(float c, object_t *obj, int coord) {
  */
 int hasCollision (object_t *this, object_t *obj) 
 {
-	//~ if (obj->type == this->owner_type || this->type == obj->owner_type ||
+	if (this->type == TYPE_BULLET && obj->type == this->owner_type || this->type == obj->owner_type)
+		return 0;
+
 	if (obj->type == this->type )
 		return 0;
 		
@@ -58,7 +60,7 @@ int hasCollision (object_t *this, object_t *obj)
 	}
 	if (inGap(this->max_x,obj,X) || inGap(this->min_x,obj,X))
 	{
-		printf("next %f, obj %f\n", this->max_z + cam->mov_z, obj->min_z);
+		//~ printf("next %f, obj %f\n", this->max_z + cam->mov_z, obj->min_z);
 		if (zside == UP && this->max_z + cam->mov_z >= obj->min_z)
 			cam->mov_z = 0;
 		if (zside == DOWN && this->min_z + cam->mov_z <= obj->max_z)
@@ -172,13 +174,6 @@ void drawFloor (object_t *this) {
 
 void drawBullet (object_t *this)
 {
-	double rot_x_rad = this->rot_x / 180*M_PI;
-	double rot_y_rad = this->rot_y / 180*M_PI;
-	
-	this->pos_x += sin(rot_y_rad)*this->vel;
-	this->pos_z += cos(rot_y_rad)*this->vel;
-	this->pos_y += sin(rot_x_rad)*this->vel;
-	
 	glPushMatrix();
 		glDisable (GL_TEXTURE_2D);
 		glColor3f (1, 1, 0);
@@ -191,35 +186,19 @@ void drawBullet (object_t *this)
 
 void drawTurret (object_t *this)
 {
-	object_t *character = cam->character;
-	float vector[] = { character->pos_x-this->pos_x, 0, character->pos_z-this->pos_z };
-	float radius = sqrt( vector[0]*vector[0] + vector[2]*vector[2] );
-	float angle = acos( vector[0]/radius );
-	this->rot_y = ( vector[2]>=0 ? 0 : 180);
-	this->rot_y -= (angle*RAD_TO_DEG - 90);
-	this->rot_y *= ( vector[2]>=0 ? 1 : -1);
-	
-	this->curr_time = get_time();
-	if (this->curr_time - this->last_time > 0.3)
-	{
-		this->last_time = this->curr_time;
-		object_t *bullet = newBullet (this);
-		object_list->append (bullet);
-	}
-	
 	GLUquadricObj *quadric = gluNewQuadric();
 	glPushMatrix();
-		glTranslatef(this->pos_x, 0, this->pos_z);
+		glTranslatef (this->pos_x, 0, this->pos_z);
 		glPushMatrix();
-			glRotatef(-90, 1, 0, 0);
-			gluCylinder(quadric, 0.5, 0.5, 2.5, 20, 20);
+			glRotatef (-90, 1, 0, 0);
+			gluCylinder (quadric, 0.5, 0.5, 2.5, 20, 20);
 		glPopMatrix();
-		glTranslatef(0, 2.5, 0);
-		gluSphere(quadric, 0.6, 20, 20);
-		glRotatef( this->rot_y, 0, 1, 0);
-		glDisable(GL_CULL_FACE);
-		gluCylinder(quadric, 0.1, 0.1, CELLSIZE/2, 20, 20);
-		glEnable(GL_CULL_FACE);
+		glTranslatef (0, 2.5, 0);
+		gluSphere (quadric, 0.6, 20, 20);
+		glRotatef (this->rot_y, 0, 1, 0);
+		glDisable (GL_CULL_FACE);
+		gluCylinder (quadric, 0.1, 0.1, CELLSIZE/2, 20, 20);
+		glEnable (GL_CULL_FACE);
 	glPopMatrix();
 	gluDeleteQuadric(quadric);
 }
@@ -272,6 +251,35 @@ void characterUpdate(object_t *this)
 	this->pos_z += cam->mov_z*this->vel;
 }
 
+void bulletUpdate (object_t *this)
+{
+	double rot_x_rad = this->rot_x*DEG_TO_RAD;
+	double rot_y_rad = this->rot_y*DEG_TO_RAD;
+	
+	this->pos_x += sin(rot_y_rad)*this->vel;
+	this->pos_z += cos(rot_y_rad)*this->vel;
+	this->pos_y += sin(rot_x_rad)*this->vel;
+}
+
+void turretUpdate (object_t *this)
+{
+	object_t *character = cam->character;
+	float vector[] = { character->pos_x-this->pos_x, 0, character->pos_z-this->pos_z };
+	float radius = sqrt( vector[0]*vector[0] + vector[2]*vector[2] );
+	float angle = acos( vector[0]/radius );
+	this->rot_y = (vector[2]>=0 ? 0 : 180);
+	this->rot_y -= (angle*RAD_TO_DEG - 90);
+	this->rot_y *= (vector[2]>=0 ? 1 : -1);
+	
+	this->curr_time = get_time();
+	if (this->curr_time - this->last_time > 0.3)
+	{
+		this->last_time = this->curr_time;
+		object_t *bullet = newBullet (this);
+		object_list->append (bullet);
+	}
+}
+
 /****** Create functions *******/
 
 void displayNothing (object_t *this) {}
@@ -285,12 +293,12 @@ object_t *newCharacter (int pos_x, int pos_y, int pos_z)
 	this->pos_x = pos_x;
 	this->pos_y = pos_y;
 	this->pos_z = pos_z;
-	this->min_x = pos_x - 0.5;
-	this->max_x = pos_x + 0.5;
+	this->min_x = pos_x - 1;
+	this->max_x = pos_x + 1;
 	this->min_y = 0;
 	this->max_y = 4;
-	this->min_z = pos_z - 0.5;
-	this->max_z = pos_z + 0.5;
+	this->min_z = pos_z - 1;
+	this->max_z = pos_z + 1;
 	this->vel = 0.1;
 	this->energy = 100;
 	this->score = 0;
@@ -314,6 +322,7 @@ object_t *newWall (float start_x, float end_x, float start_z, float end_z)
 	this->max_y = WALL_HEIGHT;
 	this->min_z = start_z;
 	this->max_z = end_z;
+	this->energy = 100;
 	if (end_x-start_x < end_z-start_z) //horizontal wall
 	{
 		this->min_x+=LEN_GAP;
@@ -329,8 +338,9 @@ object_t *newWall (float start_x, float end_x, float start_z, float end_z)
 		this->max_z-=LEN_GAP;
 	}
 	this->type = TYPE_WALL;
+
+	this->update = notUpdate;
 	this->display = drawWall;
-	this->energy = 1000;
 	this->onCollision = doNothing;
 	return this;
 }
@@ -348,7 +358,8 @@ object_t *newBullet (struct object_t *owner)
 	this->vel = 0.02;
 	this->type = TYPE_BULLET;
 	this->energy = 1;
-	
+
+	this->update = bulletUpdate;
 	this->display = drawBullet;
 	this->onCollision = bulletCollision;
 	return this;
@@ -365,7 +376,8 @@ object_t *newFloor (float max_x, float max_y, float max_z)
 	this->min_z = 0;
 	this->type = TYPE_FLOOR;
 	this->energy = 1;
-	
+
+	this->update = notUpdate;
 	this->display = drawFloor;
 	this->onCollision = doNothing;
 	return this;
@@ -382,7 +394,8 @@ object_t *newTop (float max_x, float max_y, float max_z)
 	this->min_z = 0;
 	this->type = TYPE_TOP;
 	this->energy = 1;
-	
+
+	this->update = notUpdate;
 	this->display = drawTop;
 	this->onCollision = doNothing;
 	return this;
@@ -404,7 +417,8 @@ object_t *newTurret (float min_x, float min_z) {
 	// init timer
 	this->curr_time = get_time();
 	this->last_time = get_time();
-	
+
+	this->update = turretUpdate;
 	this->display = drawTurret;
 	this->onCollision = turretCollision;
 	return this;
@@ -419,6 +433,8 @@ object_t *newCube(float min_x, float min_z) {
 	this->max_x = this->pos_x + 1;
 	this->max_z = this->pos_z + 1;
 	this->type = TYPE_CUBE;
+
+	this->update = notUpdate;
 	this->display = drawCube;
 	this->onCollision = cubeCollision;
 	return this;

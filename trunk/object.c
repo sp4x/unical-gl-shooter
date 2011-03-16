@@ -29,7 +29,7 @@ int inGap(float c, object_t *obj, int coord) {
  */
 int hasCollision (object_t *this, object_t *obj) 
 {
-	if (this->type == TYPE_BULLET && obj->type == this->owner_type || this->type == obj->owner_type)
+	if (this->type == TYPE_BULLET && obj->type == this->owner_type)
 		return 0;
 
 	if (obj->type == this->type )
@@ -66,9 +66,6 @@ int hasCollision (object_t *this, object_t *obj)
 		if (zside == DOWN && this->min_z + cam->mov_z <= obj->max_z)
 			cam->mov_z = 0;
 	}
-			
-	
-	
 }
 
 /****** Draw functions *******/
@@ -78,7 +75,6 @@ void drawWall (object_t *this) {
 	float max_x = this->max_x;// - WALL_GAP;
 	float min_z = this->min_z;// + WALL_GAP;
 	float max_z = this->max_z;// - WALL_GAP;
-		
 	
 	loadTexture(TEXTURE_BRICK);
 	   
@@ -355,7 +351,7 @@ object_t *newBullet (struct object_t *owner)
 	this->pos_z = owner->pos_z;
 	this->rot_x = owner->rot_x;
 	this->rot_y = owner->rot_y;
-	this->vel = 0.02;
+	this->vel = 0.1;
 	this->type = TYPE_BULLET;
 	this->energy = 1;
 

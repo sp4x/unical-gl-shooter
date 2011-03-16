@@ -19,13 +19,18 @@
 void doNothing (object_t *this, object_t *obj) {}
 void notUpdate(object_t *this) {}
 
+int inGap(float c, object_t *obj, int coord) {
+	if ( coord == 0)
+		return c > obj->min_x && c < obj->max_x;
+	return c > obj->min_z && c < obj->max_z;
+}
+
 /* check if this has a collision with obj 
  */
 int hasCollision (object_t *this, object_t *obj) 
 {
-	
-	if (obj->type == this->owner_type || this->type == obj->owner_type ||
-		obj->type == this->type )
+	//~ if (obj->type == this->owner_type || this->type == obj->owner_type ||
+	if (obj->type == this->type )
 		return 0;
 		
 	float x = this->pos_x;
@@ -39,47 +44,27 @@ int hasCollision (object_t *this, object_t *obj)
 	
 	if (obj->type == TYPE_FLOOR || obj->type == TYPE_TOP)
 		return 0;
-	//~ float nextX = x+cam->mov_x*CELLSIZE;
-	//~ float nextY = y+cam->mov_y;
-	//~ float nextZ = z+cam->mov_z*CELLSIZE;
-	//~ if (nextX > obj->min_x && nextX < obj->max_x && 
-		//~ nextY > obj->min_y && nextY < obj->max_y &&
-		//~ nextZ > obj->min_z && nextZ < obj->max_z)
-	//~ {
-		//~ if (x > obj->min_x && x < obj->max_x) //movement over x done in previous step
-			//~ cam->mov_z = 0;
-		//~ if  (z > obj->min_z && z < obj->max_z)
-			//~ cam->mov_x = 0;
-		//~ return 1;
-		//~ 
-	//~ }
-	//~ return 0;
-	
-	int free_vertices[] = {1, 1, 1, 1};
-	enum { MAX_MAX, MAX_MIN, MIN_MAX, MIN_MIN };
-	if (this->max_x > obj->min_x && this->max_x < obj->max_x) 
+			
+	enum {X, Y, Z};
+	enum {LEFT, RIGHT, UP, DOWN};
+	int xside = (x > obj->max_x ? RIGHT : LEFT);
+	int zside = ( z > obj->max_z ? DOWN : UP);
+	if (inGap(this->max_z,obj,Z) || inGap(this->min_z,obj,Z))
 	{
-		if (this->max_z > obj->min_z && this->max_z < obj->max_z)
-			free_vertices[MAX_MAX] = 0; 
-		if (this->min_z > obj->min_z && this->min_z < obj->max_z)
-			free_vertices[MAX_MIN] = 0;
+		if (xside == LEFT && this->max_x + cam->mov_x >= obj->min_x)
+			cam->mov_x = 0;
+		if (xside == RIGHT && this->min_x + cam->mov_x <= obj->max_x)
+			cam->mov_x = 0;
 	}
-	if (this->min_x > obj->min_x && this->min_x < obj->max_x)
+	if (inGap(this->max_x,obj,X) || inGap(this->min_x,obj,X))
 	{
-		if (this->max_z > obj->min_z && this->max_z < obj->max_z)
-			free_vertices[MIN_MAX] = 0;
-		if (this->min_z > obj->min_z && this->min_z < obj->max_z)
-			free_vertices[MIN_MIN] = 0;
+		printf("next %f, obj %f\n", this->max_z + cam->mov_z, obj->min_z);
+		if (zside == UP && this->max_z + cam->mov_z >= obj->min_z)
+			cam->mov_z = 0;
+		if (zside == DOWN && this->min_z + cam->mov_z <= obj->max_z)
+			cam->mov_z = 0;
 	}
-	
-	if ( (!free_vertices[MAX_MAX] || !free_vertices[MAX_MIN]) && cam->mov_x>0 )
-		cam->mov_x = 0;
-	if ( (!free_vertices[MAX_MAX] || !free_vertices[MIN_MAX]) && cam->mov_z>0)
-		cam->mov_z = 0;
-	if ( (!free_vertices[MIN_MAX] || !free_vertices[MIN_MIN]) && cam->mov_x<0)
-		cam->mov_x = 0;
-	if ( (!free_vertices[MIN_MIN] || !free_vertices[MAX_MIN]) && cam->mov_z<0)
-		cam->mov_z = 0;
+			
 	
 	
 }

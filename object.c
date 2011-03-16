@@ -20,8 +20,11 @@ void doNothing (object_t *this, object_t *obj) {}
 void notUpdate (object_t *this) {}
 
 int inGap(float c, object_t *obj, int coord) {
-	if ( coord == 0)
+	enum {X, Y, Z};
+	if ( coord == X)
 		return c > obj->min_x && c < obj->max_x;
+	if ( coord == Y )
+		return c > obj->min_y && c < obj->max_y;
 	return c > obj->min_z && c < obj->max_z;
 }
 
@@ -60,7 +63,6 @@ int hasCollision (object_t *this, object_t *obj)
 	}
 	if (inGap(this->max_x,obj,X) || inGap(this->min_x,obj,X))
 	{
-		//~ printf("next %f, obj %f\n", this->max_z + cam->mov_z, obj->min_z);
 		if (zside == UP && this->max_z + cam->mov_z >= obj->min_z)
 			cam->mov_z = 0;
 		if (zside == DOWN && this->min_z + cam->mov_z <= obj->max_z)
@@ -76,13 +78,13 @@ void drawWall (object_t *this) {
 	float min_z = this->min_z;// + WALL_GAP;
 	float max_z = this->max_z;// - WALL_GAP;
 	
-	loadTexture(TEXTURE_BRICK);
+	glColor3f(0,0.5,1);
+	loadTexture(TEXTURE_METAL2);
 	   
 	float sx = max_x/10, sz = max_z/10, t = WALL_HEIGHT/2;
 	glBegin(GL_QUADS);
 	//north wall
 	glNormal3f(0,0,-1);
-	glColor3f(1,1,1);
 	glTexCoord2d( sx, 0);
 	glVertex3f(max_x, 0, min_z);
 	glTexCoord2d( 0, 0);
@@ -151,8 +153,8 @@ void drawTop (object_t *this) {
 void drawFloor (object_t *this) {
 	glColor3f(1,1,1);
 	loadTexture(TEXTURE_METAL2);
-	int t = this->max_z;
-	int s = this->max_x;
+	int t = this->max_z*2;
+	int s = this->max_x*2;
 	float x = this->max_x;
 	float z = this->max_z;
 	glBegin(GL_QUADS);
@@ -182,7 +184,10 @@ void drawBullet (object_t *this)
 
 void drawTurret (object_t *this)
 {
+	glColor3f(1,1,1);
+	loadTexture(TEXTURE_BUMPPLAT);
 	GLUquadricObj *quadric = gluNewQuadric();
+	gluQuadricTexture(quadric, GL_TRUE);
 	glPushMatrix();
 		glTranslatef (this->pos_x, 0, this->pos_z);
 		glPushMatrix();
@@ -201,6 +206,7 @@ void drawTurret (object_t *this)
 
 void drawCube (object_t *this) 
 {
+	glColor3f(1,1,1);
 	glPushMatrix();
 		glTranslatef(this->pos_x, this->pos_y, this->pos_z);
 		glRotatef(this->rot_y, 0, 1, 0);

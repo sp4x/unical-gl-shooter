@@ -12,6 +12,9 @@
 #define COLLISION_SLOTS 5
 
 scene_t *scene;
+object_list_t *render_queue_opaque;
+object_list_t *render_queue_transparent;
+object_list_t *render_queue;
 
 char *buffer;
 int lines, cols;
@@ -30,7 +33,7 @@ void placeLights() {
 
 void drawBounds (void)
 {
-	object_list_iterator *i = object_list->first;
+	object_list_iterator *i = render_queue->iterator;
 	glDisable (GL_LIGHTING);
 	while (i != NULL)
 	{
@@ -89,7 +92,7 @@ void drawScene() {
 	placeLights();
 	if (showbounds)
 		drawBounds();
-	object_list_iterator *i = object_list->first;
+	object_list_iterator *i = render_queue->iterator;
 	while (i != NULL) {
 		object_t *obj = i->value;
 		if (obj->energy > 0) {
@@ -99,7 +102,7 @@ void drawScene() {
 			if (obj->type == TYPE_CHARACTER)
 				game_over();
 			i = i->next;
-			object_list->delete (obj);
+			listDelete(render_queue, obj);
 		}
 	}
 }
@@ -141,11 +144,11 @@ void findObjects() {
 			if ( !wall ) {
 				if ( getSceneCell(i,j) == TURRET) {
 					object_t *turret = newTurret( j*CELLSIZE, i*CELLSIZE );
-					object_list->append(turret);
+					scene->add(turret, QUEUE_OPAQUE);
 				}
 				else if ( getSceneCell(i,j) == CUBE ) {
 					object_t *cube = newCube( j*CELLSIZE, i*CELLSIZE );
-					object_list->append(cube);
+					scene->add(cube, QUEUE_OPAQUE);
 				}
 				else if ( getSceneCell(i,j) == WALL && j<cols-1 && getSceneCell(i,j+1) != FREE_SPACE ) {
 					wall = newWall( j*CELLSIZE, 0, i*CELLSIZE, (i+1)*CELLSIZE);
@@ -153,7 +156,7 @@ void findObjects() {
 			}
 			else if (getSceneCell(i,j) != WALL || j == cols-1) {
 					wall->max_x = (j)*CELLSIZE;
-					object_list->append(wall);
+					scene->add(wall, QUEUE_OPAQUE);
 					wall = NULL;
 			}
 		}
@@ -169,7 +172,7 @@ void findObjects() {
 			} else if ( wall ) {
 				if (getSceneCell(i,j) != WALL || i == lines - 1 ) {
 					wall->max_z = (i)*CELLSIZE;
-					object_list->append(wall);
+					scene->add(wall, QUEUE_OPAQUE);
 					wall = NULL;
 				}
 			}
@@ -181,7 +184,7 @@ int checkCollisions (object_t *collider, object_t **with)
 	object_t *obj = NULL;
 	int j=0;
 	
-	object_list_iterator *i = object_list->first;
+	object_list_iterator *i = render_queue->iterator;
 	while (i != NULL) 
 	{
 		if (i->value->type != TYPE_BULLET)
@@ -194,7 +197,7 @@ int checkCollisions (object_t *collider, object_t **with)
 
 void updateFunc() 
 {
-	object_list_iterator *i = object_list->first;
+	object_list_iterator *i = render_queue->iterator;
 	while (i != NULL) 
 	{
 		object_t *collider = i->value;
@@ -227,20 +230,35 @@ void addLighting() {
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 }
 
+void addObject (object_t *obj, RenderQueueMode mode)
+{
+	listAappend(render_queue, obj);
+	if (mode == QUEUE_OPAQUE)
+		listAappend(render_queue_opaque, obj);
+	else
+		listAappend(render_queue_transparent, obj);
+}
+
 void loadScene(char *file) {
 	scene = malloc(sizeof(scene_t));
 	buffer = readData(file, &lines, &cols);
-	createObjectList();
+	
+	render_queue = newObjectList();
+	render_queue_opaque = newObjectList();
+	render_queue_transparent = newObjectList();
+	
+	scene->display = drawScene;
+	scene->update = updateFunc;
+	scene->add = addObject;
+	
 	findObjects();
 	float max_x = cols*CELLSIZE;
 	float max_z = lines*CELLSIZE;
 	object_t *floor = newFloor (max_x, WALL_HEIGHT, max_z);
-	object_list->append (floor);
+	scene->add (floor, QUEUE_OPAQUE);
 	object_t *top = newTop (max_x, WALL_HEIGHT, max_z);
-	object_list->append (top);
+	scene->add (top, QUEUE_OPAQUE);
 	
-	scene->display = drawScene;
-	scene->update = updateFunc;
 	free(buffer);
 	
 	addLighting();
@@ -249,7 +267,7 @@ void loadScene(char *file) {
 
 void clean() {
 	free(scene);
-	object_list->clear();
+	listClear(render_queue);
 	cleanTextures();
 }
 

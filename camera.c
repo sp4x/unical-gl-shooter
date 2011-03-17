@@ -5,7 +5,7 @@
 
 #include "util.h"
 #include "camera.h"
-#include "objectlist.h"
+#include "scene.h"
 
 #define ROT_Y_RAD cam->character->rot_y*DEG_TO_RAD
 #define ROT_X_RAD cam->character->rot_x*DEG_TO_RAD
@@ -108,7 +108,7 @@ void init_camera (void)
 	reset_moves();
 	
 	cam->character = newCharacter (10, 3, 10);
-	object_list->append (cam->character);
+	scene->add (cam->character, QUEUE_OPAQUE);
 }
 
 void clean_camera (void)

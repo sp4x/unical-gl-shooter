@@ -3,7 +3,7 @@
 #include <time.h>
 
 #include "camera.h"
-#include "objectlist.h"
+#include "scene.h"
 #include "object.h"
 #include "input.h"
 #include "util.h"
@@ -90,30 +90,30 @@ void mouse_motion (int x, int y)
 void key_down (unsigned char key, int x, int y)
 {
 	// DEBUG: print list of objects
-	if (key == 'k')
-	{
-		object_list_iterator *it = object_list->first;
-		for (it; it != NULL; it = it->next)
-		{	
-			char *s;
-			switch (it->value->type)
-			{
-				case TYPE_FLOOR: s = "floor"; break;
-				case TYPE_TOP: s = "top"; break;
-				case TYPE_WALL: s = "wall"; break;
-				case TYPE_TURRET: s = "turret"; break;
-				case TYPE_CHARACTER: s = "character"; break;
-				case TYPE_BULLET: s = "bullet"; break;
-				default: s = "nothing"; break;
-			}
-			printf ("%s\n", s);
-		}
-	}
-	// DEBUG: show objects bounds
-	if (key == 'b')
-	{
-		showbounds = !showbounds;
-	}
+	//~ if (key == 'k')
+	//~ {
+		//~ object_list_iterator *it = object_list->first;
+		//~ for (it; it != NULL; it = it->next)
+		//~ {	
+			//~ char *s;
+			//~ switch (it->value->type)
+			//~ {
+				//~ case TYPE_FLOOR: s = "floor"; break;
+				//~ case TYPE_TOP: s = "top"; break;
+				//~ case TYPE_WALL: s = "wall"; break;
+				//~ case TYPE_TURRET: s = "turret"; break;
+				//~ case TYPE_CHARACTER: s = "character"; break;
+				//~ case TYPE_BULLET: s = "bullet"; break;
+				//~ default: s = "nothing"; break;
+			//~ }
+			//~ printf ("%s\n", s);
+		//~ }
+	//~ }
+	//~ // DEBUG: show objects bounds
+	//~ if (key == 'b')
+	//~ {
+		//~ showbounds = !showbounds;
+	//~ }
 	key_state[key] = DOWN;
 }
 
@@ -170,7 +170,7 @@ void input_update (void)
 		{
 			cam->character->last_time = get_time();
 			object_t *bullet = newBullet (cam->character);
-			object_list->append (bullet);
+			scene->add (bullet, QUEUE_OPAQUE);
 		}
 	}
 }

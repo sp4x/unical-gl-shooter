@@ -3,17 +3,16 @@
 #include "objectlist.h"
 #include <stdio.h>
 
-object_list_t *object_list;
 
-void append(object_t *elem) {
+void listAappend(object_list_t *list, object_t *elem) {
 	object_list_iterator *tmp = malloc (sizeof(object_list_iterator));
-	tmp->value =elem;
-	tmp->next = object_list->first;
-	object_list->first = tmp;
+	tmp->value = elem;
+	tmp->next = list->iterator;
+	list->iterator = tmp;
 }
 
-void clear() {
-	object_list_iterator *current = object_list->first;
+void listClear(object_list_t *list) {
+	object_list_iterator *current = list->iterator;
 	if (current != NULL) {
 		free(current->value);
 		object_list_iterator *next = current->next;
@@ -26,15 +25,16 @@ void clear() {
 	}
 }
 
-void delete (object_t *obj)
+void listDelete (object_list_t *list, object_t *obj)
 {
-	object_list_iterator *curr = object_list->first, *prev = NULL;
+	object_list_iterator *curr = list->iterator;
+	object_list_iterator *prev = NULL;
 	while (curr != NULL)
 	{
 		if (curr->value == obj)
 		{
-			if (prev == NULL) // found obj in the head
-				object_list->first = curr->next;
+			if (prev == NULL) // found obj in the head 
+				list->iterator = curr->next;
 			else
 				prev->next = curr->next;
 
@@ -48,17 +48,22 @@ void delete (object_t *obj)
 	}
 }
 
-void createObjectList() {
-	object_list = malloc(sizeof(object_list_t));
-	object_list->first = NULL;
-	//~ object_list->first = malloc(sizeof(object_list_iterator));
-	//~ object_list->first->value = NULL;
-	//~ object_list->first->next = NULL;
-	//~ object_list->last = object_list->first;
+object_list_t *newObjectList() {
+	object_list_t *list = malloc(sizeof(object_list_t));
+	//~ list->iterator = malloc(sizeof(object_list_iterator));
+	//~ list->iterator->value = NULL;
+	//~ list->iterator->next = NULL;
+	list->iterator = NULL;
+	//~ this->first = malloc(sizeof(object_list_iterator));
+	//~ this->first->value = NULL;
+	//~ this->first->next = NULL;
+	//~ this->last = this->first;
 	
-	object_list->append = append;
-	object_list->delete = delete;
-	object_list->clear = clear;
+	//~ this->append = append;
+	//~ this->delete = delete;
+	//~ this->clear = clear;
+	
+	return list;
 }
 
 

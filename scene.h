@@ -11,11 +11,13 @@
 
 #define CELLSIZE 2
 
+typedef enum { QUEUE_OPAQUE, QUEUE_TRANSPARENT } RenderQueueMode;
 
 typedef struct scene_t {
 	
 	void (*display) (void);
 	void (*update) (void);
+	void (*add) (object_t *obj, RenderQueueMode mode);
 	
 } scene_t;
 

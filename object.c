@@ -32,7 +32,7 @@ int inGap(float c, object_t *obj, int coord) {
  */
 int hasCollision (object_t *this, object_t *obj) 
 {
-	if (this->type == TYPE_BULLET && obj->type == this->owner_type)
+	if (this->type == TYPE_BULLET && this->data == obj)
 		return 0;
 
 	if (obj->type == this->type )
@@ -234,7 +234,7 @@ void turretCollision (object_t *this, object_t *obj)
 	{
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {1,0,0};
-		object_t *explosion = newExplosion (pos, 1500, 50, 600, 0.2, color, 0.005);
+		object_t *explosion = newExplosion (pos, 2000, 90, 600, 0.2, color, 0.005);
 		scene->add (explosion, QUEUE_OPAQUE);
 	}
 }
@@ -355,7 +355,6 @@ object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, flo
 	object_t *this = malloc(sizeof(object_t));
 	this->data = new_explosion (pos, p, d, lifetime, scale, color, speed);
 	this->energy = 1;
-	this->collides = 0;
 	this->update = explosionUpdate;
 	this->display = drawExplosion;
 	this->onCollision = doNothing;
@@ -398,7 +397,8 @@ object_t *newBullet (struct object_t *owner)
 {
 	object_t *this = malloc (sizeof(object_t));
 	
-	this->owner_type = owner->type;
+	//~ this->owner_type = owner->type;
+	this->data = owner;
 	this->pos_x = owner->pos_x;
 	this->pos_y = owner->pos_y;
 	this->pos_z = owner->pos_z;

@@ -19,12 +19,14 @@ object_list_t *render_queue;
 char *buffer;
 int lines, cols;
 
-char getSceneCell(int i, int j) {
+char getSceneCell(int i, int j)
+{
 	int index = i*cols+j;
 	return buffer[index];
 }
 
-void placeLights() {
+void placeLights()
+{
 	GLfloat position[] = {cols/2*CELLSIZE, WALL_HEIGHT*2, lines/2*CELLSIZE, 1};
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	//~ GLfloat spot_direction[] = {0,-1,0};
@@ -88,7 +90,8 @@ void drawBounds (void)
 	glEnable (GL_LIGHTING);
 }
 
-void drawScene() {
+void drawScene()
+{
 	placeLights();
 	if (showbounds)
 		drawBounds();
@@ -102,13 +105,14 @@ void drawScene() {
 			if (obj->type == TYPE_CHARACTER)
 				game_over();
 			i = i->next;
-			listDelete(render_queue, obj);
+			scene->remove (obj);
 		}
 	}
 }
 
 
-char *readData(char *file, int *lines, int *cols) {
+char *readData(char *file, int *lines, int *cols)
+{
 	//buffer storing map size information
 	char dataInfo[10];
 	
@@ -232,14 +236,25 @@ void addLighting() {
 
 void addObject (object_t *obj, RenderQueueMode mode)
 {
-	listAappend(render_queue, obj);
+	listAppend (render_queue, obj);
 	if (mode == QUEUE_OPAQUE)
-		listAappend(render_queue_opaque, obj);
-	else
-		listAappend(render_queue_transparent, obj);
+		listAppend (render_queue_opaque, obj);
+	else /* mode == QUEUE_TRANSPARENT */
+		listAppend (render_queue_transparent, obj);
 }
 
-void loadScene(char *file) {
+void removeObject (object_t *obj)
+{
+	listDelete (render_queue, obj);
+	if (obj->type == TYPE_WINDOW || obj->type == TYPE_SPHERE)
+		listDelete (render_queue_transparent, obj);
+	else
+		listDelete (render_queue_opaque, obj);
+	free (obj);
+}
+
+void loadScene (char *file)
+{
 	scene = malloc(sizeof(scene_t));
 	buffer = readData(file, &lines, &cols);
 	
@@ -250,6 +265,7 @@ void loadScene(char *file) {
 	scene->display = drawScene;
 	scene->update = updateFunc;
 	scene->add = addObject;
+	scene->remove = removeObject;
 	
 	findObjects();
 	float max_x = cols*CELLSIZE;
@@ -265,7 +281,8 @@ void loadScene(char *file) {
 }
 
 
-void clean() {
+void clean()
+{
 	free(scene);
 	listClear(render_queue);
 	cleanTextures();

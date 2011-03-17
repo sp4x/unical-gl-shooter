@@ -18,6 +18,7 @@ typedef struct scene_t {
 	void (*display) (void);
 	void (*update) (void);
 	void (*add) (object_t *obj, RenderQueueMode mode);
+	void (*remove) (object_t *obj);
 	
 } scene_t;
 

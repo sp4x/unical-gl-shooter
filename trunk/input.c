@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "scene.h"
 #include "object.h"
+#include "objectlist.h"
 #include "input.h"
 #include "util.h"
 
@@ -24,11 +25,11 @@ clock_t prev = 0, curr;
 
 enum
 {
-	MOUSE_LEFT_BUTTON = 0,
-	MOUSE_MIDDLE_BUTTON = 1,
-	MOUSE_RIGHT_BUTTON = 2,
-	MOUSE_SCROLL_UP = 3,
-	MOUSE_SCROLL_DOWN = 4
+	MOUSE_LEFT_BUTTON,
+	MOUSE_MIDDLE_BUTTON,
+	MOUSE_RIGHT_BUTTON,
+	MOUSE_SCROLL_UP,
+	MOUSE_SCROLL_DOWN
 };
 
 void mouse_func (int button, int state, int x, int y)
@@ -92,7 +93,7 @@ void key_down (unsigned char key, int x, int y)
 	// DEBUG: print list of objects
 	//~ if (key == 'k')
 	//~ {
-		//~ object_list_iterator *it = object_list->first;
+		//~ object_list_iterator *it = render_queue->iterator;
 		//~ for (it; it != NULL; it = it->next)
 		//~ {	
 			//~ char *s;
@@ -104,16 +105,19 @@ void key_down (unsigned char key, int x, int y)
 				//~ case TYPE_TURRET: s = "turret"; break;
 				//~ case TYPE_CHARACTER: s = "character"; break;
 				//~ case TYPE_BULLET: s = "bullet"; break;
+				//~ case TYPE_CUBE: s = "cube"; break;
+				//~ case TYPE_WINDOW: s = "window"; break;
+				//~ case TYPE_SPHERE: s = "sphere"; break;
 				//~ default: s = "nothing"; break;
 			//~ }
 			//~ printf ("%s\n", s);
 		//~ }
 	//~ }
-	//~ // DEBUG: show objects bounds
-	//~ if (key == 'b')
-	//~ {
-		//~ showbounds = !showbounds;
-	//~ }
+	// DEBUG: show objects bounds
+	if (key == 'b')
+	{
+		showbounds = !showbounds;
+	}
 	key_state[key] = DOWN;
 }
 

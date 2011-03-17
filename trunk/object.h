@@ -2,13 +2,18 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#define TYPE_WALL 0
-#define TYPE_BULLET 1
-#define TYPE_TURRET 2
-#define TYPE_FLOOR 3
-#define TYPE_TOP 4
-#define TYPE_CHARACTER 5
-#define TYPE_CUBE 6
+enum
+{
+	TYPE_WALL,
+	TYPE_BULLET,
+	TYPE_TURRET,
+	TYPE_FLOOR,
+	TYPE_TOP,
+	TYPE_CHARACTER,
+	TYPE_CUBE,
+	TYPE_WINDOW,
+	TYPE_SPHERE
+};
 
 #define WALL_HEIGHT 10
 
@@ -24,12 +29,8 @@ typedef struct object_t {
 	int type; 						/* obj type 	*/
 	int energy; 					/* current energy */
 	int score;						/* current score (just for player) */
-
+	
 	double curr_time, last_time;	/* useful for timer-dependent functions (e.g. shoot) */
-
-	int owner_type; 				/* just for bullet: who shoot this bullet? */
-
-	int collides;					/* true if this object can collide with an other... */
 
 	void *data;						/* something needed... */
 

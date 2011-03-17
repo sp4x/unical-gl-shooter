@@ -200,21 +200,21 @@ void updateFunc()
 	object_list_iterator *i = render_queue->iterator;
 	while (i != NULL) 
 	{
-		object_t *collider = i->value;
+		object_t *current = i->value;
 
-		if (collider->type == TYPE_BULLET || collider->type == TYPE_CHARACTER)
+		if (current->type == TYPE_BULLET || current->type == TYPE_CHARACTER)
 		{
 			object_t *with[COLLISION_SLOTS];
-			int with_size = checkCollisions (collider, with);
+			int with_size = checkCollisions (current, with);
 			int j;
 			for (j=0; j<with_size; j++)
 			{
 				object_t *obj = with[j];
-				obj->onCollision (obj, collider);
-				collider->onCollision (collider, obj);
+				obj->onCollision (obj, current);
+				current->onCollision (current, obj);
 			}
 		}
-		collider->update (collider);
+		current->update (current);
 		i = i->next;
 	}
 }

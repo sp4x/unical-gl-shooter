@@ -186,7 +186,7 @@ void drawBullet (object_t *this)
 void drawTurret (object_t *this)
 {
 	glColor3f(1,1,1);
-	loadTexture(TEXTURE_METAL2);
+	loadTexture(TEXTURE_BUMPPLAT);
 	GLUquadricObj *quadric = gluNewQuadric();
 	gluQuadricTexture(quadric, GL_TRUE);
 	glPushMatrix();

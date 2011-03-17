@@ -5,7 +5,6 @@
 #include <math.h>
 
 #include "object.h"
-#include "objectlist.h"
 #include "texture.h"
 #include "camera.h"
 #include "util.h"
@@ -279,7 +278,7 @@ void turretUpdate (object_t *this)
 	{
 		this->last_time = this->curr_time;
 		object_t *bullet = newBullet (this);
-		object_list->append (bullet);
+		scene->add (bullet, QUEUE_OPAQUE);
 	}
 }
 

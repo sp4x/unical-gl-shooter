@@ -186,7 +186,7 @@ void drawBullet (object_t *this)
 void drawTurret (object_t *this)
 {
 	glColor3f(1,1,1);
-	loadTexture(TEXTURE_BUMPPLAT);
+	loadTexture(TEXTURE_METAL2);
 	GLUquadricObj *quadric = gluNewQuadric();
 	gluQuadricTexture(quadric, GL_TRUE);
 	glPushMatrix();
@@ -207,7 +207,7 @@ void drawTurret (object_t *this)
 
 void drawCube (object_t *this) 
 {
-	glColor3f(1,1,1);
+	glColor3f(0.5,1,0);
 	glPushMatrix();
 		glTranslatef(this->pos_x, this->pos_y, this->pos_z);
 		glRotatef(this->rot_y, 0, 1, 0);
@@ -247,7 +247,7 @@ void cubeCollision (object_t *this, object_t *obj)
 
 /****** Update functions *******/
 
-void characterUpdate(object_t *this) 
+void characterUpdate (object_t *this) 
 {
 	this->pos_x += cam->mov_x*this->vel;
 	this->pos_y += cam->mov_y*this->vel;

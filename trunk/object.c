@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "util.h"
 #include "scene.h"
+#include "particles.h"
 
 #define COLLISION_GAP 0.1
 //~ #define WALL_GAP (CELLSIZE-1)/2
@@ -217,17 +218,36 @@ void drawCube (object_t *this)
 		this->rot_y = 0;
 }
 
+void drawExplosion (object_t *this)
+{
+	explosion_t *explosion = (explosion_t *) this->data;
+	explosion->display (explosion);
+}
+
 /****** onCollision functions *******/
 
 void turretCollision (object_t *this, object_t *obj)
 {
 	if (obj->type == TYPE_BULLET)
 		this->energy -= 3;
+	if (this->energy <= 0)
+	{
+		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
+		float color[3] = {1,0,0};
+		object_t *explosion = newExplosion (pos, 1500, 50, 600, 0.2, color, 0.005);
+		scene->add (explosion, QUEUE_OPAQUE);
+	}
 }
 
 void bulletCollision (object_t *this, object_t *obj)
 {
 	this->energy = 0;
+	if (obj->type != TYPE_CHARACTER) {
+		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
+		float color[3] = {1,1,1};
+		object_t *explosion = newExplosion (pos, 0, 30, 40, 0.1, color, 0.01);
+		scene->add (explosion, QUEUE_OPAQUE);
+	}
 }
 
 void characterCollision (object_t *this, object_t *obj)
@@ -241,6 +261,10 @@ void cubeCollision (object_t *this, object_t *obj)
 	if ( obj->type == TYPE_BULLET ) {
 		cam->character->score++;
 		this->energy = 0;
+		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
+		float color[3] = {0,0.5,0.9};
+		object_t *explosion = newExplosion (pos, 2000, 50, 600, 0.2, color, 0.005);
+		scene->add (explosion, QUEUE_OPAQUE);
 	}
 }
 
@@ -282,6 +306,17 @@ void turretUpdate (object_t *this)
 	}
 }
 
+void explosionUpdate (object_t *this)
+{
+	explosion_t *explosion = (explosion_t *) this->data;
+	explosion->update (explosion);
+	if (explosion->lifetime <= 0) {
+		this->energy = 0;
+		delete_explosion (explosion);
+		this->data = NULL;
+	}
+}
+
 /****** Create functions *******/
 
 void displayNothing (object_t *this) {}
@@ -312,6 +347,18 @@ object_t *newCharacter (int pos_x, int pos_y, int pos_z)
 	this->display = displayNothing;
 	this->onCollision = characterCollision;
 	this->update = characterUpdate;
+	return this;
+}
+
+object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, float *color, double speed)
+{
+	object_t *this = malloc(sizeof(object_t));
+	this->data = new_explosion (pos, p, d, lifetime, scale, color, speed);
+	this->energy = 1;
+	this->collides = 0;
+	this->update = explosionUpdate;
+	this->display = drawExplosion;
+	this->onCollision = doNothing;
 	return this;
 }
 

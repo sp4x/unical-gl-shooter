@@ -29,6 +29,10 @@ typedef struct object_t {
 
 	int owner_type; 				/* just for bullet: who shoot this bullet? */
 
+	int collides;					/* true if this object can collide with an other... */
+
+	void *data;						/* something needed... */
+
 	/** draw this object */
 	void (*display) (struct object_t *this);
 	/** what to do on collision with obj? */
@@ -49,4 +53,5 @@ object_t *newFloor (float max_x, float max_y, float max_z);
 object_t *newTop (float max_x, float max_y, float max_z);
 object_t *newTurret (float min_x, float min_z);
 object_t *newCube(float min_x, float min_z);
+object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, float *color, double speed);
 #endif

@@ -25,6 +25,7 @@ typedef struct explosion_t
 	particle_t *particles; 			/* particles array */
 	debris_t *debris;				/* debris array */
 	double lifetime;				/* explosion life time */
+	double speed;					/* explosion speed */
 
 	/* update particles and debris */
 	void (*update) (struct explosion_t *this);
@@ -35,6 +36,6 @@ typedef struct explosion_t
 
 /** create a new explosion with p particles and d debris and a lifetime
  */
-explosion_t *new_explosion (int p, int d, double lifetime);
+explosion_t *new_explosion (float *pos, int p, int d, double lifetime, float scale, float *color, double speed);
 
 void delete_explosion (explosion_t *exp);

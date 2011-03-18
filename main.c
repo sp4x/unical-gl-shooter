@@ -23,7 +23,7 @@ void init (void)
 	glEnable (GL_COLOR_MATERIAL);
 	glEnable (GL_TEXTURE_2D);
 	glEnable (GL_BLEND);
-	glAlphaFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	update_timer();
 	curr = last = get_time();

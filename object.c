@@ -12,9 +12,6 @@
 #include "particles.h"
 
 #define COLLISION_GAP 0.1
-//~ #define WALL_GAP (CELLSIZE-1)/2
-#define LEN_GAP 0//CELLSIZE*0.7
-#define DEPTH_GAP 0// CELLSIZE*0.5
 
 void nullCollision (object_t *this, object_t *obj) {}
 void doNothing (object_t *this) {}
@@ -73,12 +70,12 @@ int hasCollision (object_t *this, object_t *obj)
 /****** Draw functions *******/
 
 void drawWall (object_t *this) {
-	float min_x = this->min_x;// + WALL_GAP;
-	float max_x = this->max_x;// - WALL_GAP;
-	float min_z = this->min_z;// + WALL_GAP;
-	float max_z = this->max_z;// - WALL_GAP;
+	float min_x = this->min_x;
+	float max_x = this->max_x;
+	float min_z = this->min_z;
+	float max_z = this->max_z;
 	
-	glColor4f(0,0.5,1,0.25);
+	glColor3f(0, 0.5, 1);
 	loadTexture(TEXTURE_METAL_PLATE_FILL);
 	   
 	float sx = max_x/10, sz = max_z/10, t = WALL_HEIGHT/2;
@@ -204,7 +201,7 @@ void drawTurret (object_t *this)
 
 void drawCube (object_t *this) 
 {
-	glColor4f(0.5, 1, 0, 0.25);
+	glColor4f(0.5, 1, 0, 0.75);
 	glPushMatrix();
 		glTranslatef(this->pos_x, this->pos_y, this->pos_z);
 		glRotatef(this->rot_y, 0, 1, 0);

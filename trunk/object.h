@@ -14,7 +14,8 @@ enum
 	TYPE_CHARACTER,
 	TYPE_CUBE,
 	TYPE_WINDOW,
-	TYPE_SPHERE
+	TYPE_SPHERE,
+	TYPE_BLOOD
 };
 
 
@@ -58,4 +59,5 @@ object_t *newTop (float max_x, float max_y, float max_z);
 object_t *newTurret (float min_x, float min_z);
 object_t *newCube(float min_x, float min_z);
 object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, float *color, double speed);
+object_t *newBlood();
 #endif

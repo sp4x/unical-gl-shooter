@@ -108,7 +108,7 @@ void init_camera (void)
 	reset_moves();
 	
 	cam->character = newCharacter (10, 3, 10);
-	scene->add (cam->character, QUEUE_OPAQUE);
+	scene->add (cam->character);
 }
 
 void clean_camera (void)

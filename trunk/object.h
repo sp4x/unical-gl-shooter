@@ -2,6 +2,8 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#define WALL_HEIGHT 10
+
 enum
 {
 	TYPE_WALL,
@@ -15,7 +17,6 @@ enum
 	TYPE_SPHERE
 };
 
-#define WALL_HEIGHT 10
 
 typedef struct object_t {
 	
@@ -29,6 +30,8 @@ typedef struct object_t {
 	int type; 						/* obj type 	*/
 	int energy; 					/* current energy */
 	int score;						/* current score (just for player) */
+	int collides;					/* true if obj can collides, default 0 */
+	int transparent;				/* true if transparent, default 0 */
 	
 	double curr_time, last_time;	/* useful for timer-dependent functions (e.g. shoot) */
 

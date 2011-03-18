@@ -215,6 +215,27 @@ void drawExplosion (object_t *this)
 	explosion->display (explosion);
 }
 
+void drawBlood (object_t *this)
+{
+	float width = glutGet(GLUT_SCREEN_WIDTH); 
+	float height = glutGet(GLUT_SCREEN_HEIGHT);
+	object_t *character = cam->character;
+	float rot_y = character->rot_y;
+	float rot_x = character->rot_x;
+	printf("%f\n", rot_x);
+	float x = character->pos_x+sin(rot_y*DEG_TO_RAD)*2;
+	float y = character->pos_y+sin(rot_x*DEG_TO_RAD)*2;
+	float z = character->pos_z+cos(rot_y*DEG_TO_RAD)*2;
+	rot_y-=180;
+	glPushMatrix();
+		glTranslatef(x,y,z);
+		glRotatef(rot_x, 1, 0, 0);
+		glRotatef(rot_y, 0, 1, 0);
+		glColor4fv(this->data);
+		glRectf(-100,-100,100,100);
+	glPopMatrix();
+}
+
 /****** onCollision functions *******/
 
 void turretCollision (object_t *this, object_t *obj)
@@ -243,8 +264,10 @@ void bulletCollision (object_t *this, object_t *obj)
 
 void characterCollision (object_t *this, object_t *obj)
 {
-	if (obj->type == TYPE_BULLET)
+	if (obj->type == TYPE_BULLET) {
 		this->energy -= 1;
+		scene->add (newBlood());
+	}
 }
 
 void cubeCollision (object_t *this, object_t *obj)
@@ -313,6 +336,16 @@ void cubeUpdate (object_t *this)
 	this->rot_y+=0.5;
 	if ( this->rot_y == 360 )
 		this->rot_y = 0;
+}
+
+void bloodUpdate (object_t *this)
+{
+	float *color = this->data;
+	color[3] -= 0.01;
+	if (color[3] <= 0) {
+		this->energy = 0;
+		free(this->data);
+	}
 }
 
 /****** Create functions *******/
@@ -452,6 +485,18 @@ object_t *newCube(float min_x, float min_z) {
 	this->display = drawCube;
 	this->update = cubeUpdate;
 	this->onCollision = cubeCollision;
+	return this;
+}
+
+object_t *newBlood() {
+	object_t *this = newObject(0,0,0);
+	this->type = TYPE_BLOOD;
+	this->transparent = 1;
+	float color[] = {1, 0, 0, 1};
+	this->data = malloc(sizeof(color));
+	memcpy(this->data, color, sizeof(color));
+	this->update = bloodUpdate;
+	this->display = drawBlood;
 	return this;
 }
 

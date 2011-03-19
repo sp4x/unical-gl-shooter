@@ -12,16 +12,11 @@
 // mouse position in previous frame
 double mouse_x = 0, mouse_y = 0;
 
-// true if running
-int speed = 0;
-
 int first_time = 1;
 
 int key_state[256];
 int special_state[256];
 int mouse_button_state[5];
-
-clock_t prev = 0, curr;
 
 enum
 {
@@ -35,7 +30,8 @@ enum
 void mouse_func (int button, int state, int x, int y)
 {
 	mouse_button_state[button] = (state == GLUT_DOWN) ? DOWN : UP;
-	
+
+	// DEBUG: shoot a bullet at left button press 
 	//~ if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) 
 	//~ {
 		//~ object_t *bullet = newBullet (cam->character);
@@ -90,34 +86,12 @@ void mouse_motion (int x, int y)
 
 void key_down (unsigned char key, int x, int y)
 {
-	// DEBUG: print list of objects
-	//~ if (key == 'k')
-	//~ {
-		//~ object_list_iterator *it = render_queue->iterator;
-		//~ for (it; it != NULL; it = it->next)
-		//~ {	
-			//~ char *s;
-			//~ switch (it->value->type)
-			//~ {
-				//~ case TYPE_FLOOR: s = "floor"; break;
-				//~ case TYPE_TOP: s = "top"; break;
-				//~ case TYPE_WALL: s = "wall"; break;
-				//~ case TYPE_TURRET: s = "turret"; break;
-				//~ case TYPE_CHARACTER: s = "character"; break;
-				//~ case TYPE_BULLET: s = "bullet"; break;
-				//~ case TYPE_CUBE: s = "cube"; break;
-				//~ case TYPE_WINDOW: s = "window"; break;
-				//~ case TYPE_SPHERE: s = "sphere"; break;
-				//~ default: s = "nothing"; break;
-			//~ }
-			//~ printf ("%s\n", s);
-		//~ }
-	//~ }
-	// DEBUG: show objects bounds
+	/* DEBUG: show objects bounds */
 	if (key == 'b')
 	{
 		showbounds = !showbounds;
 	}
+	
 	key_state[key] = DOWN;
 }
 
@@ -169,6 +143,7 @@ void input_update (void)
 	}
 	if (mouse_button_state[MOUSE_LEFT_BUTTON] == DOWN)
 	{
+		/* shoot a bullet each 0.05 sec */
 		cam->character->curr_time = get_time();
 		if (cam->character->curr_time - cam->character->last_time >= 0.05)
 		{
@@ -178,15 +153,4 @@ void input_update (void)
 			scene->add (bullet);
 		}
 	}
-}
-
-void input_disable (void)
-{
-	glutPassiveMotionFunc (NULL);
-	glutMotionFunc (NULL);
-	glutMouseFunc (NULL);
-	glutKeyboardFunc (NULL);
-	glutKeyboardUpFunc (NULL);
-	glutSpecialFunc (NULL);
-	glutSpecialUpFunc (NULL);
 }

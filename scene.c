@@ -11,10 +11,14 @@
 
 #define COLLISION_SLOTS 5
 
+/** scene instance */
 scene_t *scene;
-object_list_t *render_queue_opaque;
-object_list_t *render_queue_transparent;
+/** queue of object to update and render */
 object_list_t *render_queue;
+/** queue of opaque object (to render first) */
+object_list_t *render_queue_opaque;
+/** queue of transparent object (to render last) */
+object_list_t *render_queue_transparent;
 
 char *buffer;
 int lines, cols;
@@ -33,6 +37,7 @@ void placeLights()
 	//~ glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
 }
 
+/** DEBUG: draw bounds of each object */
 void drawBounds (void)
 {
 	object_list_iterator *i = render_queue->iterator;
@@ -107,7 +112,6 @@ void drawScene()
 	}
 }
 
-
 char *readData(char *file, int *lines, int *cols)
 {
 	//buffer storing map size information
@@ -141,7 +145,7 @@ void findObjects() {
 	int window = 0;
 	
 	//horizontal walls
-	for (i=0; i<lines; i++)
+	for (i=0; i<lines; i++) {
 		for (j=0; j<cols; j++) {
 			if ( !wall ) {
 				if ( getSceneCell(i,j) == TURRET) {
@@ -174,9 +178,10 @@ void findObjects() {
 					wall = NULL;
 			}
 		}
+	}
 
 	//vertical walls
-	for (j=0; j<cols; j++)
+	for (j=0; j<cols; j++) {
 		for (i=0; i<lines; i++) {
 			if ( !wall && getSceneCell(i,j) == WALL && i<lines-1 && getSceneCell(i+1,j) == WALL ) {
 				if ((j<cols-1 && getSceneCell(i,j+1) != WALL) || j == cols-1)
@@ -191,6 +196,7 @@ void findObjects() {
 				}
 			}
 		}
+	}
 }
 
 int checkCollisions (object_t *collider, object_t **with) 
@@ -299,7 +305,6 @@ void loadScene (char *file)
 	
 	addLighting();
 }
-
 
 void clean()
 {

@@ -84,7 +84,8 @@ void draw_hud()
 	
 	if (gameover)
 	{
-		draw_text2d(width/2-60, height/2, "GAME OVER!", GLUT_BITMAP_HELVETICA_18);
+		char s[20] = "GAME OVER!";
+		draw_text2d(width/2-60, height/2, s, GLUT_BITMAP_HELVETICA_12);
 	}
 	
 	exit_ortho_mode();	

@@ -174,6 +174,7 @@ void input_update (void)
 		{
 			cam->character->last_time = get_time();
 			object_t *bullet = newBullet (cam->character);
+			bullet->vel = 0.7;
 			scene->add (bullet);
 		}
 	}

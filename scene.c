@@ -138,6 +138,7 @@ char *readData(char *file, int *lines, int *cols)
 void findObjects() {
 	int i,j;
 	object_t *wall = NULL;
+	int window = 0;
 	
 	//horizontal walls
 	for (i=0; i<lines; i++)
@@ -152,10 +153,22 @@ void findObjects() {
 					scene->add(cube);
 				}
 				else if ( getSceneCell(i,j) == WALL && j<cols-1 && getSceneCell(i,j+1) != FREE_SPACE ) {
-					wall = newWall( j*CELLSIZE, 0, i*CELLSIZE, (i+1)*CELLSIZE);
+					wall = newWall( j*CELLSIZE, 0, i*CELLSIZE, (i+1)*CELLSIZE );
+				}
+				else if ( getSceneCell(i,j) == WINDOW && j<cols-1 && getSceneCell(i,j+1) != FREE_SPACE ) {
+					wall = newWall( j-1*CELLSIZE, 0, i*CELLSIZE, (i+1)*CELLSIZE );
+					wall->transparent = 1;
+					window = 1;
 				}
 			}
-			else if (getSceneCell(i,j) != WALL || j == cols-1) {
+			else if (window && (getSceneCell(i,j) != WINDOW || j == cols-1)) {
+					wall->max_x = (j)*CELLSIZE;
+					scene->add(wall);
+					wall = NULL;
+					window = 0;
+					j--;
+			}
+			else if (!window && (getSceneCell(i,j) != WALL || j == cols-1)) {
 					wall->max_x = (j)*CELLSIZE;
 					scene->add(wall);
 					wall = NULL;
@@ -278,6 +291,9 @@ void loadScene (char *file)
 	scene->add (floor);
 	object_t *top = newTop (max_x, WALL_HEIGHT, max_z);
 	scene->add (top);
+	
+	object_t *solarSystem = newSolarSystem (20, 3, -10);
+	scene->add (solarSystem);
 	
 	free(buffer);
 	

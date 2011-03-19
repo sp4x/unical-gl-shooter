@@ -12,7 +12,7 @@ void enter_ortho_mode (void);
 void exit_ortho_mode (void);
 
 /* Writes red text on screen in the specified position */
-void draw_text2d (int x, int y, char *string);
+void draw_text2d (int x, int y, char *string, void* font);
 
 /* Draws the heads up display on screen */
 void draw_hud (void);

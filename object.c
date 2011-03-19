@@ -11,6 +11,7 @@
 #include "scene.h"
 #include "particles.h"
 #include "hud.h"
+#include "solar_system.h"
 
 #define COLLISION_GAP 0.1
 
@@ -76,7 +77,8 @@ void drawWall (object_t *this) {
 	float min_z = this->min_z;
 	float max_z = this->max_z;
 	
-	glColor3f(0, 0.5, 1);
+	float alpha = this->transparent ? 0.5 : 1.0;
+	glColor4f(0, 0.5, 1, alpha);
 	loadTexture(TEXTURE_METAL_PLATE_FILL);
 	   
 	float sx = max_x/10, sz = max_z/10, t = WALL_HEIGHT/2;
@@ -352,6 +354,16 @@ void bloodUpdate (object_t *this)
 
 /****** Create functions *******/
 
+object_t *newSolarSystem (int pos_x, int pos_y, int pos_z)
+{
+	object_t *this = newObject(0,0,0);
+	this->pos_x = pos_x;
+	this->pos_y = pos_y;
+	this->pos_z = pos_z;
+	this->update = updateSolarSystem;
+	this->display = drawSolarSystem;
+	return this;
+}
 
 object_t *newCharacter (int pos_x, int pos_y, int pos_z)
 {

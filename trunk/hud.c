@@ -28,13 +28,13 @@ void exit_ortho_mode()
 }
 
 /* Writes red text on screen in the specified position */
-void draw_text2d (int x, int y, char *string)
+void draw_text2d (int x, int y, char *string, void* font)
 {
 	int len = 0, i = 0;
 	glRasterPos2i(x, y);
 	len = (int)strlen(string);
 	for(i = 0; i < len; i++)
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[i]);
+		glutBitmapCharacter (font, string[i]);
 }
 
 void draw_blood ()
@@ -72,9 +72,9 @@ void draw_hud()
 	glEnd();
 	char s[50];
 	sprintf (s, "Energy: %d", cam->character->energy);
-	draw_text2d(20, 30, s);
+	draw_text2d(20, 30, s, GLUT_BITMAP_HELVETICA_12);
 	sprintf (s, "Score: %d", cam->character->score);
-	draw_text2d(20, 50, s);
+	draw_text2d(20, 50, s, GLUT_BITMAP_HELVETICA_12);
 	
 	if ( blood > 0 )
 	{
@@ -84,7 +84,7 @@ void draw_hud()
 	
 	if (gameover)
 	{
-		draw_text2d(width/2-60, height/2, "GAME OVER!");
+		draw_text2d(width/2-60, height/2, "GAME OVER!", GLUT_BITMAP_HELVETICA_18);
 	}
 	
 	exit_ortho_mode();	

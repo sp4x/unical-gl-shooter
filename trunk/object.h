@@ -60,4 +60,5 @@ object_t *newTurret (float min_x, float min_z);
 object_t *newCube(float min_x, float min_z);
 object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, float *color, double speed);
 object_t *newBlood();
+object_t *newSolarSystem (int pos_x, int pos_y, int pos_z);
 #endif

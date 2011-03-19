@@ -48,6 +48,7 @@ void display()
 	glPushMatrix();
 	
 	curr = get_time();
+	/* update input each 16 ms (~60 time for second) */
 	if ((curr - last) >= 0.0167)
     {	
 		last = curr;

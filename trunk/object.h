@@ -4,7 +4,7 @@
 
 #define WALL_HEIGHT 10
 
-enum
+enum ObjectType
 {
 	TYPE_WALL,
 	TYPE_BULLET,
@@ -18,7 +18,8 @@ enum
 	TYPE_BLOOD
 };
 
-
+/** struct that represents an object of the scene...
+ */
 typedef struct object_t {
 	
 	float pos_x, pos_y, pos_z; 		/* position */
@@ -36,29 +37,29 @@ typedef struct object_t {
 	
 	double curr_time, last_time;	/* useful for timer-dependent functions (e.g. shoot) */
 
-	void *data;						/* something needed... */
+	void *data;						/* something (e.g. another object) that this object needs */
 
 	/** draw this object */
 	void (*display) (struct object_t *this);
-	/** what to do on collision with obj? */
-	void (*onCollision) (struct object_t *this, struct object_t *obj);
-	
+	/** update this object */
 	void (*update) (struct object_t *this);
+	/** what to do when this object collides with obj? */
+	void (*onCollision) (struct object_t *this, struct object_t *obj);
 	
 } object_t;
 
+/** return true if this object collides with obj */
 int hasCollision (object_t *this, object_t *obj);
 
 /** create functions */
-object_t *newObject(float min_x, float min_y, float min_z);
+object_t *newObject (float min_x, float min_y, float min_z);
 object_t *newCharacter (int pos_x, int pos_y, int pos_z);
 object_t *newWall (float min_x, float max_x, float min_z, float max_z);
 object_t *newBullet (struct object_t *owner);
 object_t *newFloor (float max_x, float max_y, float max_z);
 object_t *newTop (float max_x, float max_y, float max_z);
 object_t *newTurret (float min_x, float min_z);
-object_t *newCube(float min_x, float min_z);
+object_t *newCube (float min_x, float min_z);
 object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, float *color, double speed);
-object_t *newBlood();
 object_t *newSolarSystem (int pos_x, int pos_y, int pos_z);
 #endif

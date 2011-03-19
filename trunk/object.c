@@ -13,11 +13,12 @@
 #include "hud.h"
 #include "solar_system.h"
 
-#define COLLISION_GAP 0.1
+/** doNothing (but very usefull) functions */
+void onCollisionNothing (object_t *this, object_t *obj) {}
+void updateNothing (object_t *this) {}
+void drawNothing (object_t *this) {}
 
-void nullCollision (object_t *this, object_t *obj) {}
-void doNothing (object_t *this) {}
-
+/** utility function for collision calculation */
 int inGap(float c, object_t *obj, int coord) {
 	enum {X, Y, Z};
 	if ( coord == X)
@@ -27,13 +28,15 @@ int inGap(float c, object_t *obj, int coord) {
 	return c > obj->min_z && c < obj->max_z;
 }
 
-/* check if this has a collision with obj 
+/** check if this object has a collision with obj 
  */
 int hasCollision (object_t *this, object_t *obj) 
 {
+	/* bullets must not collide with the one who shoots them */
 	if (this->type == TYPE_BULLET && this->data == obj)
 		return 0;
 
+	/* nothing must collides with itself */
 	if (obj->type == this->type )
 		return 0;
 		
@@ -41,14 +44,20 @@ int hasCollision (object_t *this, object_t *obj)
 	float y = this->pos_y;
 	float z = this->pos_z;
 	
+	/* for bullet just return true if there is a collision with obj */
 	if ( this->type == TYPE_BULLET )
 		return (x > obj->min_x && x < obj->max_x && 
-			y > obj->min_y && y < obj->max_y && 
-			z > obj->min_z && z < obj->max_z);
+				y > obj->min_y && y < obj->max_y && 
+				z > obj->min_z && z < obj->max_z);
 	
+	/* while for character.... */
+	
+	/* do not calculate collision with floor and top... */
 	if (obj->type == TYPE_FLOOR || obj->type == TYPE_TOP)
 		return 0;
 			
+	/* if he collides with something else, he must not enter inside it...
+	 * but he must slide along it */
 	enum {X, Y, Z};
 	enum {LEFT, RIGHT, UP, DOWN};
 	int xside = (x > obj->max_x ? RIGHT : LEFT);
@@ -179,7 +188,6 @@ void drawBullet (object_t *this)
 	glPopMatrix();
 }
 
-
 void drawTurret (object_t *this)
 {
 	glColor3f(1,1,1);
@@ -218,30 +226,10 @@ void drawExplosion (object_t *this)
 	explosion->display (explosion);
 }
 
-void drawBlood (object_t *this)
-{
-	float width = glutGet(GLUT_SCREEN_WIDTH); 
-	float height = glutGet(GLUT_SCREEN_HEIGHT);
-	object_t *character = cam->character;
-	float rot_y = character->rot_y;
-	float rot_x = character->rot_x;
-	printf("%f\n", rot_x);
-	float x = character->pos_x+sin(rot_y*DEG_TO_RAD)*2;
-	float y = character->pos_y+sin(rot_x*DEG_TO_RAD)*2;
-	float z = character->pos_z+cos(rot_y*DEG_TO_RAD)*2;
-	rot_y-=180;
-	glPushMatrix();
-		glTranslatef(x,y,z);
-		glRotatef(rot_x, 1, 0, 0);
-		glRotatef(rot_y, 0, 1, 0);
-		glColor4fv(this->data);
-		glRectf(-100,-100,100,100);
-	glPopMatrix();
-}
 
 /****** onCollision functions *******/
 
-void turretCollision (object_t *this, object_t *obj)
+void onCollisionTurret (object_t *this, object_t *obj)
 {
 	if (obj->type == TYPE_BULLET)
 		this->energy -= 3;
@@ -254,7 +242,7 @@ void turretCollision (object_t *this, object_t *obj)
 	}
 }
 
-void bulletCollision (object_t *this, object_t *obj)
+void onCollisionBullet (object_t *this, object_t *obj)
 {
 	this->energy = 0;
 	if (obj->type != TYPE_CHARACTER) {
@@ -265,7 +253,7 @@ void bulletCollision (object_t *this, object_t *obj)
 	}
 }
 
-void characterCollision (object_t *this, object_t *obj)
+void onCollisionCharacter (object_t *this, object_t *obj)
 {
 	if (obj->type == TYPE_BULLET) {
 		this->energy -= 1;
@@ -273,7 +261,7 @@ void characterCollision (object_t *this, object_t *obj)
 	}
 }
 
-void cubeCollision (object_t *this, object_t *obj)
+void onCollisionCube (object_t *this, object_t *obj)
 {
 	if ( obj->type == TYPE_BULLET ) {
 		cam->character->score++;
@@ -287,14 +275,14 @@ void cubeCollision (object_t *this, object_t *obj)
 
 /****** Update functions *******/
 
-void characterUpdate (object_t *this) 
+void updateCharacter (object_t *this) 
 {
 	this->pos_x += cam->mov_x*this->vel;
 	this->pos_y += cam->mov_y*this->vel;
 	this->pos_z += cam->mov_z*this->vel;
 }
 
-void bulletUpdate (object_t *this)
+void updateBullet (object_t *this)
 {
 	double rot_x_rad = this->rot_x*DEG_TO_RAD;
 	double rot_y_rad = this->rot_y*DEG_TO_RAD;
@@ -304,7 +292,7 @@ void bulletUpdate (object_t *this)
 	this->pos_y += sin(rot_x_rad)*this->vel;
 }
 
-void turretUpdate (object_t *this)
+void updateTurret (object_t *this)
 {
 	object_t *character = cam->character;
 	float vector[] = { character->pos_x-this->pos_x, 0, character->pos_z-this->pos_z };
@@ -327,7 +315,7 @@ void turretUpdate (object_t *this)
 	}
 }
 
-void explosionUpdate (object_t *this)
+void updateExplosion (object_t *this)
 {
 	explosion_t *explosion = (explosion_t *) this->data;
 	explosion->update (explosion);
@@ -338,21 +326,11 @@ void explosionUpdate (object_t *this)
 	}
 }
 
-void cubeUpdate (object_t *this)
+void updateCube (object_t *this)
 {
 	this->rot_y+=0.5;
 	if ( this->rot_y == 360 )
 		this->rot_y = 0;
-}
-
-void bloodUpdate (object_t *this)
-{
-	float *color = this->data;
-	color[3] -= 0.01;
-	if (color[3] <= 0) {
-		this->energy = 0;
-		free(this->data);
-	}
 }
 
 /****** Create functions *******/
@@ -390,8 +368,8 @@ object_t *newCharacter (int pos_x, int pos_y, int pos_z)
 	this->curr_time = get_time();
 	this->last_time = get_time();
 	
-	this->onCollision = characterCollision;
-	this->update = characterUpdate;
+	this->onCollision = onCollisionCharacter;
+	this->update = updateCharacter;
 	return this;
 }
 
@@ -399,7 +377,7 @@ object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, flo
 {
 	object_t *this = newObject(0,0,0);
 	this->data = new_explosion (pos, p, d, lifetime, scale, color, speed);
-	this->update = explosionUpdate;
+	this->update = updateExplosion;
 	this->display = drawExplosion;
 	return this;
 }
@@ -432,9 +410,9 @@ object_t *newBullet (struct object_t *owner)
 	this->energy = 1;
 	this->collides = 1;
 
-	this->update = bulletUpdate;
+	this->update = updateBullet;
 	this->display = drawBullet;
-	this->onCollision = bulletCollision;
+	this->onCollision = onCollisionBullet;
 	return this;
 }
 
@@ -481,18 +459,15 @@ object_t *newTurret (float min_x, float min_z) {
 	this->curr_time = get_time();
 	this->last_time = get_time();
 
-	this->update = turretUpdate;
+	this->update = updateTurret;
 	this->display = drawTurret;
-	this->onCollision = turretCollision;
+	this->onCollision = onCollisionTurret;
 	return this;
 }
 
 object_t *newCube(float min_x, float min_z) {
 	double half_cellsize = (double)CELLSIZE/2.0;
 	object_t *this = newObject(min_x, half_cellsize, min_z);
-	//~ this->pos_y = this->min_y+half_cellsize;
-	//~ this->min_x = this->pos_x - half_cellsize;
-	//~ this->min_z = this->pos_z - half_cellsize;
 	this->max_y = this->pos_y + half_cellsize;
 	this->max_x = this->pos_x + half_cellsize;
 	this->max_z = this->pos_z + half_cellsize;
@@ -500,20 +475,8 @@ object_t *newCube(float min_x, float min_z) {
 	this->transparent = 1;
 
 	this->display = drawCube;
-	this->update = cubeUpdate;
-	this->onCollision = cubeCollision;
-	return this;
-}
-
-object_t *newBlood() {
-	object_t *this = newObject(0,0,0);
-	this->type = TYPE_BLOOD;
-	this->transparent = 1;
-	float color[] = {1, 0, 0, 1};
-	this->data = malloc(sizeof(color));
-	memcpy(this->data, color, sizeof(color));
-	this->update = bloodUpdate;
-	this->display = drawBlood;
+	this->update = updateCube;
+	this->onCollision = onCollisionCube;
 	return this;
 }
 
@@ -529,9 +492,9 @@ object_t *newObject(float min_x, float min_y, float min_z) {
 	this->rot_x = this->rot_y = 0;
 	this->transparent = 0;
 	this->collides = 0;
-	this->update = doNothing;
-	this->display = doNothing;
-	this->onCollision = nullCollision;
+	this->update = updateNothing;
+	this->display = drawNothing;
+	this->onCollision = onCollisionNothing;
 	
 	double half_cellsize = (double)CELLSIZE/2.0;
 	this->pos_x = min_x+half_cellsize;

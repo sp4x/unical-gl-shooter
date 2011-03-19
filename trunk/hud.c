@@ -1,6 +1,8 @@
 #include "hud.h"
 #include "util.h"
 
+float blood = 0;
+
 /* Enters othographics projection mode to draw text or images to the
  * front of the screen */
 void enter_ortho_mode()
@@ -35,6 +37,25 @@ void draw_text2d (int x, int y, char *string)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[i]);
 }
 
+void draw_blood ()
+{
+	float points[][2] = { 
+		{width/2,height/2}, {width/2,0}, {0,0}, {0,height/2},			 
+		{width/2,height/2}, {0,height/2}, {0,height}, {width/2,height},
+		{width/2,height/2}, {width/2,height}, {width,height}, {width,height/2},
+		{width/2,height/2}, {width,height/2}, {width,0}, {width/2,0},
+	};
+	glBegin (GL_QUADS);
+		int i;
+		for (i=0; i<4*4; i++)
+		{
+			float alpha = (i%4==0 ? 0.1 : blood);
+			glColor4f(1, 0, 0, alpha);
+			glVertex2fv(points[i]);
+		}
+	glEnd();
+}
+
 /* Draws the heads up display on screen */
 void draw_hud()
 {
@@ -55,10 +76,21 @@ void draw_hud()
 	sprintf (s, "Score: %d", cam->character->score);
 	draw_text2d(20, 50, s);
 	
+	if ( blood > 0 )
+	{
+		draw_blood();
+		blood -= 0.005;
+	}
+	
 	if (gameover)
 	{
 		draw_text2d(width/2-60, height/2, "GAME OVER!");
 	}
 	
 	exit_ortho_mode();	
+}
+
+void show_blood (void) 
+{ 
+	blood = 1.0; 
 }

@@ -315,7 +315,7 @@ void turretUpdate (object_t *this)
 	this->rot_y *= (vector[2]>=0 ? 1 : -1);
 	
 	this->curr_time = get_time();
-	if (this->curr_time - this->last_time > 0.1)
+	if (this->curr_time - this->last_time > 0.3)
 	{
 		this->last_time = this->curr_time;
 		object_t *bullet = newBullet (this);

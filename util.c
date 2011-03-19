@@ -1,6 +1,7 @@
 
 #include "util.h"
 
+/* GLOBAL TIMER */
 struct timeval timer;
 
 void game_over (void)

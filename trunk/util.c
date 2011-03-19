@@ -10,17 +10,17 @@ void game_over (void)
 	gettimeofday (&tim, NULL);
 	double curr = tim.tv_sec + (tim.tv_usec / 1.0E6);
 	double prev = curr;
+	enter_ortho_mode();
+	int w = glutGameModeGet (GLUT_GAME_MODE_WIDTH);
+	int h = glutGameModeGet (GLUT_GAME_MODE_HEIGHT);
+	draw_text2d (w/2-60, h/2+5, "GAME OVER!", GLUT_BITMAP_HELVETICA_18);
+	glutSwapBuffers();
 	while ((curr - prev) < 3)
 	{	
 		gettimeofday (&tim, NULL);
 		curr = tim.tv_sec + (tim.tv_usec / 1.0E6);
-		enter_ortho_mode();
-		int w = glutGameModeGet (GLUT_GAME_MODE_WIDTH);
-		int h = glutGameModeGet (GLUT_GAME_MODE_HEIGHT);
-		draw_text2d (w/2-5, h/2, "GAME OVER!");
-		exit_ortho_mode();
-		glutSwapBuffers();
 	}
+	glutLeaveGameMode();
 	exit(0);
 }
 

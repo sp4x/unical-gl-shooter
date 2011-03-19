@@ -82,12 +82,6 @@ void draw_hud()
 		blood -= 0.005;
 	}
 	
-	if (gameover)
-	{
-		char s[20] = "GAME OVER!";
-		draw_text2d(width/2-60, height/2, s, GLUT_BITMAP_HELVETICA_12);
-	}
-	
 	exit_ortho_mode();	
 }
 

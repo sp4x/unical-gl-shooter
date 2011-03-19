@@ -260,7 +260,7 @@ void bulletCollision (object_t *this, object_t *obj)
 	if (obj->type != TYPE_CHARACTER) {
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {1,1,1};
-		object_t *explosion = newExplosion (pos, 0, 30, 40, 0.1, color, 0.01);
+		object_t *explosion = newExplosion (pos, 0, 30, 30, 0.05, color, 0.01);
 		scene->add (explosion);
 	}
 }
@@ -269,7 +269,6 @@ void characterCollision (object_t *this, object_t *obj)
 {
 	if (obj->type == TYPE_BULLET) {
 		this->energy -= 1;
-		//~ scene->add (newBlood());
 		show_blood();
 	}
 }
@@ -321,6 +320,10 @@ void turretUpdate (object_t *this)
 		this->last_time = this->curr_time;
 		object_t *bullet = newBullet (this);
 		scene->add (bullet);
+		float pos[3] = {bullet->pos_x, bullet->pos_y, bullet->pos_z};
+		float color[3] = {1,1,1};
+		object_t *explosion = newExplosion (pos, 100, 0, 70, 0.1, color, 0.01);
+		scene->add (explosion);
 	}
 }
 

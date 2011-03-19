@@ -10,6 +10,7 @@
 #include "util.h"
 #include "scene.h"
 #include "particles.h"
+#include "hud.h"
 
 #define COLLISION_GAP 0.1
 
@@ -266,7 +267,8 @@ void characterCollision (object_t *this, object_t *obj)
 {
 	if (obj->type == TYPE_BULLET) {
 		this->energy -= 1;
-		scene->add (newBlood());
+		//~ scene->add (newBlood());
+		show_blood();
 	}
 }
 

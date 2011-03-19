@@ -17,4 +17,6 @@ void draw_text2d (int x, int y, char *string);
 /* Draws the heads up display on screen */
 void draw_hud (void);
 
+void show_blood (void);
+
 #endif

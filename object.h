@@ -54,6 +54,7 @@ int hasCollision (object_t *this, object_t *obj);
 /** create functions */
 object_t *newObject (float min_x, float min_y, float min_z);
 object_t *newCharacter (int pos_x, int pos_y, int pos_z);
+object_t *newWeapon (float pos_x, float pos_y, float pos_z);
 object_t *newWall (float min_x, float max_x, float min_z, float max_z);
 object_t *newBullet (struct object_t *owner);
 object_t *newFloor (float max_x, float max_y, float max_z);

@@ -191,9 +191,9 @@ void drawBullet (object_t *this)
 void drawTurret (object_t *this)
 {
 	glColor3f(1,1,1);
-	loadTexture(TEXTURE_BUMPPLAT);
+	loadTexture (TEXTURE_BUMPPLAT);
 	GLUquadricObj *quadric = gluNewQuadric();
-	gluQuadricTexture(quadric, GL_TRUE);
+	gluQuadricTexture (quadric, GL_TRUE);
 	glPushMatrix();
 		glTranslatef (this->pos_x, 0, this->pos_z);
 		glPushMatrix();
@@ -203,20 +203,46 @@ void drawTurret (object_t *this)
 		glTranslatef (0, 2.5, 0);
 		gluSphere (quadric, 0.6, 20, 20);
 		glRotatef (this->rot_y, 0, 1, 0);
-		glDisable (GL_CULL_FACE);
-		gluCylinder (quadric, 0.1, 0.1, CELLSIZE/2, 20, 20);
-		glEnable (GL_CULL_FACE);
+		
+		gluCylinder (quadric, 0.1, 0.1, 2, 20, 2);
+		glTranslatef (0, 0, 2);
+		gluQuadricOrientation (quadric, GLU_OUTSIDE);
+		gluDisk (quadric, 0.08, 0.1, 20, 2);
+		gluQuadricTexture (quadric, GL_FALSE);
+		glColor3f (0,0,0);
+		gluDisk (quadric, 0, 0.08, 20, 2);
 	glPopMatrix();
 	gluDeleteQuadric(quadric);
+}
+
+void drawWeapon (object_t *this)
+{
+	glColor3f(0.1, 0.1, 0.1);
+	GLUquadricObj *quadric = gluNewQuadric();
+	glPushMatrix();
+		glTranslatef (cam->character->pos_x, cam->character->pos_y, cam->character->pos_z);
+		glRotatef (-cam->character->rot_x, 1, 0, 0);
+		glRotatef (cam->character->rot_y, 0, 1, 0);
+		glTranslatef (-1, -1, 1);
+		glutSolidSphere (0.1, 20, 20);
+		//~ gluCylinder (quadric, 0.1, 0.1, 2, 20, 2);
+		//~ 
+		//~ gluQuadricOrientation (quadric, GLU_INSIDE);
+		//~ gluDisk (quadric, 0, 0.1, 20, 2);
+		//~ 
+		//~ glTranslatef (0, 0, 2);
+		//~ gluQuadricOrientation (quadric, GLU_OUTSIDE);
+		//~ gluDisk (quadric, 0, 0.1, 20, 2);
+	glPopMatrix();	
 }
 
 void drawCube (object_t *this) 
 {
 	glColor4f(0.5, 1, 0, 0.75);
 	glPushMatrix();
-		glTranslatef(this->pos_x, this->pos_y, this->pos_z);
-		glRotatef(this->rot_y, 0, 1, 0);
-		glutSolidCube(CELLSIZE);
+		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
+		glRotatef (this->rot_y, 0, 1, 0);
+		glutSolidCube (CELLSIZE);
 	glPopMatrix();
 }
 
@@ -287,9 +313,9 @@ void updateBullet (object_t *this)
 	double rot_x_rad = this->rot_x*DEG_TO_RAD;
 	double rot_y_rad = this->rot_y*DEG_TO_RAD;
 	
-	this->pos_x += sin(rot_y_rad)*this->vel;
-	this->pos_z += cos(rot_y_rad)*this->vel;
+	this->pos_x += sin(rot_y_rad)*cos(rot_x_rad)*this->vel;
 	this->pos_y += sin(rot_x_rad)*this->vel;
+	this->pos_z += cos(rot_y_rad)*cos(rot_x_rad)*this->vel;
 }
 
 void updateTurret (object_t *this)
@@ -313,6 +339,16 @@ void updateTurret (object_t *this)
 		object_t *explosion = newExplosion (pos, 100, 0, 70, 0.1, color, 0.01);
 		scene->add (explosion);
 	}
+}
+
+void updateWeapon (object_t *this)
+{
+	object_t *character = cam->character;
+	this->pos_x = character->pos_x + sin (character->rot_y*DEG_TO_RAD) * 1;
+	this->pos_y = character->pos_y + sin (character->rot_x*DEG_TO_RAD) * 1;
+	this->pos_z = character->pos_z + cos (character->rot_y*DEG_TO_RAD) * 1;
+	//~ this->rot_x = -character->rot_x;
+	//~ this->rot_y = character->rot_y;
 }
 
 void updateExplosion (object_t *this)
@@ -344,6 +380,17 @@ object_t *newSolarSystem (int pos_x, int pos_y, int pos_z)
 	this->update = updateSolarSystem;
 	this->display = drawSolarSystem;
 	return this;
+}
+
+object_t *newWeapon (float pos_x, float pos_y, float pos_z)
+{
+	object_t *this = newObject(0,0,0);
+	this->type = TYPE_CHARACTER;
+	this->pos_x = pos_x;
+	this->pos_y = pos_y;
+	this->pos_z = pos_z;
+	this->display = drawWeapon;
+	this->update = updateWeapon;
 }
 
 object_t *newCharacter (int pos_x, int pos_y, int pos_z)

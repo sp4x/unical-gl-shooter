@@ -109,9 +109,9 @@ void init_camera (void)
 	
 	cam->character = newCharacter (10, 3, 10);
 	scene->add (cam->character);
-	//~ 
-	//~ cam->character->data = newWeapon (10, 3, 10);
-	//~ scene->add (cam->character->data);
+	
+	cam->character->data = newWeapon (10, 3, 10);
+	scene->add (cam->character->data);
 }
 
 void clean_camera (void)

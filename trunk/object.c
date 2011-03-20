@@ -224,8 +224,7 @@ void drawWeapon (object_t *this)
 	GLUquadricObj *quadric = gluNewQuadric();
 	glPushMatrix();
 		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
-		//~ glRotatef (this->rot_x, 1, 0, 0);
-		glRotatef (this->rot_y+5, 0, 1, 0);
+		glRotatef (this->rot_y, 0, 1, 0);
 		glRotatef (this->rot_x, 1, 0, 0);
 				
 		glTranslatef (-1, -1, -2);
@@ -347,16 +346,12 @@ void updateTurret (object_t *this)
 
 void updateWeapon (object_t *this)
 {
-	object_t *character = cam->character;
-	
-	double yaw = character->rot_y*DEG_TO_RAD;
-	double pitch = character->rot_x*DEG_TO_RAD;
-	
-	this->pos_x = character->pos_x;
-	this->pos_y = character->pos_y;
-	this->pos_z = character->pos_z;
-	this->rot_x = -character->rot_x;
-	this->rot_y = character->rot_y;
+	object_t *owner = (object_t*) this->data;
+	this->pos_x = owner->pos_x;
+	this->pos_y = owner->pos_y;
+	this->pos_z = owner->pos_z;
+	this->rot_x = -owner->rot_x;
+	this->rot_y = owner->rot_y;
 }
 
 void updateExplosion (object_t *this)
@@ -390,12 +385,14 @@ object_t *newSolarSystem (int pos_x, int pos_y, int pos_z)
 	return this;
 }
 
-object_t *newWeapon (float pos_x, float pos_y, float pos_z)
+object_t *newWeapon (object_t *owner)
 {
 	object_t *this = newObject(0,0,0);
-	this->pos_x = pos_x;
-	this->pos_y = pos_y;
-	this->pos_z = pos_z;
+	this->data = owner;
+	this->pos_x = owner->pos_x;
+	this->pos_y = owner->pos_y;
+	this->pos_z = owner->pos_z;
+	
 	this->display = drawWeapon;
 	this->update = updateWeapon;
 }

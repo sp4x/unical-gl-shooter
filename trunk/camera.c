@@ -16,16 +16,16 @@ camera_t *cam;
 
 void move_forward (void)
 {
-	cam->mov_x += sin(ROT_Y_RAD);
+	cam->mov_x += sin(ROT_Y_RAD)*cos(ROT_X_RAD);
 	cam->mov_y += sin(ROT_X_RAD);
-	cam->mov_z += cos(ROT_Y_RAD);
+	cam->mov_z += cos(ROT_Y_RAD)*cos(ROT_X_RAD);
 }
 
 void move_backward (void)
 {
-	cam->mov_x -= sin(ROT_Y_RAD);
-	cam->mov_z -= cos(ROT_Y_RAD);
+	cam->mov_x -= sin(ROT_Y_RAD)*cos(ROT_X_RAD);
 	cam->mov_y -= sin(ROT_X_RAD);
+	cam->mov_z -= cos(ROT_Y_RAD)*cos(ROT_X_RAD);
 }
 
 void strafe_left (void)
@@ -109,6 +109,9 @@ void init_camera (void)
 	
 	cam->character = newCharacter (10, 3, 10);
 	scene->add (cam->character);
+	//~ 
+	//~ cam->character->data = newWeapon (10, 3, 10);
+	//~ scene->add (cam->character->data);
 }
 
 void clean_camera (void)

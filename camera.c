@@ -108,10 +108,10 @@ void init_camera (void)
 	reset_moves();
 	
 	cam->character = newCharacter (10, 3, 10);
-	scene->add (cam->character);
-	
 	object_t *weapon = newWeapon (cam->character);
+	
 	scene->add (weapon);
+	scene->add (cam->character);
 }
 
 void clean_camera (void)

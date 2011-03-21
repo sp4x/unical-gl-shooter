@@ -218,25 +218,15 @@ void drawTurret (object_t *this)
 
 void drawWeapon (object_t *this)
 {
-	glColor3f(0.1, 0.1, 0.1);
-	GLUquadricObj *quadric = gluNewQuadric();
 	glPushMatrix();
 		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
 		glRotatef (this->rot_y, 0, 1, 0);
 		glRotatef (this->rot_x, 1, 0, 0);
-		
-		glTranslatef (-1, -1, 1.5);
+
+		glColor3f (1,1,1);
+		glTranslatef (-1.0, -1.0, 1.5);
 		loadTexture (TEXTURE_AR15);
 		drawModel ((ObjModel*) this->data);
-		//~ glTranslatef (-1, -1, -2);
-		//~ gluCylinder (quadric, 0.1, 0.1, 5, 20, 1);
-		//~ 
-		//~ gluQuadricOrientation (quadric, GLU_INSIDE);
-		//~ gluDisk (quadric, 0, 0.1, 20, 1);
-		//~ 
-		//~ glTranslatef (0, 0, 2);
-		//~ gluQuadricOrientation (quadric, GLU_OUTSIDE);
-		//~ gluDisk (quadric, 0, 0.1, 20, 1);
 	glPopMatrix();	
 }
 
@@ -267,7 +257,7 @@ void onCollisionTurret (object_t *this, object_t *obj)
 	{
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {1,0,0};
-		object_t *explosion = newExplosion (pos, 2000, 90, 80, 0.2, color, 0.05);
+		object_t *explosion = newExplosion (pos, 2000, 90, 600, 0.2, color, 0.01);
 		scene->add (explosion);
 	}
 }
@@ -278,7 +268,7 @@ void onCollisionBullet (object_t *this, object_t *obj)
 	if (obj->type != TYPE_CHARACTER) {
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {1,1,1};
-		object_t *explosion = newExplosion (pos, 0, 30, 7, 0.05, color, 0.1);
+		object_t *explosion = newExplosion (pos, 0, 30, 30, 0.05, color, 0.01);
 		scene->add (explosion);
 	}
 }
@@ -298,7 +288,7 @@ void onCollisionCube (object_t *this, object_t *obj)
 		this->energy = 0;
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {0,0.5,0.9};
-		object_t *explosion = newExplosion (pos, 2000, 50, 70, 0.2, color, 0.05);
+		object_t *explosion = newExplosion (pos, 2000, 50, 600, 0.2, color, 0.01);
 		scene->add (explosion);
 	}
 }
@@ -459,7 +449,7 @@ object_t *newBullet (struct object_t *owner)
 	this->pos_z = owner->pos_z;
 	this->rot_x = owner->rot_x;
 	this->rot_y = owner->rot_y;
-	this->vel = 1;
+	this->vel = 0.1;
 	this->type = TYPE_BULLET;
 	this->energy = 1;
 	this->collides = 1;

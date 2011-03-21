@@ -267,7 +267,7 @@ void onCollisionTurret (object_t *this, object_t *obj)
 	{
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {1,0,0};
-		object_t *explosion = newExplosion (pos, 2000, 90, 600, 0.2, color, 0.005);
+		object_t *explosion = newExplosion (pos, 2000, 90, 80, 0.2, color, 0.05);
 		scene->add (explosion);
 	}
 }
@@ -278,7 +278,7 @@ void onCollisionBullet (object_t *this, object_t *obj)
 	if (obj->type != TYPE_CHARACTER) {
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {1,1,1};
-		object_t *explosion = newExplosion (pos, 0, 30, 30, 0.05, color, 0.01);
+		object_t *explosion = newExplosion (pos, 0, 30, 7, 0.05, color, 0.1);
 		scene->add (explosion);
 	}
 }
@@ -298,7 +298,7 @@ void onCollisionCube (object_t *this, object_t *obj)
 		this->energy = 0;
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {0,0.5,0.9};
-		object_t *explosion = newExplosion (pos, 2000, 50, 600, 0.2, color, 0.005);
+		object_t *explosion = newExplosion (pos, 2000, 50, 70, 0.2, color, 0.05);
 		scene->add (explosion);
 	}
 }
@@ -453,14 +453,13 @@ object_t *newBullet (struct object_t *owner)
 {
 	object_t *this = newObject(0,0,0);
 	
-	//~ this->owner_type = owner->type;
 	this->data = owner;
 	this->pos_x = owner->pos_x;
 	this->pos_y = owner->pos_y;
 	this->pos_z = owner->pos_z;
 	this->rot_x = owner->rot_x;
 	this->rot_y = owner->rot_y;
-	this->vel = 0.1;
+	this->vel = 1;
 	this->type = TYPE_BULLET;
 	this->energy = 1;
 	this->collides = 1;

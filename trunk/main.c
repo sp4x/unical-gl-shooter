@@ -41,29 +41,27 @@ void reshape (int w, int h)
 
 void display()
 {
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	frameStart();
 	update_timer();
-
 	glPushMatrix();
-	
 	curr = get_time();
 	/* update input each 16 ms (~60 time for second) */
 	if ((curr - last) >= 0.0167)
-    {	
+    {
 		last = curr;
+		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		input_update();
+		scene->update();
+		cam->update();
+		scene->display();
+
+		draw_hud(); 
+		frameEnd(GLUT_BITMAP_HELVETICA_10, 1.0, 1.0, 1.0, 0.90, 0.95);
+		
+		glutSwapBuffers();
 	}
 
-	scene->update();
-	cam->update();
-	scene->display();
 	glPopMatrix();
-	
-	draw_hud(); 
-	frameEnd(GLUT_BITMAP_HELVETICA_10, 1.0, 1.0, 1.0, 0.90, 0.95);
-	
-	glutSwapBuffers();
 }
 
 int main (int argc, char **argv)

@@ -12,6 +12,8 @@
 #define TEXTURE_METAL_PLATE_FILL "texture/metal_plate_fill.tga"
 #define TEXTURE_STONE "texture/Stone.tga"
 #define TEXTURE_WHITE "texture/white.tga"
+#define TEXTURE_AR15 "texture/ar15.tga"
+#define TEXTURE_PIRATE "texture/pirate.tga"
 
 
 

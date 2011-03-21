@@ -12,6 +12,7 @@
 #include "particles.h"
 #include "hud.h"
 #include "solar_system.h"
+#include "obj.h"
 
 /** doNothing (but very usefull) functions */
 void onCollisionNothing (object_t *this, object_t *obj) {}
@@ -198,44 +199,44 @@ void drawTurret (object_t *this)
 		glTranslatef (this->pos_x, 0, this->pos_z);
 		glPushMatrix();
 			glRotatef (-90, 1, 0, 0);
-			gluCylinder (quadric, 0.5, 0.5, 2.5, 20, 20);
+			gluCylinder (quadric, 0.5, 0.5, 2.5, 20, 1);
 		glPopMatrix();
 		glTranslatef (0, 2.5, 0);
 		gluSphere (quadric, 0.6, 20, 20);
 		glRotatef (this->rot_y, 0, 1, 0);
 		
-		gluCylinder (quadric, 0.1, 0.1, 2, 20, 2);
+		gluCylinder (quadric, 0.1, 0.1, 2, 20, 1);
 		glTranslatef (0, 0, 2);
 		gluQuadricOrientation (quadric, GLU_OUTSIDE);
-		gluDisk (quadric, 0.08, 0.1, 20, 2);
+		gluDisk (quadric, 0.08, 0.1, 20, 1);
 		gluQuadricTexture (quadric, GL_FALSE);
 		glColor3f (0,0,0);
-		gluDisk (quadric, 0, 0.08, 20, 2);
+		gluDisk (quadric, 0, 0.08, 20, 1);
 	glPopMatrix();
 	gluDeleteQuadric(quadric);
 }
 
 void drawWeapon (object_t *this)
 {
-	double yaw = cam->character->rot_y*DEG_TO_RAD;
-	double pitch = cam->character->rot_x*DEG_TO_RAD;
-	
 	glColor3f(0.1, 0.1, 0.1);
 	GLUquadricObj *quadric = gluNewQuadric();
 	glPushMatrix();
 		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
 		glRotatef (this->rot_y, 0, 1, 0);
 		glRotatef (this->rot_x, 1, 0, 0);
-				
-		glTranslatef (-1, -1, -2);
-		gluCylinder (quadric, 0.1, 0.1, 5, 20, 2);
 		
-		gluQuadricOrientation (quadric, GLU_INSIDE);
-		gluDisk (quadric, 0, 0.1, 20, 2);
-		
-		glTranslatef (0, 0, 2);
-		gluQuadricOrientation (quadric, GLU_OUTSIDE);
-		gluDisk (quadric, 0, 0.1, 20, 2);
+		glTranslatef (-1, -1, 1.5);
+		loadTexture (TEXTURE_AR15);
+		drawModel ((ObjModel*) this->data);
+		//~ glTranslatef (-1, -1, -2);
+		//~ gluCylinder (quadric, 0.1, 0.1, 5, 20, 1);
+		//~ 
+		//~ gluQuadricOrientation (quadric, GLU_INSIDE);
+		//~ gluDisk (quadric, 0, 0.1, 20, 1);
+		//~ 
+		//~ glTranslatef (0, 0, 2);
+		//~ gluQuadricOrientation (quadric, GLU_OUTSIDE);
+		//~ gluDisk (quadric, 0, 0.1, 20, 1);
 	glPopMatrix();	
 }
 
@@ -346,7 +347,7 @@ void updateTurret (object_t *this)
 
 void updateWeapon (object_t *this)
 {
-	object_t *owner = (object_t*) this->data;
+	object_t *owner = cam->character;
 	this->pos_x = owner->pos_x;
 	this->pos_y = owner->pos_y;
 	this->pos_z = owner->pos_z;
@@ -388,10 +389,13 @@ object_t *newSolarSystem (int pos_x, int pos_y, int pos_z)
 object_t *newWeapon (object_t *owner)
 {
 	object_t *this = newObject(0,0,0);
-	this->data = owner;
 	this->pos_x = owner->pos_x;
 	this->pos_y = owner->pos_y;
 	this->pos_z = owner->pos_z;
+	
+	char* buffer = NULL;
+	size_t size = ObjLoadFile ("meshes/ar15.obj", &buffer);
+	this->data = ObjLoadModel (buffer, size);
 	
 	this->display = drawWeapon;
 	this->update = updateWeapon;

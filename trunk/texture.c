@@ -4,7 +4,8 @@
 #include <GL/glu.h>
 #include <stdio.h>
 #include "texture.h"
-#include "tgaload.h"
+//~ #include "tgaload.h"
+#include "tga.h"
 
 char *loaded_textures[MAX_LOADABLE_TEXTURES];
 GLuint names[MAX_LOADABLE_TEXTURES];
@@ -18,7 +19,6 @@ int getTextureIndex(const char *texname) {
 			return i;
 	return -1;
 }
-
 
 GLuint newTexture(const char *texname) {
 	int i = last_texture_index;
@@ -43,34 +43,18 @@ void loadTexture(const char *texname) {
 		
 		glBindTexture( GL_TEXTURE_2D, newTexture(texname) );
 		
-		//~ GLint iWidth, iHeight, iComponents;
-		//~ GLenum eFormat;
-		//~ GLubyte *pBytes = gltLoadTGA(texname, &iWidth, &iHeight, &iComponents, &eFormat);
-		//~ glTexImage2D(GL_TEXTURE_2D, 0, iComponents, iWidth, iHeight, 0, eFormat, GL_UNSIGNED_BYTE, pBytes);
-		//~ free(pBytes);
-		
-		//~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		//~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		GLint iWidth, iHeight, iComponents;
+		GLenum eFormat;
+		GLubyte *pBytes = gltLoadTGA(texname, &iWidth, &iHeight, &iComponents, &eFormat);
+		glTexImage2D(GL_TEXTURE_2D, 0, iComponents, iWidth, iHeight, 0, eFormat, GL_UNSIGNED_BYTE, pBytes);
+		free(pBytes);
 		//~ 
-		//~ glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		
-		int res = 0, format = GL_RGB;
-		tImageTGA *tex = malloc(sizeof(tImageTGA));
-		tex = loadTGA(texname, &res);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, format, tex->sizeX, tex->sizeY, format, GL_UNSIGNED_BYTE, tex->data);
-
-		free(tex->data);
-		tex->data = NULL;
-		free(tex);
-		tex = NULL;
-		free(tex);
+		
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	}
 	else {
 		glBindTexture(GL_TEXTURE_2D, names[index]);

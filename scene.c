@@ -20,7 +20,6 @@ object_list_t *render_queue_opaque;
 /** queue of transparent object (to render last) */
 object_list_t *render_queue_transparent;
 
-
 char *buffer;
 int lines, cols;
 
@@ -36,6 +35,11 @@ char getSceneCell(int i, int j)
 
 void placeLights()
 {
+	GLfloat position[] = {20, WALL_HEIGHT*2, 0, 1};
+	glLightfv(GL_LIGHT7, GL_POSITION, position);
+	GLfloat direction[] = {0,-1,-1};
+	glLightfv(GL_LIGHT7, GL_SPOT_DIRECTION, direction);
+
 	GLfloat spot_direction[] = {0,-1,0};
 	GLfloat emissive[] = {1,1,1,1};
 	GLfloat none[] = {0,0,0,1};
@@ -271,9 +275,16 @@ void updateFunc()
 }
 
 void addLighting() {
+	//~ GLfloat  color[] =  { 1.0f, 0.6f, 0.0f, 1.0f };
 	GLfloat  white[] =  { 1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat  none[] = { 0, 0, 0, 0};
 	
+	glLightfv(GL_LIGHT7, GL_AMBIENT, none);
+	glLightfv(GL_LIGHT7, GL_DIFFUSE, white);
+	glLightf(GL_LIGHT7, GL_SPOT_CUTOFF, 30.0f);
+	glLightf(GL_LIGHT7, GL_SPOT_EXPONENT, 4);
+	glEnable(GL_LIGHT7);
+
 	//~ glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight);
 	
 	int i;
@@ -322,7 +333,7 @@ void loadScene (char *file)
 	scene->update = updateFunc;
 	scene->add = addObject;
 	scene->remove = removeObject;
-	
+
 	findObjects();
 	float max_x = cols*CELLSIZE;
 	float max_z = lines*CELLSIZE;
@@ -333,7 +344,10 @@ void loadScene (char *file)
 	
 	object_t *solarSystem = newSolarSystem (20, 3, -10);
 	scene->add (solarSystem);
-	
+
+	//~ object_t *skybox = newSkybox ();
+	//~ scene->add (skybox);
+
 	free(buffer);
 	
 	addLighting();

@@ -17,14 +17,14 @@ camera_t *cam;
 void move_forward (void)
 {
 	cam->mov_x += sin(ROT_Y_RAD)*cos(ROT_X_RAD);
-	cam->mov_y += sin(ROT_X_RAD);
+	//~ cam->mov_y += sin(ROT_X_RAD);
 	cam->mov_z += cos(ROT_Y_RAD)*cos(ROT_X_RAD);
 }
 
 void move_backward (void)
 {
 	cam->mov_x -= sin(ROT_Y_RAD)*cos(ROT_X_RAD);
-	cam->mov_y -= sin(ROT_X_RAD);
+	//~ cam->mov_y -= sin(ROT_X_RAD);
 	cam->mov_z -= cos(ROT_Y_RAD)*cos(ROT_X_RAD);
 }
 

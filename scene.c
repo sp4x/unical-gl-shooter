@@ -20,8 +20,13 @@ object_list_t *render_queue_opaque;
 /** queue of transparent object (to render last) */
 object_list_t *render_queue_transparent;
 
+
 char *buffer;
 int lines, cols;
+
+GLenum lights[] = {GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3, GL_LIGHT4, GL_LIGHT5, GL_LIGHT6, GL_LIGHT7};
+float light_pos[8][4];
+int n_lights = 0;
 
 char getSceneCell(int i, int j)
 {
@@ -31,10 +36,21 @@ char getSceneCell(int i, int j)
 
 void placeLights()
 {
-	GLfloat position[] = {cols/2*CELLSIZE, WALL_HEIGHT*2, lines/2*CELLSIZE, 1};
-	glLightfv(GL_LIGHT0, GL_POSITION, position);
-	//~ GLfloat spot_direction[] = {0,-1,0};
-	//~ glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
+	GLfloat spot_direction[] = {0,-1,0};
+	GLfloat emissive[] = {1,1,1,1};
+	GLfloat none[] = {0,0,0,1};
+	int i;
+	for (i=0; i<n_lights; i++) {
+		glLightfv(lights[i], GL_SPOT_DIRECTION, spot_direction);
+		glLightfv(lights[i], GL_POSITION, light_pos[i]);
+		glMaterialfv(GL_FRONT, GL_EMISSION, emissive);
+		glPushMatrix();
+			glColor3f(1,1,1);
+			glTranslatef(light_pos[i][0], light_pos[i][1], light_pos[i][2]);
+			glutSolidSphere(0.5,10,10);
+		glPopMatrix();
+		glMaterialfv(GL_FRONT, GL_EMISSION, none);
+	}
 }
 
 /** DEBUG: draw bounds of each object */
@@ -164,6 +180,14 @@ void findObjects() {
 					wall->transparent = 1;
 					window = 1;
 				}
+				else if ( getSceneCell(i,j) == LIGHT ) {
+					light_pos[n_lights][0] = j*CELLSIZE+CELLSIZE/2;
+					light_pos[n_lights][1] = CELLSIZE*5;
+					light_pos[n_lights][2] = i*CELLSIZE+CELLSIZE/2;
+					light_pos[n_lights][3] = 1;
+					n_lights++;
+				}
+				//~ j++;
 			}
 			else if (window && (getSceneCell(i,j) != WINDOW || j == cols-1)) {
 					wall->max_x = (j)*CELLSIZE;
@@ -247,14 +271,23 @@ void updateFunc()
 }
 
 void addLighting() {
-	//~ GLfloat ambient[] = {0.1,0.1,0.1,0};
-	//~ glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	GLfloat  white[] =  { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat  none[] = { 0, 0, 0, 0};
 	
-	GLfloat diffuse[] = {0.7,0.7,0.7,0};
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	//~ glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight);
 	
-	glEnable(GL_LIGHT0);
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+	int i;
+	for (i=0; i<n_lights; i++) {
+		glLightfv(lights[i],GL_AMBIENT,none);
+		glLightfv(lights[i],GL_DIFFUSE,white);
+		glLightfv(lights[i],GL_SPECULAR,white);
+		glLightf(lights[i], GL_SPOT_CUTOFF, 45.0f);
+		glLightf(lights[i], GL_SPOT_EXPONENT, 12);
+		glEnable(lights[i]);
+	}
+	
+	glMaterialfv(GL_FRONT, GL_SPECULAR,white);
+    glMateriali(GL_FRONT, GL_SHININESS,1);
 }
 
 void addObject (object_t *obj)

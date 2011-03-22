@@ -29,12 +29,46 @@ int inGap(float c, object_t *obj, int coord) {
 	return c > obj->min_z && c < obj->max_z;
 }
 
+void quad (float min_x, float max_x, float min_y, float max_y, float min_z, float max_z, GLenum cullFace)
+{
+	float x = min_x, z = min_z;
+	float len_x = (max_x == min_x ? 0 : CELLSIZE);
+	float len_y = (max_y == min_y ? 0 : CELLSIZE);
+	float len_z = (max_z == min_z ? 0 : CELLSIZE);
+	glPushAttrib(GL_POLYGON_BIT);
+	glCullFace(cullFace);
+	glBegin (GL_QUADS);
+	while ( (len_x == 0 && z < max_z) || (len_z == 0 && x < max_x) )
+	{
+		float y = min_y;
+		while (y < max_y)
+		{
+			glTexCoord2i(0, 0);
+			glVertex3f(x, y, z);
+			glTexCoord2i(1, 0);
+			glVertex3f(x + len_x, y, z + len_z);
+			glTexCoord2i(1, 1);
+			glVertex3f(x + len_x, y + len_y, z + len_z);
+			glTexCoord2i(0, 1);
+			glVertex3f(x, y + len_y, z);
+			y += len_y;
+		}
+		x += len_x;
+		z += len_z;
+	}
+	glEnd();
+	glPopAttrib();
+}
+
 /** check if this object has a collision with obj 
  */
 int hasCollision (object_t *this, object_t *obj) 
 {
 	/* bullets must not collide with the one who shoots them */
 	if (this->type == TYPE_BULLET && this->data == obj)
+		return 0;
+		
+	if (this->type == TYPE_EXPLOSION )
 		return 0;
 
 	/* nothing must collides with itself */
@@ -82,60 +116,32 @@ int hasCollision (object_t *this, object_t *obj)
 /****** Draw functions *******/
 
 void drawWall (object_t *this) {
-	float min_x = this->min_x;
-	float max_x = this->max_x;
-	float min_z = this->min_z;
-	float max_z = this->max_z;
+	
+	glPushAttrib(GL_TEXTURE_BIT);
+	if ( this->transparent )
+		glDisable(GL_TEXTURE_2D);
 	
 	float alpha = this->transparent ? 0.5 : 1.0;
 	glColor4f(0, 0.5, 1, alpha);
 	loadTexture(TEXTURE_METAL_PLATE_FILL);
 	   
-	float sx = max_x/10, sz = max_z/10, t = WALL_HEIGHT/2;
-	//~ float sx = 1, sz = 1, t = 1;
-	glBegin(GL_QUADS);
 	//north wall
 	glNormal3f(0,0,-1);
-	glTexCoord2d( sx, 0);
-	glVertex3f(max_x, 0, min_z);
-	glTexCoord2d( 0, 0);
-	glVertex3f(min_x, 0, min_z);
-	glTexCoord2d( 0, t);
-	glVertex3f(min_x, WALL_HEIGHT, min_z);
-	glTexCoord2d( sx, t);
-	glVertex3f(max_x, WALL_HEIGHT, min_z);
+	quad(this->min_x, this->max_x, this->min_y, this->max_y, this->min_z, this->min_z, GL_FRONT);
+	
 	//south wall
 	glNormal3f(0,0,1);
-	glTexCoord2d( 0, 0);
-	glVertex3f(min_x, 0, max_z);
-	glTexCoord2d( sx, 0);
-	glVertex3f(max_x, 0, max_z);
-	glTexCoord2d( sx, t);
-	glVertex3f(max_x, WALL_HEIGHT, max_z);
-	glTexCoord2d( 0, t);
-	glVertex3f(min_x, WALL_HEIGHT, max_z);
+	quad(this->min_x, this->max_x, this->min_y, this->max_y, this->max_z, this->max_z, GL_BACK);
 	
 	//east wall
 	glNormal3f(1,0,0);
-	glTexCoord2d( sz, 0);
-	glVertex3f(max_x, 0, max_z);
-	glTexCoord2d( 0, 0);
-	glVertex3f(max_x, 0, min_z);
-	glTexCoord2d( 0, t);
-	glVertex3f(max_x, WALL_HEIGHT, min_z);
-	glTexCoord2d( sz, t);
-	glVertex3f(max_x, WALL_HEIGHT, max_z);
+	quad(this->max_x, this->max_x, this->min_y, this->max_y, this->min_z, this->max_z, GL_FRONT);
+	
 	//west wall
 	glNormal3f(-1,0,0);
-	glTexCoord2d( 0, 0);
-	glVertex3f(min_x, 0, min_z);
-	glTexCoord2d( sz, 0);
-	glVertex3f(min_x, 0, max_z);
-	glTexCoord2d( sz, t);
-	glVertex3f(min_x, WALL_HEIGHT, max_z);
-	glTexCoord2d( 0, t);
-	glVertex3f(min_x, WALL_HEIGHT, min_z);
-	glEnd();
+	quad(this->min_x, this->min_x, this->min_y, this->max_y, this->min_z, this->max_z, GL_BACK);
+	
+	glPopAttrib();
 }
 
 void drawTop (object_t *this) {
@@ -146,7 +152,7 @@ void drawTop (object_t *this) {
 	float x = this->max_x;
 	float z = this->max_z;
 	glBegin(GL_QUADS);
-		glNormal3f(0,1,0);
+		glNormal3f(0,-1,0);
 		glTexCoord2i(0, 0);
 		glVertex3f(0, this->min_y, 0);
 		glTexCoord2i(0, t);
@@ -161,20 +167,29 @@ void drawTop (object_t *this) {
 void drawFloor (object_t *this) {
 	glColor3f(0.5,0.5,0.5);
 	loadTexture(TEXTURE_WHITE);
-	int t = this->max_z;
-	int s = this->max_x;
-	float x = this->max_x;
-	float z = this->max_z;
+	int t = 1;
+	int s = 1;
+	float x = 0;
+	float len = CELLSIZE;
 	glBegin(GL_QUADS);
-		glNormal3f(0,1,0);
-		glTexCoord2i(0, 0);
-		glVertex3f(0, 0, 0);
-		glTexCoord2i(0, t);
-		glVertex3f(0, 0, z);
-		glTexCoord2i(s, t);
-		glVertex3f(x, 0, z);
-		glTexCoord2i(s, 0);
-		glVertex3f(x, 0, 0);
+	while (x < this->max_x)
+	{
+		float z = 0;
+		while (z < this->max_z)
+		{
+			glNormal3f(0,1,0);
+			glTexCoord2i(0, 0);
+			glVertex3f(x, 0, z);
+			glTexCoord2i(0, t);
+			glVertex3f(x, 0, z+len);
+			glTexCoord2i(s, t);
+			glVertex3f(x+len, 0, z+len);
+			glTexCoord2i(s, 0);
+			glVertex3f(x+len, 0, z);
+			z += len;
+		}
+		x += len;
+	}
 	glEnd();
 }
 
@@ -421,6 +436,7 @@ object_t *newCharacter (int pos_x, int pos_y, int pos_z)
 object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, float *color, double speed)
 {
 	object_t *this = newObject(0,0,0);
+	this->type = TYPE_EXPLOSION;
 	this->data = new_explosion (pos, p, d, lifetime, scale, color, speed);
 	this->update = updateExplosion;
 	this->display = drawExplosion;

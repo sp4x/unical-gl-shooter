@@ -9,6 +9,7 @@
 #define TURRET 't'
 #define CUBE 'c'
 #define WINDOW 'w'
+#define LIGHT 'l'
 
 #define CELLSIZE 2
 

@@ -22,7 +22,10 @@ void drawCircle (float radius)
 void drawSolarSystem (object_t *this)
 {
 	glPushMatrix();
-
+	glPushAttrib (GL_ENABLE_BIT);
+	glEnable (GL_COLOR_MATERIAL);
+	glColorMaterial (GL_FRONT, GL_DIFFUSE);
+	
 	glTranslatef (this->pos_x, this->pos_y, this->pos_z);
 	glRotatef (45, 1, 0, 0);
 	
@@ -34,7 +37,7 @@ void drawSolarSystem (object_t *this)
 		glRotatef (global_rotate[0], 0.0, 1.0, 0.0);
 		glTranslatef (1.3, 0.0, 0.0);
 		glRotatef (local_rotate, 0.0, 1.0, 0.0);
-		glutSolidSphere (0.1, 20, 16);
+		glutSolidSphere (0.1, 32, 32);
 	glPopMatrix();
 
 	// venere
@@ -45,7 +48,7 @@ void drawSolarSystem (object_t *this)
 		glRotatef (global_rotate[1], 0.0, 1.0, 0.0);
 		glTranslatef (1.8, 0.0, 0.0);
 		glRotatef (local_rotate, 0.0, 1.0, 0.0);
-		glutSolidSphere (0.13, 20, 16);
+		glutSolidSphere (0.13, 32, 32);
 	glPopMatrix();
 
 	// terra
@@ -56,12 +59,12 @@ void drawSolarSystem (object_t *this)
 		glRotatef (global_rotate[2], 0.0, 1.0, 0.0);
 		glTranslatef (2.1, 0.0, 0.0);
 		glRotatef (local_rotate, 0.0, 1.0, 0.0);
-		glutSolidSphere (0.16, 20, 16);
+		glutSolidSphere (0.16, 32, 32);
 		// luna
 		glColor3f (1.0, 1.0, 1.0);
 		glRotatef (global_rotate[2], 0.0, 1.0, 0.0);
 		glTranslatef (0.2, 0.0, 0.0);
-		glutSolidSphere (0.05, 20, 16);
+		glutSolidSphere (0.05, 32, 32);
 	glPopMatrix();
 
 	// marte
@@ -72,7 +75,7 @@ void drawSolarSystem (object_t *this)
 		glRotatef (global_rotate[3], 0.0, 1.0, 0.0);
 		glTranslatef (2.6, 0.0, 0.0);
 		glRotatef (local_rotate, 0.0, 1.0, 0.0);
-		glutSolidSphere (0.2, 20, 16);
+		glutSolidSphere (0.2, 32, 32);
 	glPopMatrix();
 
 	// giove
@@ -83,7 +86,7 @@ void drawSolarSystem (object_t *this)
 		glRotatef (global_rotate[4], 0.0, 1.0, 0.0);
 		glTranslatef (4.0, 0.0, 0.0);
 		glRotatef (local_rotate, 0.0, 1.0, 0.0);
-		glutSolidSphere (0.5, 20, 16);
+		glutSolidSphere (0.5, 32, 32);
 	glPopMatrix();
 
 	// saturno
@@ -96,7 +99,7 @@ void drawSolarSystem (object_t *this)
 		glRotatef (60, 1.0, 0.0, 0.0);
 		glutSolidTorus (0.05, 0.55, 8, 12);
 		glRotatef (local_rotate, 0.0, 1.0, 0.0);
-		glutSolidSphere (0.4, 20, 16);
+		glutSolidSphere (0.4, 32, 32);
 	glPopMatrix();
 
 	// urano
@@ -107,7 +110,7 @@ void drawSolarSystem (object_t *this)
 		glRotatef (global_rotate[6], 0.0, 1.0, 0.0);
 		glTranslatef (7.0, 0.0, 0.0);
 		glRotatef (local_rotate, 0.0, 1.0, 0.0);
-		glutSolidSphere (0.3, 20, 16);
+		glutSolidSphere (0.3, 32, 32);
 	glPopMatrix();
 
 	// nettuno
@@ -118,13 +121,15 @@ void drawSolarSystem (object_t *this)
 		glRotatef (global_rotate[7], 0.0, 1.0, 0.0);
 		glTranslatef (8.0, 0.0, 0.0);
 		glRotatef (local_rotate, 0.0, 1.0, 0.0);
-		glutSolidSphere (0.35, 20, 16);
+		glutSolidSphere (0.35, 32, 32);
 	glPopMatrix();
 
 	// sole
 	glColor3f(1.0, 0.3, 0.0);
-	glutSolidSphere (0.8, 32, 28);
+	glutSolidSphere (0.8, 32, 32);
 
+	glPopAttrib();
+	glColorMaterial (GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 	glPopMatrix();
 }
 

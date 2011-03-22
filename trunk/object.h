@@ -14,9 +14,7 @@ enum ObjectType
 	TYPE_CHARACTER,
 	TYPE_CUBE,
 	TYPE_WINDOW,
-	TYPE_SPHERE,
-	TYPE_EXPLOSION,
-	TYPE_BLOOD
+	TYPE_EXPLOSION
 };
 
 /** struct that represents an object of the scene...
@@ -64,4 +62,5 @@ object_t *newTurret (float min_x, float min_z);
 object_t *newCube (float min_x, float min_z);
 object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, float *color, double speed);
 object_t *newSolarSystem (int pos_x, int pos_y, int pos_z);
+object_t *newSkybox (void);
 #endif

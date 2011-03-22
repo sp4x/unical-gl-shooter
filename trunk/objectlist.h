@@ -19,6 +19,7 @@ typedef struct object_list_t {
 
 object_list_t *newObjectList();
 void listAppend (object_list_t *this, object_t *elem);
+void queueAdd (object_list_t *list, object_t *elem);
 void listDelete (object_list_t *this, object_t *elem);
 void listClear(object_list_t *this);
 

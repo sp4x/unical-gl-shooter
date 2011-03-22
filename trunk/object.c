@@ -29,37 +29,6 @@ int inGap(float c, object_t *obj, int coord) {
 	return c > obj->min_z && c < obj->max_z;
 }
 
-void quad (float min_x, float max_x, float min_y, float max_y, float min_z, float max_z, GLenum cullFace)
-{
-	float x = min_x, z = min_z;
-	float len_x = (max_x == min_x ? 0 : CELLSIZE);
-	float len_y = (max_y == min_y ? 0 : CELLSIZE);
-	float len_z = (max_z == min_z ? 0 : CELLSIZE);
-	glPushAttrib(GL_POLYGON_BIT);
-	glCullFace(cullFace);
-	glBegin (GL_QUADS);
-	while ( (len_x == 0 && z < max_z) || (len_z == 0 && x < max_x) )
-	{
-		float y = min_y;
-		while (y < max_y)
-		{
-			glTexCoord2i(0, 0);
-			glVertex3f(x, y, z);
-			glTexCoord2i(1, 0);
-			glVertex3f(x + len_x, y, z + len_z);
-			glTexCoord2i(1, 1);
-			glVertex3f(x + len_x, y + len_y, z + len_z);
-			glTexCoord2i(0, 1);
-			glVertex3f(x, y + len_y, z);
-			y += len_y;
-		}
-		x += len_x;
-		z += len_z;
-	}
-	glEnd();
-	glPopAttrib();
-}
-
 /** check if this object has a collision with obj 
  */
 int hasCollision (object_t *this, object_t *obj) 
@@ -67,8 +36,9 @@ int hasCollision (object_t *this, object_t *obj)
 	/* bullets must not collide with the one who shoots them */
 	if (this->type == TYPE_BULLET && this->data == obj)
 		return 0;
-		
-	if (this->type == TYPE_EXPLOSION )
+
+	/* nothing can collides with an explosion */
+	if (this->type == TYPE_EXPLOSION)
 		return 0;
 
 	/* nothing must collides with itself */
@@ -115,36 +85,82 @@ int hasCollision (object_t *this, object_t *obj)
 
 /****** Draw functions *******/
 
-void drawWall (object_t *this) {
-	
+void quad (float min_x, float max_x, float min_y, float max_y, float min_z, float max_z, GLenum cullFace)
+{
+	float x = min_x, z = min_z;
+	float len_x = (max_x == min_x ? 0 : CELLSIZE);
+	float len_y = (max_y == min_y ? 0 : CELLSIZE);
+	float len_z = (max_z == min_z ? 0 : CELLSIZE);
+	glPushAttrib(GL_POLYGON_BIT);
+	glCullFace(cullFace);
+	glBegin (GL_QUADS);
+	while ( (len_x == 0 && z < max_z) || (len_z == 0 && x < max_x) )
+	{
+		float y = min_y;
+		while (y < max_y)
+		{
+			glTexCoord2i(0, 0);
+			glVertex3f(x, y, z);
+			glTexCoord2i(1, 0);
+			glVertex3f(x + len_x, y, z + len_z);
+			glTexCoord2i(1, 1);
+			glVertex3f(x + len_x, y + len_y, z + len_z);
+			glTexCoord2i(0, 1);
+			glVertex3f(x, y + len_y, z);
+			y += len_y;
+		}
+		x += len_x;
+		z += len_z;
+	}
+	glEnd();
+	glPopAttrib();
+}
+
+void drawWall (object_t *this) 
+{
+	float min_x = this->min_x;
+	float min_y = this->min_y;
+	float min_z = this->min_z;
+	float max_x = this->max_x;
+	float max_y = this->max_y;
+	float max_z = this->max_z;
+
 	glPushAttrib(GL_TEXTURE_BIT);
-	if ( this->transparent )
-		glDisable(GL_TEXTURE_2D);
+	if ( this->transparent ) {
+		glDisable (GL_TEXTURE_2D);
+		min_z += 1;
+		max_z -= 1;	
+	} else {
+		glEnable (GL_TEXTURE_2D);
+		loadTexture(TEXTURE_METAL_PLATE_FILL);
+	}
 	
-	float alpha = this->transparent ? 0.5 : 1.0;
+	float alpha = this->transparent ? 0.4 : 1.0;
 	glColor4f(0, 0.5, 1, alpha);
-	loadTexture(TEXTURE_METAL_PLATE_FILL);
 	   
 	//north wall
 	glNormal3f(0,0,-1);
-	quad(this->min_x, this->max_x, this->min_y, this->max_y, this->min_z, this->min_z, GL_FRONT);
+	quad(min_x, max_x, min_y, max_y, min_z, min_z, GL_FRONT);
 	
 	//south wall
 	glNormal3f(0,0,1);
-	quad(this->min_x, this->max_x, this->min_y, this->max_y, this->max_z, this->max_z, GL_BACK);
+	quad(min_x, max_x, min_y, max_y, max_z, max_z, GL_BACK);
 	
 	//east wall
 	glNormal3f(1,0,0);
-	quad(this->max_x, this->max_x, this->min_y, this->max_y, this->min_z, this->max_z, GL_FRONT);
+	quad(this->max_x, max_x, min_y, max_y, min_z, max_z, GL_FRONT);
 	
 	//west wall
 	glNormal3f(-1,0,0);
-	quad(this->min_x, this->min_x, this->min_y, this->max_y, this->min_z, this->max_z, GL_BACK);
+	quad(this->min_x, min_x, min_y, max_y, min_z, max_z, GL_BACK);
 	
 	glPopAttrib();
 }
 
-void drawTop (object_t *this) {
+void drawTop (object_t *this)
+{
+	glPushAttrib (GL_ENABLE_BIT);
+	glEnable (GL_TEXTURE_2D);
 	glColor3f(1,1,1);
 	loadTexture(TEXTURE_METAL2);
 	int t = this->max_z;
@@ -162,9 +178,13 @@ void drawTop (object_t *this) {
 		glTexCoord2i(s, 0);
 		glVertex3f(0, this->min_y, z);
 	glEnd();
+	glPopAttrib();
 }
 
-void drawFloor (object_t *this) {
+void drawFloor (object_t *this)
+{
+	glPushAttrib(GL_ENABLE_BIT);
+	glEnable (GL_TEXTURE_2D);
 	glColor3f(0.5,0.5,0.5);
 	loadTexture(TEXTURE_WHITE);
 	int t = 1;
@@ -191,74 +211,163 @@ void drawFloor (object_t *this) {
 		x += len;
 	}
 	glEnd();
+	glPopAttrib();
 }
 
 void drawBullet (object_t *this)
 {
+	glPushAttrib(GL_ENABLE_BIT);
 	glPushMatrix();
-		glDisable (GL_TEXTURE_2D);
 		glColor3f (1, 1, 0);
 		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
 		glutSolidSphere (0.01, 8, 8);
-		glEnable (GL_TEXTURE_2D);
 	glPopMatrix();
+	glPopAttrib();
 }
 
 void drawTurret (object_t *this)
 {
+	glPushAttrib(GL_ENABLE_BIT);
+	glEnable (GL_TEXTURE_2D);
 	glColor3f(1,1,1);
-	loadTexture (TEXTURE_BUMPPLAT);
-	GLUquadricObj *quadric = gluNewQuadric();
-	gluQuadricTexture (quadric, GL_TRUE);
 	glPushMatrix();
 		glTranslatef (this->pos_x, 0, this->pos_z);
-		glPushMatrix();
-			glRotatef (-90, 1, 0, 0);
-			gluCylinder (quadric, 0.5, 0.5, 2.5, 20, 1);
-		glPopMatrix();
-		glTranslatef (0, 2.5, 0);
-		gluSphere (quadric, 0.6, 20, 20);
 		glRotatef (this->rot_y, 0, 1, 0);
 		
-		gluCylinder (quadric, 0.1, 0.1, 2, 20, 1);
-		glTranslatef (0, 0, 2);
-		gluQuadricOrientation (quadric, GLU_OUTSIDE);
-		gluDisk (quadric, 0.08, 0.1, 20, 1);
-		gluQuadricTexture (quadric, GL_FALSE);
-		glColor3f (0,0,0);
-		gluDisk (quadric, 0, 0.08, 20, 1);
+		glScalef (0.5, 0.4, 0.5);
+		loadTexture (TEXTURE_TURRET);
+		drawModel ((ObjModel*) this->data);
+		
+		//~ loadTexture (TEXTURE_BUMPPLAT);
+		//~ GLUquadricObj *quadric = gluNewQuadric();
+		//~ gluQuadricTexture (quadric, GL_TRUE);
+		//~ glPushMatrix();
+			//~ glRotatef (-90, 1, 0, 0);
+			//~ gluCylinder (quadric, 0.5, 0.5, 2.5, 20, 1);
+		//~ glPopMatrix();
+		//~ glTranslatef (0, 2.5, 0);
+		//~ gluSphere (quadric, 0.6, 20, 20);
+		//~ glRotatef (this->rot_y, 0, 1, 0);
+		//~ 
+		//~ gluCylinder (quadric, 0.1, 0.1, 2, 20, 1);
+		//~ glTranslatef (0, 0, 2);
+		//~ gluQuadricOrientation (quadric, GLU_OUTSIDE);
+		//~ gluDisk (quadric, 0.08, 0.1, 20, 1);
+		//~ gluQuadricTexture (quadric, GL_FALSE);
+		//~ glColor3f (0,0,0);
+		//~ gluDisk (quadric, 0, 0.08, 20, 1);
+		//~ gluDeleteQuadric(quadric);
 	glPopMatrix();
-	gluDeleteQuadric(quadric);
+	glPopAttrib();
+}
+
+void drawSkybox (object_t *this)
+{
+	/*glPushMatrix();
+    glTranslatef (cam->character->pos_x, cam->character->pos_y, cam->character->pos_z);
+	//~ loadTexture (SKYBOX);
+	// Enable/Disable features
+    glPushAttrib(GL_ENABLE_BIT);
+    //~ glEnable(GL_TEXTURE_2D);
+    glDisable(GL_DEPTH_TEST);
+    //~ glDisable(GL_LIGHTING);
+    //~ glDisable(GL_BLEND);
+
+    //~ glBegin(GL_QUADS);
+		//~ glTexCoord2f(0, 500); glVertex3f(  10000,  10000, -100 );
+        //~ glTexCoord2f(500, 500); glVertex3f( -10000,  10000, -100 );
+        //~ glTexCoord2f(500, 0); glVertex3f( -10000, -10000, -100 );
+        //~ glTexCoord2f(0, 0); glVertex3f(  10000, -10000, -100 );
+    //~ glEnd();
+    glColor4f(1,1,1,0.0);
+	
+	// Render the front quad
+	//~ loadTexture (TEXTURE_NORTH);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f, -0.5f );
+        glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f, -0.5f );
+    glEnd();
+	// Render the left quad
+    //~ loadTexture (TEXTURE_EAST);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
+       	glTexCoord2f(0, 1); glVertex3f(  0.5f,  0.5f, -0.5f );
+    glEnd();
+	// Render the back quad
+	//~ loadTexture (TEXTURE_SOUTH);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f(  0.5f, -0.5f, 0.5f );
+        glTexCoord2f(1, 0); glVertex3f( -0.5f, -0.5f, 0.5f );
+        glTexCoord2f(1, 1); glVertex3f( -0.5f,  0.5f, 0.5f );
+       	glTexCoord2f(0, 1); glVertex3f(  0.5f,  0.5f, 0.5f );
+    glEnd();
+	// Render the right quad
+	//~ loadTexture (TEXTURE_WEST);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
+        glTexCoord2f(1, 1); glVertex3f( -0.5f,  0.5f, -0.5f );
+       	glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f,  0.5f );
+    glEnd();
+	// Render the top quad
+	//~ loadTexture (TEXTURE_UP);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f( -0.5f,  0.5f, -0.5f );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f,  0.5f, -0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
+       	glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f,  0.5f );
+    glEnd();
+	// Render the bottom quad
+    //~ loadTexture (TEXTURE_DOWN);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f,  0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f, -0.5f, -0.5f );
+       	glTexCoord2f(0, 1); glVertex3f( -0.5f, -0.5f, -0.5f );
+    glEnd();
+    glPopAttrib();
+    glPopMatrix();*/
 }
 
 void drawWeapon (object_t *this)
 {
+	glPushAttrib(GL_ENABLE_BIT);
+	glEnable (GL_TEXTURE_2D);
 	glPushMatrix();
 		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
 		glRotatef (this->rot_y, 0, 1, 0);
 		glRotatef (this->rot_x, 1, 0, 0);
-
+		//~ glTranslatef (5, 3, 5);
 		glColor3f (1,1,1);
 		glTranslatef (-1.0, -1.0, 1.5);
 		loadTexture (TEXTURE_AR15);
 		drawModel ((ObjModel*) this->data);
-	glPopMatrix();	
+	glPopMatrix();
+	glPopAttrib();
 }
 
 void drawCube (object_t *this) 
 {
-	glColor4f(0.5, 1, 0, 0.75);
+	glPushAttrib(GL_ENABLE_BIT);
+	glColor4f(0.5, 1, 0, 0.5);
 	glPushMatrix();
 		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
 		glRotatef (this->rot_y, 0, 1, 0);
 		glutSolidCube (CELLSIZE);
 	glPopMatrix();
+	glPopAttrib();
 }
 
 void drawExplosion (object_t *this)
 {
+	glPushAttrib(GL_ENABLE_BIT);
 	explosion_t *explosion = (explosion_t *) this->data;
 	explosion->display (explosion);
+	glPopAttrib();
 }
 
 
@@ -272,7 +381,7 @@ void onCollisionTurret (object_t *this, object_t *obj)
 	{
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {1,0,0};
-		object_t *explosion = newExplosion (pos, 2000, 90, 600, 0.2, color, 0.01);
+		object_t *explosion = newExplosion (pos, 2000, 150, 600, 0.2, color, 0.005);
 		scene->add (explosion);
 	}
 }
@@ -303,7 +412,7 @@ void onCollisionCube (object_t *this, object_t *obj)
 		this->energy = 0;
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {0,0.5,0.9};
-		object_t *explosion = newExplosion (pos, 2000, 50, 600, 0.2, color, 0.01);
+		object_t *explosion = newExplosion (pos, 2000, 50, 400, 0.2, color, 0.005);
 		scene->add (explosion);
 	}
 }
@@ -404,6 +513,13 @@ object_t *newWeapon (object_t *owner)
 	
 	this->display = drawWeapon;
 	this->update = updateWeapon;
+}
+
+object_t *newSkybox (void)
+{
+	object_t *this = newObject(0,0,0);
+	this->transparent = 1;
+	this->display = drawSkybox;
 }
 
 object_t *newCharacter (int pos_x, int pos_y, int pos_z)
@@ -518,6 +634,10 @@ object_t *newTurret (float min_x, float min_z) {
 	// init timer
 	this->curr_time = get_time();
 	this->last_time = get_time();
+
+	char* buffer = NULL;
+	size_t size = ObjLoadFile ("meshes/turret.obj", &buffer);
+	this->data = ObjLoadModel (buffer, size);
 
 	this->update = updateTurret;
 	this->display = drawTurret;

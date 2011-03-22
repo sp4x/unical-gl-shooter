@@ -40,7 +40,6 @@ void listDelete (object_list_t *list, object_t *obj)
 			else
 				prev->next = curr->next;
 
-			//~ free (curr->value);
 			free (curr);
 			return;
 		}

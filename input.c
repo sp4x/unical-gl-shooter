@@ -91,6 +91,13 @@ void key_down (unsigned char key, int x, int y)
 	{
 		showbounds = !showbounds;
 	}
+	if (key == 'l')
+	{
+		if (glIsEnabled (GL_LIGHT6))
+			glDisable (GL_LIGHT6);
+		else
+			glEnable (GL_LIGHT6);
+	}
 	
 	key_state[key] = DOWN;
 }

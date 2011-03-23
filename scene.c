@@ -295,7 +295,6 @@ void addLighting() {
 	glLightfv(GL_LIGHT6, GL_DIFFUSE, red);
 	glLightf(GL_LIGHT6, GL_SPOT_CUTOFF, 15.0f);
 	glLightf(GL_LIGHT6, GL_SPOT_EXPONENT, 64);
-	glEnable(GL_LIGHT6);
 
 	//~ glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight);
 	
@@ -346,6 +345,9 @@ void loadScene (char *file)
 	scene->add = addObject;
 	scene->remove = removeObject;
 
+	object_t *skybox = newSkybox ();
+	scene->add (skybox);
+
 	findObjects();
 	float max_x = cols*CELLSIZE;
 	float max_z = lines*CELLSIZE;
@@ -356,9 +358,6 @@ void loadScene (char *file)
 	
 	object_t *solarSystem = newSolarSystem (20, 3, -10);
 	scene->add (solarSystem);
-
-	//~ object_t *skybox = newSkybox ();
-	//~ scene->add (skybox);
 
 	free(buffer);
 	

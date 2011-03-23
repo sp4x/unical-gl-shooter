@@ -15,13 +15,13 @@
 #define TEXTURE_AR15 "texture/ar15.tga"
 #define TEXTURE_SHOOTGUN "texture/shootgun.tga"
 #define TEXTURE_TURRET "texture/turret.tga"
-//~ #define SKYBOX "texture/skybox/sky.tga"
-//~ #define TEXTURE_NORTH "texture/skybox/north.tga"
-//~ #define TEXTURE_SOUTH "texture/skybox/south.tga"
-//~ #define TEXTURE_EAST "texture/skybox/east.tga"
-//~ #define TEXTURE_WEST "texture/skybox/west.tga"
-//~ #define TEXTURE_UP "texture/skybox/up.tga"
-//~ #define TEXTURE_DOWN "texture/skybox/down.tga"
+#define SKYBOX "texture/skybox/sky.tga"
+#define TEXTURE_NORTH "texture/skybox/north.tga"
+#define TEXTURE_SOUTH "texture/skybox/south.tga"
+#define TEXTURE_EAST "texture/skybox/east.tga"
+#define TEXTURE_WEST "texture/skybox/west.tga"
+#define TEXTURE_UP "texture/skybox/up.tga"
+#define TEXTURE_DOWN "texture/skybox/down.tga"
 
 void loadTexture(const char *texname);
 void cleanTextures();

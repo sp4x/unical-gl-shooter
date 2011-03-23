@@ -56,21 +56,12 @@ void update_explosion (explosion_t *this)
 
 void draw_explosion (explosion_t *this)
 {
-	GLboolean light = glIsEnabled (GL_LIGHTING);
-	GLboolean depth = glIsEnabled (GL_DEPTH_TEST);
-	GLboolean texture = glIsEnabled (GL_TEXTURE_2D);
-	GLboolean colormaterial = glIsEnabled (GL_COLOR_MATERIAL);
-	GLboolean cull = glIsEnabled (GL_CULL_FACE);
-	
-	if (light) 
-		glDisable (GL_LIGHTING);
-	if (texture)
-		glDisable (GL_TEXTURE_2D);
-	if (colormaterial)
-		glDisable (GL_COLOR_MATERIAL);
-	if (cull)
-		glDisable (GL_CULL_FACE);
-				
+	glPushAttrib (GL_ENABLE_BIT);
+	glDisable (GL_LIGHTING);
+	glDisable (GL_TEXTURE_2D);
+	glDisable (GL_COLOR_MATERIAL);
+	glDisable (GL_CULL_FACE);
+
 	if (this->lifetime > 0)
     {
         glPushMatrix ();
@@ -104,14 +95,7 @@ void draw_explosion (explosion_t *this)
             glPopMatrix ();
         }
     }
-	if (light) 
-		glEnable (GL_LIGHTING);
-	if (texture)
-		glEnable (GL_TEXTURE_2D);
-	if (colormaterial)
-		glEnable (GL_COLOR_MATERIAL);
-	if (cull)
-		glEnable (GL_CULL_FACE);
+	glPopAttrib();
 }
 
 void random_speed (float dest[3])

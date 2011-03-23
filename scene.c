@@ -23,7 +23,6 @@ object_list_t *render_queue_transparent;
 char *buffer;
 int lines, cols;
 
-GLenum lights[] = {GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3, GL_LIGHT4, GL_LIGHT5, GL_LIGHT6, GL_LIGHT7};
 float light_pos[8][4];
 int n_lights = 0;
 
@@ -39,14 +38,21 @@ void placeLights()
 	glLightfv(GL_LIGHT7, GL_POSITION, position);
 	GLfloat direction[] = {0,-1,-1};
 	glLightfv(GL_LIGHT7, GL_SPOT_DIRECTION, direction);
+	
+	GLfloat cam_position[] = {cam->character->pos_x, cam->character->pos_y, cam->character->pos_z, 1};
+	glLightfv(GL_LIGHT6, GL_POSITION, cam_position);
+	float rot_y = cam->character->rot_y*DEG_TO_RAD;
+	float rot_x = cam->character->rot_x*DEG_TO_RAD;
+	GLfloat cam_direction[] = {sin(rot_y)*cos(rot_x), sin(rot_x), cos(rot_y)*cos(rot_x)};
+	glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, cam_direction);
 
 	GLfloat spot_direction[] = {0,-1,0};
 	GLfloat emissive[] = {1,1,1,1};
 	GLfloat none[] = {0,0,0,1};
 	int i;
 	for (i=0; i<n_lights; i++) {
-		glLightfv(lights[i], GL_SPOT_DIRECTION, spot_direction);
-		glLightfv(lights[i], GL_POSITION, light_pos[i]);
+		glLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, spot_direction);
+		glLightfv(GL_LIGHT0+i, GL_POSITION, light_pos[i]);
 		glMaterialfv(GL_FRONT, GL_EMISSION, emissive);
 		glPushMatrix();
 			glColor3f(1,1,1);
@@ -275,8 +281,8 @@ void updateFunc()
 }
 
 void addLighting() {
-	//~ GLfloat  color[] =  { 1.0f, 0.6f, 0.0f, 1.0f };
 	GLfloat  white[] =  { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat  red[] =  { 1.0f, 0, 0, 1.0f };
 	GLfloat  none[] = { 0, 0, 0, 0};
 	
 	glLightfv(GL_LIGHT7, GL_AMBIENT, none);
@@ -284,17 +290,23 @@ void addLighting() {
 	glLightf(GL_LIGHT7, GL_SPOT_CUTOFF, 30.0f);
 	glLightf(GL_LIGHT7, GL_SPOT_EXPONENT, 4);
 	glEnable(GL_LIGHT7);
+	
+	glLightfv(GL_LIGHT6, GL_AMBIENT, none);
+	glLightfv(GL_LIGHT6, GL_DIFFUSE, red);
+	glLightf(GL_LIGHT6, GL_SPOT_CUTOFF, 15.0f);
+	glLightf(GL_LIGHT6, GL_SPOT_EXPONENT, 64);
+	glEnable(GL_LIGHT6);
 
 	//~ glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight);
 	
 	int i;
 	for (i=0; i<n_lights; i++) {
-		glLightfv(lights[i],GL_AMBIENT,none);
-		glLightfv(lights[i],GL_DIFFUSE,white);
-		glLightfv(lights[i],GL_SPECULAR,white);
-		glLightf(lights[i], GL_SPOT_CUTOFF, 45.0f);
-		glLightf(lights[i], GL_SPOT_EXPONENT, 12);
-		glEnable(lights[i]);
+		glLightfv(GL_LIGHT0+i,GL_AMBIENT,none);
+		glLightfv(GL_LIGHT0+i,GL_DIFFUSE,white);
+		//~ glLightfv(GL_LIGHT0+i,GL_SPECULAR,white);
+		glLightf(GL_LIGHT0+i, GL_SPOT_CUTOFF, 45.0f);
+		glLightf(GL_LIGHT0+i, GL_SPOT_EXPONENT, 12);
+		glEnable(GL_LIGHT0+i);
 	}
 	
 	glMaterialfv(GL_FRONT, GL_SPECULAR,white);

@@ -237,7 +237,7 @@ void drawTurret (object_t *this)
 		
 		glScalef (0.5, 0.4, 0.5);
 		loadTexture (TEXTURE_TURRET);
-		drawModel ((ObjModel*) this->data);
+		drawModel ((model*) this->data);
 		
 		//~ loadTexture (TEXTURE_BUMPPLAT);
 		//~ GLUquadricObj *quadric = gluNewQuadric();
@@ -336,7 +336,7 @@ void drawWeapon (object_t *this)
 		glColor3f (1,1,1);
 		glTranslatef (-1.0, -1.0, 1.5);
 		loadTexture (TEXTURE_AR15);
-		drawModel ((ObjModel*) this->data);
+		drawModel ((model*) this->data);
 	glPopMatrix();
 	glPopAttrib();
 }
@@ -506,8 +506,8 @@ object_t *newWeapon (object_t *owner)
 	this->pos_z = owner->pos_z;
 	
 	char* buffer = NULL;
-	size_t size = ObjLoadFile ("meshes/ar15.obj", &buffer);
-	this->data = ObjLoadModel (buffer, size);
+	size_t size = loadFile ("meshes/ar15.obj", &buffer);
+	this->data = loadModel (buffer, size);
 	
 	this->display = drawWeapon;
 	this->update = updateWeapon;
@@ -646,8 +646,8 @@ object_t *newTurret (float min_x, float min_z) {
 	this->last_time = get_time();
 
 	char* buffer = NULL;
-	size_t size = ObjLoadFile ("meshes/turret.obj", &buffer);
-	this->data = ObjLoadModel (buffer, size);
+	size_t size = loadFile ("meshes/turret.obj", &buffer);
+	this->data = loadModel (buffer, size);
 
 	this->update = updateTurret;
 	this->display = drawTurret;

@@ -1,41 +1,41 @@
 #ifndef OBJ_H
 #define OBJ_H
 
-typedef struct ObjVertex
+typedef struct vertex
 {
     float x, y, z;
     
-} ObjVertex;
+} vertex;
 
-typedef struct ObjVertex ObjNormal;
+typedef struct vertex normal;
 
-typedef struct ObjTexCoord
+typedef struct tex_coord
 {
     float u, v;
     
-} ObjTexCoord;
+} tex_coord;
 
-typedef struct ObjTriangle
+typedef struct face
 {
-    int Vertex[3];
-    int Normal[3];
-    int TexCoord[3];
+    int vertices[3];
+    int normals[3];
+    int tex_coords[3];
     
-} ObjTriangle;
+} face;
 
-typedef struct ObjModel
+typedef struct model
 {
-    int nVertex, nNormal, nTexCoord, nTriangle;
-    ObjVertex* VertexArray;
-    ObjNormal* NormalArray;
-    ObjTexCoord* TexCoordArray;
-    ObjTriangle* TriangleArray;
+    int n_vertices, n_normals, n_tex_coords, n_faces;
+    vertex* vertices;
+    normal* normals;
+    tex_coord* tex_coords;
+    face* faces;
     
-} ObjModel;
+} model;
 
 
-ObjModel* ObjLoadModel(char*, size_t);
-void drawModel (ObjModel *model);
-size_t    ObjLoadFile(char*, char**);
+model* loadModel (char* buffer, int size);
+void drawModel (model * m);
+int loadFile (char* file_name, char** buffer);
 
 #endif

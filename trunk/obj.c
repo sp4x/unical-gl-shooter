@@ -4,28 +4,28 @@
 #include <GL/glut.h>
 #include "obj.h"
 
-void drawModel (ObjModel *model)
+void drawModel (model *m)
 {
 	glPushMatrix();
 	
 	glBegin (GL_TRIANGLES);
 		
 	int i;
-	for (i = 0; i < model->nTriangle; i++)
+	for (i = 0; i < m->n_faces; i++)
 	{
-		ObjTriangle t = model->TriangleArray[i];
+		face t = m->faces[i];
 		
-		ObjVertex v1 = model->VertexArray[ t.Vertex[0]-1 ];
-		ObjVertex v2 = model->VertexArray[ t.Vertex[1]-1 ];
-		ObjVertex v3 = model->VertexArray[ t.Vertex[2]-1 ];
+		vertex v1 = m->vertices[ t.vertices[0]-1 ];
+		vertex v2 = m->vertices[ t.vertices[1]-1 ];
+		vertex v3 = m->vertices[ t.vertices[2]-1 ];
 		
-		ObjNormal n1 = model->NormalArray[ t.Normal[0]-1 ];
-		ObjNormal n2 = model->NormalArray[ t.Normal[1]-1 ];
-		ObjNormal n3 = model->NormalArray[ t.Normal[2]-1 ];
+		normal n1 = m->normals[ t.normals[0]-1 ];
+		normal n2 = m->normals[ t.normals[1]-1 ];
+		normal n3 = m->normals[ t.normals[2]-1 ];
 		
-		ObjTexCoord c1 = model->TexCoordArray[ t.TexCoord[0]-1 ];
-		ObjTexCoord c2 = model->TexCoordArray[ t.TexCoord[1]-1 ];
-		ObjTexCoord c3 = model->TexCoordArray[ t.TexCoord[2]-1 ];
+		tex_coord c1 = m->tex_coords[ t.tex_coords[0]-1 ];
+		tex_coord c2 = m->tex_coords[ t.tex_coords[1]-1 ];
+		tex_coord c3 = m->tex_coords[ t.tex_coords[2]-1 ];
 		
 		glTexCoord2f (c1.u, c1.v);
 		glNormal3f (n1.x, n1.y, n1.z);
@@ -45,107 +45,78 @@ void drawModel (ObjModel *model)
 	glPopMatrix();
 }
 
-ObjModel* ObjLoadModel(char* memory, size_t size)
+model* loadModel (char* buffer, int size)
 {
-    char* p = NULL, * e = NULL;
-    ObjModel* model = (ObjModel*) calloc(1, sizeof(ObjModel));
-    memset(model, 0, sizeof(ObjModel));
-    p = memory;
-    e = memory + size;
+    char *p = NULL, *e = NULL;
+    model* m = malloc (sizeof(model));
+    memset (m, 0, sizeof(model));
+    p = buffer;
+    e = buffer + size;
     while (p != e)
     {
-        if (memcmp(p, "vn", 2) == 0)
-            model->nNormal++;
-        else if (memcmp(p, "vt", 2) == 0)
-            model->nTexCoord++;
-        else if (memcmp(p, "v",  1) == 0)
-            model->nVertex++;
-        else if (memcmp(p, "f",  1) == 0)
-            model->nTriangle++;
+        if (memcmp (p, "vn", 2) == 0)
+            m->n_normals++;
+        else if (memcmp (p, "vt", 2) == 0)
+            m->n_tex_coords++;
+        else if (memcmp (p, "v",  1) == 0)
+            m->n_vertices++;
+        else if (memcmp (p, "f",  1) == 0)
+            m->n_faces++;
             
         // 0x0A = LF
         while (*p++ != (char) 0x0A);
     }
 
-    model->VertexArray   = (ObjVertex*)   malloc(sizeof(ObjVertex) * model->nVertex);
-    model->NormalArray   = (ObjNormal*)   malloc(sizeof(ObjNormal) * model->nNormal);
-    model->TexCoordArray = (ObjTexCoord*) malloc(sizeof(ObjTexCoord) * model->nTexCoord);
-    model->TriangleArray = (ObjTriangle*) malloc(sizeof(ObjTriangle) * model->nTriangle);
+    m->vertices = malloc (sizeof(vertex) * m->n_vertices);
+    m->normals = malloc (sizeof(normal) * m->n_normals);
+    m->tex_coords = malloc (sizeof(tex_coord) * m->n_tex_coords);
+    m->faces = malloc (sizeof(face) * m->n_faces);
     
-    p = memory;
+    p = buffer;
     int nV = 0, nN = 0, nT = 0, nF = 0;
     while (p != e)
     {
-        if (memcmp(p, "vn", 2) == 0)
+        if (memcmp (p, "vn", 2) == 0)
         {
-            sscanf(p, "vn %f %f %f", &model->NormalArray[nN].x, &model->NormalArray[nN].y, &model->NormalArray[nN].z);
+            sscanf (p, "vn %f %f %f", &m->normals[nN].x, &m->normals[nN].y, &m->normals[nN].z);
             nN++;
         }
-        else if (memcmp(p, "vt", 2) == 0)
+        else if (memcmp (p, "vt", 2) == 0)
         {
-            sscanf(p, "vt %f %f", &model->TexCoordArray[nT].u, &model->TexCoordArray[nT].v);
+            sscanf (p, "vt %f %f", &m->tex_coords[nT].u, &m->tex_coords[nT].v);
             nT++;
         }
-        else if (memcmp(p, "v", 1) == 0) /* or *p == 'v' */
+        else if (memcmp (p, "v", 1) == 0) /* or *p == 'v' */
         {
-            sscanf(p, "v %f %f %f", &model->VertexArray[nV].x, &model->VertexArray[nV].y, &model->VertexArray[nV].z);
+            sscanf (p, "v %f %f %f", &m->vertices[nV].x, &m->vertices[nV].y, &m->vertices[nV].z);
             nV++;
         }
-        else if (memcmp(p, "f", 1) == 0) /* or *p == 'f' */
+        else if (memcmp (p, "f", 1) == 0) /* or *p == 'f' */
         {
-            sscanf(p, "f %d/%d/%d %d/%d/%d %d/%d/%d", 
-            		&model->TriangleArray[nF].Vertex[0], &model->TriangleArray[nF].TexCoord[0], &model->TriangleArray[nF].Normal[0], 
-            		&model->TriangleArray[nF].Vertex[1], &model->TriangleArray[nF].TexCoord[1], &model->TriangleArray[nF].Normal[1], 
-            		&model->TriangleArray[nF].Vertex[2], &model->TriangleArray[nF].TexCoord[2], &model->TriangleArray[nF].Normal[2]);
+            sscanf (p, "f %d/%d/%d %d/%d/%d %d/%d/%d", 
+            		&m->faces[nF].vertices[0], &m->faces[nF].tex_coords[0], &m->faces[nF].normals[0], 
+            		&m->faces[nF].vertices[1], &m->faces[nF].tex_coords[1], &m->faces[nF].normals[1], 
+            		&m->faces[nF].vertices[2], &m->faces[nF].tex_coords[2], &m->faces[nF].normals[2]);
             nF++;
         }
         while (*p++ != (char) 0x0A);
     }
 
-    return model;
+    return m;
 }
 
-size_t ObjLoadFile(char* szFileName, char** memory)
+int loadFile (char* file_name, char** buffer)
 {
-    size_t bytes = 0;
-    FILE* file = fopen(szFileName, "rt");
+    int bytes = 0;
+    FILE* file = fopen (file_name, "r");
     if (file != NULL)
     {
-        fseek(file, 0, SEEK_END);
-        size_t end = ftell(file);
-        fseek(file, 0, SEEK_SET);
-        *memory = (char*) malloc(end);
-        bytes = fread(*memory, sizeof(char), end, file);
-        fclose(file);
+        fseek (file, 0, SEEK_END);
+        int size = ftell (file);
+        fseek (file, 0, SEEK_SET);
+        *buffer = malloc (size);
+        bytes = fread (*buffer, sizeof(char), size, file);
+        fclose (file);
     }
     return bytes;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -88,9 +88,9 @@ int hasCollision (object_t *this, object_t *obj)
 void quad (float min_x, float max_x, float min_y, float max_y, float min_z, float max_z, GLenum cullFace)
 {
 	float x = min_x, z = min_z;
-	float len_x = (max_x == min_x ? 0 : CELLSIZE);
-	float len_y = (max_y == min_y ? 0 : CELLSIZE);
-	float len_z = (max_z == min_z ? 0 : CELLSIZE);
+	float len_x = (max_x == min_x ? 0 : 1);
+	float len_y = (max_y == min_y ? 0 : 1);
+	float len_z = (max_z == min_z ? 0 : 1);
 	glPushAttrib(GL_POLYGON_BIT);
 	glCullFace(cullFace);
 	glBegin (GL_QUADS);
@@ -132,11 +132,12 @@ void drawWall (object_t *this)
 		max_z -= 1;	
 	} else {
 		glEnable (GL_TEXTURE_2D);
-		loadTexture(TEXTURE_METAL_PLATE_FILL);
+		loadTexture(TEXTURE_DARK_METAL);
 	}
 	
 	float alpha = this->transparent ? 0.4 : 1.0;
-	glColor4f(0, 0.5, 1, alpha);
+	glColor4f(0.5, 0.5, 0.5, alpha);
+	//~ glColor4f(1, 1, 1, alpha);
 	   
 	//north wall
 	glNormal3f(0,0,-1);
@@ -148,11 +149,11 @@ void drawWall (object_t *this)
 	
 	//east wall
 	glNormal3f(1,0,0);
-	quad(this->max_x, max_x, min_y, max_y, min_z, max_z, GL_FRONT);
+	quad(max_x, max_x, min_y, max_y, min_z, max_z, GL_FRONT);
 	
 	//west wall
 	glNormal3f(-1,0,0);
-	quad(this->min_x, min_x, min_y, max_y, min_z, max_z, GL_BACK);
+	quad(min_x, min_x, min_y, max_y, min_z, max_z, GL_BACK);
 	
 	glPopAttrib();
 }

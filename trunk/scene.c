@@ -121,6 +121,7 @@ void drawBounds (void)
 	glEnable (GL_LIGHTING);
 }
 
+
 void drawScene()
 {
 	placeLights();
@@ -296,15 +297,15 @@ void addLighting() {
 	glLightf(GL_LIGHT6, GL_SPOT_CUTOFF, 15.0f);
 	glLightf(GL_LIGHT6, GL_SPOT_EXPONENT, 64);
 
-	//~ glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight);
+	//~ glLightModelfv(GL_LIGHT_MODEL_AMBIENT, none);
 	
 	int i;
 	for (i=0; i<n_lights; i++) {
 		glLightfv(GL_LIGHT0+i,GL_AMBIENT,none);
 		glLightfv(GL_LIGHT0+i,GL_DIFFUSE,white);
-		//~ glLightfv(GL_LIGHT0+i,GL_SPECULAR,white);
+		glLightfv(GL_LIGHT0+i,GL_SPECULAR,white);
 		glLightf(GL_LIGHT0+i, GL_SPOT_CUTOFF, 45.0f);
-		glLightf(GL_LIGHT0+i, GL_SPOT_EXPONENT, 12);
+		glLightf(GL_LIGHT0+i, GL_SPOT_EXPONENT, 16);
 		glEnable(GL_LIGHT0+i);
 	}
 	

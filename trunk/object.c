@@ -83,21 +83,6 @@ int hasCollision (object_t *this, object_t *obj)
 	}
 }
 
-int visible (float pos_x, float pos_y, float pos_z)
-{
-	float angle = cam->character->rot_y-90;
-	if (angle < 0 )
-		angle = 360-angle;
-	if ( angle > 360 )
-		angle -= 360;
-	float cosa = cos(angle*DEG_TO_RAD)*pos_x, sina = sin(angle*DEG_TO_RAD)*pos_z;
-	if ( angle > 90 && angle < 270 ) 
-		cosa *= -1;
-	if ( angle > 180 && angle < 360 )
-		sina *= -1;
-	return cosa+sina > 0;
-}
-
 /****** Draw functions *******/
 
 void quad (float min_x, float max_x, float min_y, float max_y, float min_z, float max_z, GLenum cullFace)
@@ -113,7 +98,7 @@ void quad (float min_x, float max_x, float min_y, float max_y, float min_z, floa
 	while ( (len_x == 0 && z < max_z) || (len_z == 0 && x < max_x) )
 	{
 		float y = min_y;
-		while (y < max_y && visible(x,y,z) )
+		while (y < max_y )
 		{
 			glTexCoord2i(0, 0);
 			glVertex3f(x, y, z);
@@ -220,8 +205,6 @@ void drawBullet (object_t *this)
 
 void drawTurret (object_t *this)
 {
-	if ( !visible(this->pos_x, this->pos_y, this->pos_z) )
-		return;
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable (GL_TEXTURE_2D);
 	glColor3f(1,1,1);

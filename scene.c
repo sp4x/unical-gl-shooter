@@ -181,6 +181,7 @@ void findObjects() {
 				}
 				else if ( getSceneCell(i,j) == CUBE ) {
 					object_t *cube = newCube( j*CELLSIZE, i*CELLSIZE );
+					add_cube();
 					scene->add(cube);
 				}
 				else if ( getSceneCell(i,j) == WALL && j<cols-1 && getSceneCell(i,j+1) != FREE_SPACE ) {
@@ -360,6 +361,7 @@ void loadScene (char *file)
 	object_t *solarSystem = newSolarSystem (20, 3, -10);
 	scene->add (solarSystem);
 
+
 	free(buffer);
 	
 	addLighting();
@@ -368,7 +370,9 @@ void loadScene (char *file)
 void clean()
 {
 	free(scene);
-	listClear(render_queue);
+	listClear(render_queue, 1);
+	listClear(render_queue_opaque, 0);
+	listClear(render_queue_transparent, 0);
 	cleanTextures();
 }
 

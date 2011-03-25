@@ -25,6 +25,28 @@ void game_over (void)
 	exit(0);
 }
 
+void level_complete (void)
+{
+	gameover = 1;
+	struct timeval tim;
+	gettimeofday (&tim, NULL);
+	double curr = tim.tv_sec + (tim.tv_usec / 1.0E6);
+	double prev = curr;
+	enter_ortho_mode();
+	int w = glutGameModeGet (GLUT_GAME_MODE_WIDTH);
+	int h = glutGameModeGet (GLUT_GAME_MODE_HEIGHT);
+	draw_text2d (w/2-60, h/2+5, "Level complete!", GLUT_BITMAP_HELVETICA_18);
+	glutSwapBuffers();
+	glutPostRedisplay();
+	while ((curr - prev) < 3)
+	{	
+		gettimeofday (&tim, NULL);
+		curr = tim.tv_sec + (tim.tv_usec / 1.0E6);
+	}
+	glutLeaveGameMode();
+	exit(0);
+}
+
 void update_timer (void) 
 {
 	gettimeofday(&timer, NULL);

@@ -2,6 +2,7 @@
 #include "util.h"
 
 float blood = 0;
+int cubes = 0, tot_cubes = 0;
 
 /* Enters othographics projection mode to draw text or images to the
  * front of the screen */
@@ -73,7 +74,7 @@ void draw_hud()
 	char s[50];
 	sprintf (s, "Energy: %d", cam->character->energy);
 	draw_text2d(20, 30, s, GLUT_BITMAP_HELVETICA_12);
-	sprintf (s, "Score: %d", cam->character->score);
+	sprintf (s, "Score: %d/%d", cam->character->score, tot_cubes);
 	draw_text2d(20, 50, s, GLUT_BITMAP_HELVETICA_12);
 	
 	if ( blood > 0 )
@@ -88,4 +89,16 @@ void draw_hud()
 void show_blood (void) 
 { 
 	blood = 1.0; 
+}
+
+void add_cube (void)
+{
+	tot_cubes++;
+	cubes++;
+}
+void del_cube (void)
+{
+	cubes--;
+	if (cubes == 0)
+		level_complete();
 }

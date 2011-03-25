@@ -12,16 +12,18 @@ void listAppend (object_list_t *list, object_t *elem)
 	list->iterator = tmp;
 }
 
-void listClear (object_list_t *list)
+void listClear (object_list_t *list, int clear_elems)
 {
 	object_list_iterator *current = list->iterator;
 	if (current != NULL) {
-		free(current->value);
+		if (clear_elems)
+			free(current->value);
 		object_list_iterator *next = current->next;
 		while (next != NULL) {
 			free(current);
 			current = next;
-			free(current->value);
+			if (clear_elems)
+				free(current->value);
 			next = current->next;
 		}
 	}

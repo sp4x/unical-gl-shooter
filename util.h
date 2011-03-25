@@ -23,6 +23,7 @@ extern struct timeval timer;
 
 /* game over... */
 void game_over (void);
+void level_complete (void);
 
 /* update the global timer */
 void update_timer (void);

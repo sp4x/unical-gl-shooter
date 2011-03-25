@@ -88,10 +88,10 @@ int hasCollision (object_t *this, object_t *obj)
 void quad (float min_x, float max_x, float min_y, float max_y, float min_z, float max_z, GLenum cullFace)
 {
 	float x = min_x, z = min_z;
-	float size = 0.5;
-	float len_x = (max_x == min_x ? 0 : size);
-	float len_y = (max_y == min_y ? 0 : size);
-	float len_z = (max_z == min_z ? 0 : size);
+	float split_factor = 1;
+	float len_x = (max_x == min_x ? 0 : split_factor);
+	float len_y = (max_y == min_y ? 0 : split_factor);
+	float len_z = (max_z == min_z ? 0 : split_factor);
 	glPushAttrib(GL_POLYGON_BIT);
 	glCullFace(cullFace);
 	glBegin (GL_QUADS);
@@ -370,6 +370,7 @@ void onCollisionCube (object_t *this, object_t *obj)
 		float color[3] = {0,0.5,0.9};
 		object_t *explosion = newExplosion (pos, 2000, 50, 400, 0.2, color, 0.005);
 		scene->add (explosion);
+		del_cube();
 	}
 }
 

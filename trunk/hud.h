@@ -18,5 +18,7 @@ void draw_text2d (int x, int y, char *string, void* font);
 void draw_hud (void);
 
 void show_blood (void);
+void add_cube (void);
+void del_cube (void);
 
 #endif

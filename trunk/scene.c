@@ -330,6 +330,8 @@ void removeObject (object_t *obj)
 		listDelete (render_queue_transparent, obj);
 	else
 		listDelete (render_queue_opaque, obj);
+	//~ if (obj->data != NULL)
+		//~ free (obj->data);
 	free (obj);
 }
 

@@ -14,7 +14,8 @@ enum ObjectType
 	TYPE_CHARACTER,
 	TYPE_CUBE,
 	TYPE_WINDOW,
-	TYPE_EXPLOSION
+	TYPE_EXPLOSION,
+	TYPE_SOLAR_SYSTEM
 };
 
 /** struct that represents an object of the scene...

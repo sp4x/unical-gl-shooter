@@ -98,6 +98,11 @@ void key_down (unsigned char key, int x, int y)
 		else
 			glEnable (GL_LIGHT6);
 	}
+	if (key == 27)
+	{
+		glutLeaveGameMode();
+		exit(0);
+	}
 	
 	key_state[key] = DOWN;
 }
@@ -142,11 +147,6 @@ void input_update (void)
 	if (key_state['d'] == DOWN)
 	{
 		cam->strafe_right();
-	}
-	if (key_state[27] == DOWN)
-	{
-		glutLeaveGameMode();
-		exit(0);
 	}
 	if (mouse_button_state[MOUSE_LEFT_BUTTON] == DOWN)
 	{

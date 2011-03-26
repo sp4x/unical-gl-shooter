@@ -297,6 +297,7 @@ void drawWeapon (object_t *this)
 {
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable (GL_TEXTURE_2D);
+	glClear (GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
 		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
 		glRotatef (this->rot_y, 0, 1, 0);
@@ -306,6 +307,7 @@ void drawWeapon (object_t *this)
 		loadTexture (TEXTURE_AR15);
 		drawModel ((model*) this->data);
 	glPopMatrix();
+	
 	glPopAttrib();
 }
 
@@ -478,6 +480,7 @@ object_t *newWeapon (object_t *owner)
 	this->pos_x = owner->pos_x;
 	this->pos_y = owner->pos_y;
 	this->pos_z = owner->pos_z;
+	this->transparent = 1;
 	
 	char* buffer = NULL;
 	size_t size = loadFile ("meshes/ar15.obj", &buffer);
@@ -490,7 +493,6 @@ object_t *newWeapon (object_t *owner)
 object_t *newSkybox (void)
 {
 	object_t *this = newObject(0,0,0);
-	//~ this->transparent = 1;
 	this->display = drawSkybox;
 }
 

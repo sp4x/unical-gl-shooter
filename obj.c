@@ -7,7 +7,6 @@
 void drawModel (model *m)
 {
 	glPushMatrix();
-	
 	glBegin (GL_TRIANGLES);
 		
 	int i;

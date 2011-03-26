@@ -10,6 +10,8 @@
 #include "util.h"
 
 #define COLLISION_SLOTS 5
+#define LIGHT_DISTANCE CELLSIZE*20
+#define SPOT_LIGHTS 6
 
 /** scene instance */
 scene_t *scene;
@@ -23,7 +25,7 @@ object_list_t *render_queue_transparent;
 char *buffer;
 int lines, cols;
 
-float light_pos[8][4];
+float light_pos[SPOT_LIGHTS*60][4];
 int n_lights = 0;
 
 char getSceneCell(int i, int j)
@@ -49,17 +51,27 @@ void placeLights()
 	GLfloat spot_direction[] = {0,-1,0};
 	GLfloat emissive[] = {1,1,1,1};
 	GLfloat none[] = {0,0,0,1};
-	int i;
-	for (i=0; i<n_lights; i++) {
-		glLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, spot_direction);
-		glLightfv(GL_LIGHT0+i, GL_POSITION, light_pos[i]);
-		glMaterialfv(GL_FRONT, GL_EMISSION, emissive);
-		glPushMatrix();
-			glColor3f(1,1,1);
-			glTranslatef(light_pos[i][0], light_pos[i][1], light_pos[i][2]);
-			glutSolidSphere(0.5,10,10);
-		glPopMatrix();
-		glMaterialfv(GL_FRONT, GL_EMISSION, none);
+	int i, j;
+	for (i=0, j=0; i<n_lights && j<SPOT_LIGHTS; i++) {
+		if ( distance(light_pos[i], cam->character) < LIGHT_DISTANCE ) {
+			glEnable (GL_LIGHT0+j);
+			glLightfv(GL_LIGHT0+j, GL_SPOT_DIRECTION, spot_direction);
+			glLightfv(GL_LIGHT0+j, GL_POSITION, light_pos[i]);
+			glMaterialfv(GL_FRONT, GL_EMISSION, emissive);
+			glPushMatrix();
+				glColor3f(1,1,1);
+				glTranslatef(light_pos[i][0], light_pos[i][1], light_pos[i][2]);
+				glutSolidSphere(0.5,10,10);
+			glPopMatrix();
+			glMaterialfv(GL_FRONT, GL_EMISSION, none);
+			j++;
+		}
+	}
+	
+	while (j<SPOT_LIGHTS)
+	{
+		glDisable(GL_LIGHT0+j);
+		j++;
 	}
 }
 
@@ -301,13 +313,12 @@ void addLighting() {
 	//~ glLightModelfv(GL_LIGHT_MODEL_AMBIENT, none);
 	
 	int i;
-	for (i=0; i<n_lights; i++) {
+	for (i=0; i<SPOT_LIGHTS; i++) {
 		glLightfv(GL_LIGHT0+i,GL_AMBIENT,none);
 		glLightfv(GL_LIGHT0+i,GL_DIFFUSE,white);
 		glLightfv(GL_LIGHT0+i,GL_SPECULAR,white);
 		glLightf(GL_LIGHT0+i, GL_SPOT_CUTOFF, 45.0f);
 		glLightf(GL_LIGHT0+i, GL_SPOT_EXPONENT, 16);
-		glEnable(GL_LIGHT0+i);
 	}
 	
 	glMaterialfv(GL_FRONT, GL_SPECULAR,white);

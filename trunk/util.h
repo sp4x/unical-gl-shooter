@@ -33,3 +33,6 @@ double get_time (void);
 
 /* return a string identifying the type of the object o */
 char *objtype (object_t *o);
+
+/* distance of a point from an object */
+float distance (float *point, object_t *obj);

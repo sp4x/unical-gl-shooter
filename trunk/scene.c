@@ -369,7 +369,7 @@ void loadScene (char *file)
 	addLighting();
 }
 
-void clean()
+void cleanScene()
 {
 	free(scene);
 	listClear(render_queue, 1);

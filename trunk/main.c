@@ -65,6 +65,12 @@ void display()
 	glPopMatrix();
 }
 
+void clean (void)
+{
+	cleanScene();
+	clean_camera();
+}
+
 int main (int argc, char **argv)
 {
 	glutInit (&argc, argv);
@@ -100,8 +106,8 @@ int main (int argc, char **argv)
 	
 	loadScene("map");
 	init_camera();
+	
 	atexit(clean);
-	atexit(clean_camera);
 	
 	glutMainLoop();
 	

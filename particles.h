@@ -36,6 +36,6 @@ typedef struct explosion_t
 
 /** create a new explosion with p particles and d debris and a lifetime
  */
-explosion_t *new_explosion (float *pos, int p, int d, double lifetime, float scale, float *color, double speed);
+explosion_t *new_explosion (int p, int d, double lifetime, float scale, float *color, double speed);
 
 void delete_explosion (explosion_t *exp);

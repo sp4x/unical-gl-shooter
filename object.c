@@ -326,11 +326,15 @@ void drawExplosion (object_t *this)
 	glPushAttrib(GL_ENABLE_BIT);
 	glPushMatrix();
 	explosion_t *explosion = (explosion_t *) this->data;
-	//~ if (this->rot_x != 0 || this->rot_y != 0) {
-		//~ glRotatef (this->rot_y, 0, 1, 0);
-		//~ glRotatef (this->rot_x, 1, 0, 0);
-		//~ glTranslatef (-0.5, -0.5, -1.0);
-	//~ }
+	if (this->rot_x != 0 || this->rot_y != 0) 
+	{
+		glTranslatef (cam->character->pos_x, cam->character->pos_y, cam->character->pos_z);
+		glRotatef (cam->character->rot_y, 0, 1, 0);
+		glRotatef (-cam->character->rot_x, 1, 0, 0);
+		glTranslatef (-0.51, -0.51, 2.25);
+	} 
+	else
+		glTranslatef (this->pos_x, this->pos_y, this->pos_z);
 	explosion->display (explosion);
 	glPopMatrix();
 	glPopAttrib();
@@ -520,8 +524,11 @@ object_t *newCharacter (int pos_x, int pos_y, int pos_z)
 object_t *newExplosion (float *pos, int p, int d, int lifetime, float scale, float *color, double speed)
 {
 	object_t *this = newObject(0,0,0);
+	this->pos_x = pos[0];
+	this->pos_y = pos[1];
+	this->pos_z = pos[2];
 	this->type = TYPE_EXPLOSION;
-	this->data = new_explosion (pos, p, d, lifetime, scale, color, speed);
+	this->data = new_explosion (p, d, lifetime, scale, color, speed);
 	this->update = updateExplosion;
 	this->display = drawExplosion;
 	return this;
@@ -549,7 +556,7 @@ object_t *newBullet (struct object_t *owner)
 	this->pos_z = owner->pos_z;
 	this->rot_x = owner->rot_x;
 	this->rot_y = owner->rot_y;
-	this->vel = 0.1;
+	this->vel = 1;
 	this->type = TYPE_BULLET;
 	this->energy = 1;
 	this->collides = 1;
@@ -558,16 +565,15 @@ object_t *newBullet (struct object_t *owner)
 	this->display = drawBullet;
 	this->onCollision = onCollisionBullet;
 
-	//~ if (owner->type == TYPE_CHARACTER) {
-		//~ float pos[] = {	cam->character->pos_x+sin(cam->character->rot_y*DEG_TO_RAD)*cos(cam->character->rot_x*DEG_TO_RAD)-0.5,
-						//~ cam->character->pos_y+sin(cam->character->rot_x*DEG_TO_RAD)-0.5,
-						//~ cam->character->pos_z+cos(cam->character->rot_y*DEG_TO_RAD)*cos(cam->character->rot_x*DEG_TO_RAD)+1.0	};
-		//~ float col[] = {1,1,1};
-		//~ object_t *explosion = newExplosion (pos, 0, 10, 10, 0.01, col, 0.01);
-		//~ explosion->rot_y = cam->character->rot_y;
-		//~ explosion->rot_x = cam->character->rot_x;
-		//~ scene->add (explosion);
-	//~ }
+	if (owner->type == TYPE_CHARACTER) 
+	{
+		float pos[] = {cam->character->pos_x, cam->character->pos_y, cam->character->pos_z};
+		float col[] = {1,1,1};
+		object_t *explosion = newExplosion (pos, 20, 4, 6, 0.02, col, 0.01);
+		explosion->rot_y = cam->character->rot_y;
+		explosion->rot_x = cam->character->rot_x;
+		scene->add (explosion);
+	}
 	
 	return this;
 }

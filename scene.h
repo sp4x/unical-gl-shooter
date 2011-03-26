@@ -33,6 +33,6 @@ extern scene_t *scene;
 /** load the scene from file */
 void loadScene (char *file);
 /** clean the scene and free memory */
-void clean (void);
+void cleanScene (void);
 
 #endif

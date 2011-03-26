@@ -61,6 +61,7 @@ void draw_explosion (explosion_t *this)
 	glDisable (GL_TEXTURE_2D);
 	glDisable (GL_COLOR_MATERIAL);
 	glDisable (GL_CULL_FACE);
+	glEnable (GL_DEPTH_TEST);
 
 	if (this->lifetime > 0)
     {
@@ -122,7 +123,7 @@ void random_speed (float dest[3])
 
 /** create a new explosion with p particles and d debris and a lifetime
  */
-explosion_t *new_explosion (float *pos, int p, int d, double lifetime, float scale, float *color, double speed)
+explosion_t *new_explosion (int p, int d, double lifetime, float scale, float *color, double speed)
 {
 	explosion_t *this = malloc (sizeof (explosion_t));
 
@@ -140,9 +141,9 @@ explosion_t *new_explosion (float *pos, int p, int d, double lifetime, float sca
 	int i;
     for (i = 0; i < p; i++)
     {
-        this->particles[i].position[0] = pos[0];
-        this->particles[i].position[1] = pos[1];
-        this->particles[i].position[2] = pos[2];
+        this->particles[i].position[0] = 0;
+        this->particles[i].position[1] = 0;
+        this->particles[i].position[2] = 0;
 		
         this->particles[i].color[0] = color[0];
 		this->particles[i].color[1] = color[1];
@@ -153,9 +154,9 @@ explosion_t *new_explosion (float *pos, int p, int d, double lifetime, float sca
 
     for (i = 0; i < d; i++)
     {
-        this->debris[i].position[0] = pos[0];
-        this->debris[i].position[1] = pos[1];
-        this->debris[i].position[2] = pos[2];
+        this->debris[i].position[0] = 0;
+        this->debris[i].position[1] = 0;
+        this->debris[i].position[2] = 0;
         
         this->debris[i].orientation[0] = 0.0;
         this->debris[i].orientation[1] = 0.0;

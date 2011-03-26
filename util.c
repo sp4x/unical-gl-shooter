@@ -73,3 +73,11 @@ char *objtype (object_t *o)
 	}
 	return s;
 }
+
+float distance (float *point, object_t *obj)
+{
+	enum {X, Y, Z};
+	float dx = obj->pos_x - point[X];
+	float dz = obj->pos_z - point[Z];
+	return sqrtf (dx*dx + dz*dz);
+}

@@ -60,27 +60,37 @@ int hasCollision (object_t *this, object_t *obj)
 	/* do not calculate collision with floor and top... */
 	if (obj->type == TYPE_FLOOR || obj->type == TYPE_TOP)
 		return 0;
-			
+		
 	/* if he collides with something else, he must not enter inside it...
 	 * but he must slide along it */
+	int collision = 0;
 	enum {X, Y, Z};
 	enum {LEFT, RIGHT, UP, DOWN};
 	int xside = (x > obj->max_x ? RIGHT : LEFT);
 	int zside = ( z > obj->max_z ? DOWN : UP);
 	if (inGap(this->max_z,obj,Z) || inGap(this->min_z,obj,Z))
 	{
-		if (xside == LEFT && this->max_x + cam->mov_x >= obj->min_x)
+		if (xside == LEFT && this->max_x + cam->mov_x >= obj->min_x) {
 			cam->mov_x = 0;
-		if (xside == RIGHT && this->min_x + cam->mov_x <= obj->max_x)
+			collision = 1;
+		}
+		if (xside == RIGHT && this->min_x + cam->mov_x <= obj->max_x) {
 			cam->mov_x = 0;
+			collision = 1;
+		}
 	}
 	if (inGap(this->max_x,obj,X) || inGap(this->min_x,obj,X))
 	{
-		if (zside == UP && this->max_z + cam->mov_z >= obj->min_z)
+		if (zside == UP && this->max_z + cam->mov_z >= obj->min_z) {
 			cam->mov_z = 0;
-		if (zside == DOWN && this->min_z + cam->mov_z <= obj->max_z)
+			collision = 1;
+		}
+		if (zside == DOWN && this->min_z + cam->mov_z <= obj->max_z) {
 			cam->mov_z = 0;
+			collision = 1;
+		}
 	}
+	return collision;
 }
 
 /****** Draw functions *******/
@@ -331,14 +341,16 @@ void drawExplosion (object_t *this)
 
 void onCollisionTurret (object_t *this, object_t *obj)
 {
-	if (obj->type == TYPE_BULLET)
-		this->energy -= 3;
-	if (this->energy <= 0)
+	if (obj->type == TYPE_BULLET) 
 	{
-		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
-		float color[3] = {1,0,0};
-		object_t *explosion = newExplosion (pos, 2000, 150, 600, 0.2, color, 0.005);
-		scene->add (explosion);
+		this->energy -= 3;
+		if (this->energy <= 0)
+		{
+			float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
+			float color[3] = {1,0,0};
+			object_t *explosion = newExplosion (pos, 2000, 120, 300, 0.2, color, 0.01);
+			scene->add (explosion);
+		}
 	}
 }
 
@@ -368,7 +380,7 @@ void onCollisionCube (object_t *this, object_t *obj)
 		this->energy = 0;
 		float pos[3] = {this->pos_x, this->pos_y, this->pos_z};
 		float color[3] = {0,0.5,0.9};
-		object_t *explosion = newExplosion (pos, 2000, 50, 400, 0.2, color, 0.005);
+		object_t *explosion = newExplosion (pos, 2000, 50, 200, 0.2, color, 0.01);
 		scene->add (explosion);
 		del_cube();
 	}
@@ -409,10 +421,10 @@ void updateTurret (object_t *this)
 		this->last_time = this->curr_time;
 		object_t *bullet = newBullet (this);
 		scene->add (bullet);
-		float pos[3] = {bullet->pos_x, bullet->pos_y, bullet->pos_z};
-		float color[3] = {1,1,1};
-		object_t *explosion = newExplosion (pos, 100, 0, 70, 0.1, color, 0.01);
-		scene->add (explosion);
+		//~ float pos[3] = {bullet->pos_x, bullet->pos_y, bullet->pos_z};
+		//~ float color[3] = {1,1,1};
+		//~ object_t *explosion = newExplosion (pos, 0, 15, 60, 0.05, color, 0.01);
+		//~ scene->add (explosion);
 	}
 }
 
@@ -433,7 +445,6 @@ void updateExplosion (object_t *this)
 	if (explosion->lifetime <= 0) {
 		this->energy = 0;
 		delete_explosion (explosion);
-		this->data = NULL;
 	}
 }
 
@@ -598,7 +609,6 @@ object_t *newTurret (float min_x, float min_z) {
 	this->max_z = this->pos_z + 1;
 	this->type = TYPE_TURRET;
 	this->energy = 100;
-	this->collides = 1;
 	
 	// init timer
 	this->curr_time = get_time();
@@ -641,6 +651,7 @@ object_t *newObject(float min_x, float min_y, float min_z) {
 	this->rot_x = this->rot_y = 0;
 	this->transparent = 0;
 	this->collides = 0;
+	this->data = NULL;
 	this->update = updateNothing;
 	this->display = drawNothing;
 	this->onCollision = onCollisionNothing;

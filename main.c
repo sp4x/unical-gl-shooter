@@ -98,7 +98,7 @@ int main (int argc, char **argv)
 	
 	glutSetCursor(GLUT_CURSOR_NONE);
 	
-	loadScene("prova");
+	loadScene("map");
 	init_camera();
 	atexit(clean);
 	atexit(clean_camera);

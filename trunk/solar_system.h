@@ -23,6 +23,9 @@ void drawSolarSystem (object_t *this)
 {
 	glPushMatrix();
 	glPushAttrib (GL_ENABLE_BIT);
+	
+	glDisable (GL_BLEND);
+	
 	glEnable (GL_COLOR_MATERIAL);
 	glColorMaterial (GL_FRONT, GL_DIFFUSE);
 	

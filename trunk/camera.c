@@ -106,12 +106,6 @@ void init_camera (void)
 	cam->max_y = 3;
 	
 	reset_moves();
-	
-	cam->character = newCharacter (10, 3, 10);
-	object_t *weapon = newWeapon (cam->character);
-	
-	scene->add (weapon);
-	scene->add (cam->character);
 }
 
 void clean_camera (void)

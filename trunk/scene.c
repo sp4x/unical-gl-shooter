@@ -349,8 +349,17 @@ void loadScene (char *file)
 	scene->add = addObject;
 	scene->remove = removeObject;
 
+	cam->character = newCharacter (10, 3, 10);
+	object_t *weapon = newWeapon (cam->character);
+	
+	scene->add (weapon);
+	scene->add (cam->character);
+
 	object_t *skybox = newSkybox ();
 	scene->add (skybox);
+
+	object_t *solarSystem = newSolarSystem (20, 3, -10);
+	scene->add (solarSystem);
 
 	findObjects();
 	float max_x = cols*CELLSIZE;
@@ -360,10 +369,6 @@ void loadScene (char *file)
 	object_t *top = newTop (max_x, WALL_HEIGHT, max_z);
 	scene->add (top);
 	
-	object_t *solarSystem = newSolarSystem (20, 3, -10);
-	scene->add (solarSystem);
-
-
 	free(buffer);
 	
 	addLighting();

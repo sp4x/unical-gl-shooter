@@ -104,9 +104,8 @@ int main (int argc, char **argv)
 	
 	glutSetCursor(GLUT_CURSOR_NONE);
 	
-	loadScene("map");
 	init_camera();
-	
+	loadScene("map");
 	atexit(clean);
 	
 	glutMainLoop();

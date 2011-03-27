@@ -10,8 +10,9 @@
 #include "util.h"
 
 #define COLLISION_SLOTS 5
-#define LIGHT_DISTANCE CELLSIZE*20
+#define LIGHT_DISTANCE 30//CELLSIZE*5
 #define SPOT_LIGHTS 6
+#define MAX_LIGHTS 60
 
 /** scene instance */
 scene_t *scene;
@@ -25,7 +26,7 @@ object_list_t *render_queue_transparent;
 char *buffer;
 int lines, cols;
 
-float light_pos[SPOT_LIGHTS*60][4];
+float light_pos[MAX_LIGHTS][4];
 int n_lights = 0;
 
 char getSceneCell(int i, int j)
@@ -36,11 +37,13 @@ char getSceneCell(int i, int j)
 
 void placeLights()
 {
+	/* solar system light */
 	GLfloat position[] = {20, WALL_HEIGHT*2, 0, 1};
 	glLightfv(GL_LIGHT7, GL_POSITION, position);
 	GLfloat direction[] = {0,-1,-1};
 	glLightfv(GL_LIGHT7, GL_SPOT_DIRECTION, direction);
 	
+	/* gun flash light */
 	GLfloat cam_position[] = {cam->character->pos_x, cam->character->pos_y, cam->character->pos_z, 1};
 	glLightfv(GL_LIGHT6, GL_POSITION, cam_position);
 	float rot_y = cam->character->rot_y*DEG_TO_RAD;
@@ -52,27 +55,31 @@ void placeLights()
 	GLfloat emissive[] = {1,1,1,1};
 	GLfloat none[] = {0,0,0,1};
 	int i, j;
-	for (i=0, j=0; i<n_lights && j<SPOT_LIGHTS; i++) {
-		if ( distance(light_pos[i], cam->character) < LIGHT_DISTANCE ) {
-			glEnable (GL_LIGHT0+j);
-			glLightfv(GL_LIGHT0+j, GL_SPOT_DIRECTION, spot_direction);
-			glLightfv(GL_LIGHT0+j, GL_POSITION, light_pos[i]);
-			glMaterialfv(GL_FRONT, GL_EMISSION, emissive);
-			glPushMatrix();
-				glColor3f(1,1,1);
-				glTranslatef(light_pos[i][0], light_pos[i][1], light_pos[i][2]);
-				glutSolidSphere(0.5,10,10);
-			glPopMatrix();
-			glMaterialfv(GL_FRONT, GL_EMISSION, none);
-			j++;
-		}
+	
+	int *dists = malloc (n_lights*sizeof(int));
+	for (i = 0; i < n_lights; i++) {
+		dists[i] = distance(light_pos[i], cam->character);
+	}
+		
+	int *lights = min_pos (dists, n_lights, SPOT_LIGHTS);
+	
+	for (i = 0; i < SPOT_LIGHTS; i++)
+	{
+		int index = lights[i];
+		glEnable (GL_LIGHT0+i);
+		glLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, spot_direction);
+		glLightfv(GL_LIGHT0+i, GL_POSITION, light_pos[index]);
+		glMaterialfv(GL_FRONT, GL_EMISSION, emissive);
+		glPushMatrix();
+			glColor3f(1,1,1);
+			glTranslatef(light_pos[index][0], light_pos[index][1], light_pos[index][2]);
+			glutSolidSphere(0.5,10,10);
+		glPopMatrix();
+		glMaterialfv(GL_FRONT, GL_EMISSION, none);
 	}
 	
-	while (j<SPOT_LIGHTS)
-	{
-		glDisable(GL_LIGHT0+j);
-		j++;
-	}
+	free (dists);
+	free (lights);
 }
 
 /** DEBUG: draw bounds of each object */
@@ -324,6 +331,7 @@ void addLighting() {
 	glMaterialfv(GL_FRONT, GL_SPECULAR,white);
     glMateriali(GL_FRONT, GL_SHININESS,1);
 }
+
 
 void addObject (object_t *obj)
 {

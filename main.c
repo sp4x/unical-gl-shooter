@@ -47,7 +47,7 @@ void display()
 	update_timer();
 	glPushMatrix();
 	curr = get_time();
-	//~ /* update input each 16 ms (~60 time for second) */
+	/* update input each 16 ms (~60 time for second) */
 	if ((curr - last) >= 0.0167)
     {
 		last = curr;
@@ -105,7 +105,7 @@ int main (int argc, char **argv)
 	glutSetCursor(GLUT_CURSOR_NONE);
 	
 	init_camera();
-	loadScene("map");
+	loadScene("map1");
 	atexit(clean);
 	
 	glutMainLoop();

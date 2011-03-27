@@ -36,3 +36,6 @@ char *objtype (object_t *o);
 
 /* distance of a point from an object */
 float distance (float *point, object_t *obj);
+
+/* return the positions of the 'n' min elems of 'v' */
+int *min_pos (int *v, int vsize, int n);

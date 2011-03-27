@@ -1,5 +1,6 @@
 
 #include "util.h"
+#include <limits.h>
 
 /* GLOBAL TIMER */
 struct timeval timer;
@@ -80,4 +81,34 @@ float distance (float *point, object_t *obj)
 	float dx = obj->pos_x - point[X];
 	float dz = obj->pos_z - point[Z];
 	return sqrtf (dx*dx + dz*dz);
+}
+
+/* return true if 'v' contains 'val' */
+int search (int val, int *v, int size)
+{
+	int i;
+	for (i = 0; i < size; i++)
+		if (v[i] == val)
+			return 1;
+	return 0;
+}
+
+/* return the positions of the 'n' min elems of 'v' */
+int *min_pos (int *v, int vsize, int n)
+{
+	int *pos = malloc (n*sizeof(int));
+	memset (pos, -1, n*sizeof(int));
+	int i, j, min;
+	for (i = 0; i < n; i++)
+	{
+		min = INT_MAX;
+		for (j = 0; j < vsize; j++)
+		{
+			if (!search(j, pos, n) && v[j] < min) {
+				pos[i] = j;
+				min = v[j];
+			}
+		}
+	}
+	return pos;
 }

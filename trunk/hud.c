@@ -50,7 +50,7 @@ void draw_blood ()
 		int i;
 		for (i=0; i<4*4; i++)
 		{
-			float alpha = (i%4==0 ? 0.1 : blood);
+			float alpha = (i%4==0 ? 0.0 : blood);
 			glColor4f(1, 0, 0, alpha);
 			glVertex2fv(points[i]);
 		}
@@ -88,7 +88,7 @@ void draw_hud()
 
 void show_blood (void) 
 { 
-	blood = 1.0; 
+	blood = 0.4; 
 }
 
 void add_cube (void)

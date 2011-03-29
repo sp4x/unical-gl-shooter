@@ -14,7 +14,7 @@ Compile it: <br>
 `# make`
 
 Start the game: <br>
-  `# ./game`
+`# ./game`
 
 ===== SVN =====
 

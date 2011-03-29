@@ -27,7 +27,6 @@
 #include "util.h"
 
 #define COLLISION_SLOTS 5
-#define LIGHT_DISTANCE 30//CELLSIZE*5
 #define SPOT_LIGHTS 6
 #define MAX_LIGHTS 60
 

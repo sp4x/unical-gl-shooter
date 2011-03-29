@@ -10,7 +10,7 @@ Extract it in your directory: <br>
   `# unzip unical-gl-shooter.zip -d ~/unical-gl-shooter`
 
 Compile it: <br>
-  `# cd ~/unical-gl-shooter`
+  `# cd ~/unical-gl-shooter`<br>
   `# make`
 
 Start the game: <br>
@@ -19,5 +19,4 @@ Start the game: <br>
 ===== SVN =====
 
 To import the project from SVN:
-
   `# svn checkout http://unical-gl-shooter.googlecode.com/svn/trunk/ unical-gl-shooter`

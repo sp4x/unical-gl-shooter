@@ -7,16 +7,16 @@ Download sources from here:<br>
 http://unical-gl-shooter.googlecode.com/files/unical-gl-shooter.zip
 
 Extract it in your directory: <br>
-  `# unzip unical-gl-shooter.zip -d ~/unical-gl-shooter`
+`# unzip unical-gl-shooter.zip -d ~/unical-gl-shooter`
 
 Compile it: <br>
-  `# cd ~/unical-gl-shooter`<br>
-  `# make`
+`# cd ~/unical-gl-shooter`<br>
+`# make`
 
 Start the game: <br>
   `# ./game`
 
 ===== SVN =====
 
-To import the project from SVN:
-  `# svn checkout http://unical-gl-shooter.googlecode.com/svn/trunk/ unical-gl-shooter`
+To import the project from SVN:<br>
+`# svn checkout http://unical-gl-shooter.googlecode.com/svn/trunk/ unical-gl-shooter`

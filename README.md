@@ -40,19 +40,24 @@ Install <b><a href='http://code.google.com/p/unical-gl-shooter/wiki/Instructions
 
 <a href='http://unical-gl-shooter.googlecode.com/files/screen1.png'><img src='http://unical-gl-shooter.googlecode.com/files/screen1.png' border='0' /></a>
 
-<h4>License</h4>
 
-<b>Unical-GL-Shooter</b> - Copyright © 2010/2011 <i>Vincenzo Pirrone, Loria Salvatore</i>
 
-This program is <b><a href='http://www.gnu.org/philosophy/free-sw.html'>Free Software</a></b>: you can redistribute it and/or modify<br>
-it under the terms of the <b><a href='http://www.gnu.org/licenses/gpl-3.0-standalone.html'>GNU General Public License</a></b> as published by<br>
-the <b>Free Software Foundation</b>, either version 3 of the License, or<br>
-(at your option) any later version.<br>
-<br>
-This program is distributed in the hope that it will be useful,<br>
-but WITHOUT ANY WARRANTY; without even the implied warranty of<br>
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br>
-GNU General Public License for more details.<br>
-<br>
-You should have received a copy of the GNU General Public License<br>
-along with this program.  If not, see <a href='http://www.gnu.org/licenses/'>http://www.gnu.org/licenses/</a>.
+### Install ###
+
+Download sources from here:<br>
+<a href='http://unical-gl-shooter.googlecode.com/files/unical-gl-shooter.zip'>http://unical-gl-shooter.googlecode.com/files/unical-gl-shooter.zip</a>
+
+Extract it in your directory: <br>
+<code># unzip unical-gl-shooter.zip -d ~/unical-gl-shooter</code>
+
+Compile it: <br>
+<code># cd ~/unical-gl-shooter</code><br>
+<code># make</code>
+
+Start the game: <br>
+<code># ./game</code>
+
+<h5>SVN</h5>
+
+To import the project from SVN:<br>
+<code># svn checkout http://unical-gl-shooter.googlecode.com/svn/trunk/ unical-gl-shooter</code>
